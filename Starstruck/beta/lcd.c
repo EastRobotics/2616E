@@ -2,7 +2,7 @@
 int homePage = 4; // The page to go to when we hit the 'home' button
 int currentPage = homePage; // Can be whatever page you want within your set
 int minPage = 1; // Should be the first page number in your set
-int maxPage = 4; // Should be the last page number in your set
+int maxPage = 7; // Should be the last page number in your set
 bool cycles = false; // Make pages a continuous loop (loops to start when at the end)
 
 // Data vars (Millis to 1milli accuracy)
@@ -41,8 +41,35 @@ void lcdUpdatePage( bool userInteraction )
 
 	// Pages are defined under here. Messy, but it works.
 
-	// Page 1
+	// Page 1 [Auton mode selector]
 	if (currentPage == 1) {
+		string title = "";
+		sprintf(title,"AutonMode%c",0xF6);
+		displayLCDString(0,0,title);
+
+		return;
+	}
+
+	// Page 2 [Auton position selector]
+	if (currentPage == 2) {
+		string title = "";
+		sprintf(title,"StartPos%c",0xF6);
+		displayLCDString(0,0,title);
+
+		return;
+	}
+
+	// Page 3 [Auton color selector]
+	if (currentPage == 3) {
+		string title = "";
+		sprintf(title,"TeamColor%c",0xF6);
+		displayLCDString(0,0,title);
+
+		return;
+	}
+
+	// Page 4 [HOME]
+	if (currentPage == 4) {
 		displayLCDCenteredString(0,"_Essential Evil_"); // TODO Make a cooler home screen ;)
 
 		// Draw out our battery status
@@ -59,31 +86,36 @@ void lcdUpdatePage( bool userInteraction )
 			displayLCDChar(1,0,'-');
 		if (highestBatStatus == 2)
 			displayLCDChar(1,0,'!');
+		return;
 	}
 
-	// Page 2
-	else if (currentPage == 2) {
+	// Page 5 [Battery values]
+	else if (currentPage == 5) {
 		string title = "";
 		sprintf(title,"BatStat%c",0xF6);
 		displayLCDString(0,0,title);
+
 		displayLCDCenteredString(1,"TODO: Disply Bat");
+		return;
 	}
 
-	// Page 3
-	else if (currentPage == 3) {
+	// Page 6 [Slider example/test]
+	else if (currentPage == 6) {
 		string title = "";
-		sprintf(title,"Slider example%c",0xF6);
+		sprintf(title,"SliderExample%c",0xF6);
 		displayLCDString(0,0,title);
 
 		displayLCDString(1,1,"--------------");
 		displayLCDChar(1,linePosition+1,'O');
+		return;
 	}
 
-	// Page 4 (Example menu)
-	else if (currentPage == 4) {
+	// Page 7 [Menu example]
+	else if (currentPage == 7) {
 		// TODO Draw the page
 		string title = "";
-		sprintf(title,"Menu example%c",0xF6);
+		sprintf(title,"MenuExample%c",0xF6);
+
 		displayLCDString(0,0,title);
 		string toDisplay = "";
 		if (menuMode == 1) {
@@ -96,6 +128,7 @@ void lcdUpdatePage( bool userInteraction )
 			sprintf(toDisplay, "%c Menu opt. 4 %c", 0xBC, 0xBB);
 		}
 		displayLCDCenteredString(1,toDisplay);
+		return;
 	}
 
 	// And pages carry on... make sure to increment maxPage for your page count!
@@ -146,23 +179,49 @@ void lcdLastPage()
 
 // View above
 void lcdNext() {
-	// Example slider for page 3
-	if (currentPage == 3) {
-		if (linePosition > linePosMin) {
-			linePosition -= 1;
+	// Auton mode selector for page 1
+	if (currentPage == 1) {
+		int autonMode = getAutonMode();
+		int autonMin = getAutonModeMin();
+		int autonMax = getAutonModeMax();
+		if (autonMode < autonMax) {
+			setAutonMode(autonMode + 1);
 			} else {
-			linePosition = linePosMax;
+			setAutonMode(autonMin);
 		}
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Example menu for page 4
-	if (currentPage == 4) {
-		if (menuMode > menuMin) {
-			menuMode -= 1;
+	// Auton position selector for page 1
+	if (currentPage == 1) {
+		setAutonPosition(!getAutonPosition()); // Only ever true/false
+		lcdUpdatePage(true);
+		return;
+	}
+
+	// Auton color selector for page 1
+	if (currentPage == 1) {
+		setAutonColor(!getAutonColor()); // Only ever true/false
+		lcdUpdatePage(true);
+		return;
+	}
+
+	// Example slider for page 6
+	if (currentPage == 6) {
+		if (linePosition < linePosMax) {
+			linePosition += 1;
+			lcdUpdatePage(true);
+		}
+		return;
+	}
+
+	// Example menu for page 7
+	if (currentPage == 7) {
+		if (menuMode < menuMax) {
+			menuMode += 1;
 			} else {
-			menuMode = menuMax;
+			menuMode = menuMin;
 		}
 		lcdUpdatePage(true);
 		return;
@@ -171,23 +230,49 @@ void lcdNext() {
 
 // View above
 void lcdBack() {
-	// Example slider for page 3
-	if (currentPage == 3) {
-		if (linePosition < linePosMax) {
-			linePosition += 1;
+	// Auton mode selector for page 1
+	if (currentPage == 1) {
+		int autonMode = getAutonMode();
+		int autonMin = getAutonModeMin();
+		int autonMax = getAutonModeMax();
+		if (autonMode > autonMin) {
+			setAutonMode(autonMode - 1);
 			} else {
-			linePosition = linePosMin;
+			setAutonMode(autonMax);
 		}
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Example menu for page 4
-	if (currentPage == 4) {
-		if (menuMode < menuMax) {
-			menuMode += 1;
+	// Auton position selector for page 1
+	if (currentPage == 1) {
+		setAutonPosition(!getAutonPosition()); // Only ever true/false
+		lcdUpdatePage(true);
+		return;
+	}
+
+	// Auton color selector for page 1
+	if (currentPage == 1) {
+		setAutonColor(!getAutonColor()); // Only ever true/false
+		lcdUpdatePage(true);
+		return;
+	}
+
+	// Example slider for page 6
+	if (currentPage == 6) {
+		if (linePosition > linePosMin) {
+			linePosition -= 1;
+			lcdUpdatePage(true);
+		}
+		return;
+	}
+
+	// Example menu for page 7
+	if (currentPage == 7) {
+		if (menuMode > menuMin) {
+			menuMode -= 1;
 			} else {
-			menuMode = menuMin;
+			menuMode = menuMax;
 		}
 		lcdUpdatePage(true);
 		return;

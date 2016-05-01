@@ -9,6 +9,7 @@
 
 #include "Vex_Competition_Includes.c" // Competition includes [DO NOT TOUCH]
 #include "sensors.c" // General sensor methods
+#include "auton.c" // Autonomous controller
 #include "lcd.c" // LCD methods
 
 #define VERSION_MAJOR = 1
@@ -69,7 +70,7 @@ void pre_auton()
 
 task autonomous()
 {
-	AutonomousCodePlaceholderForTesting();
+	runAuton(); // auton.c
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
