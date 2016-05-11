@@ -89,10 +89,14 @@ int getExpanderBatteryStatus()
 // RETURNS:
 //	int: The simplified degree
 int simplifyGyro(int degree, bool simplifyTo360) {
-	int simplified = fabs(degree);
+	int simplified = abs(degree);
 	if (simplifyTo360)
 		simplified = floor((simplified/10.0) + 0.5);
 	return simplified;
+}
+
+float gyroToFloat(int degree) {
+	return ((float) abs(degree))/10.0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
