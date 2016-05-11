@@ -73,12 +73,15 @@ void pre_auton()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//                                 Autonomous Task
+//                                 Autonomous
 //
 // TODO Write what we [personally] do here
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+// Autonomous control task
+*/
 task autonomous()
 {
 	runAuton(); // auton.c
@@ -86,17 +89,29 @@ task autonomous()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//                                 User Control Task
+//                                 User Control
 //
 // TODO Write what we [personally] do here
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+/*
+// Test song :D
+*/
+task playSong()
+{
+
+}
+
+/*
+// Driver control task
+*/
 task usercontrol()
 {
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
 	int lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed = 0;
 	float lastDirection = 0.0;
+	startTask ( playSong );
 	while (true)
 	{
 
