@@ -30,6 +30,14 @@
 #define VERSION_BUILD 0
 #define VERSION_TYPE "ALPHA"
 
+const int song[3][35] = {{58,12,600},{58,12,1200},{58,12,1800},{54,9,2250},{61,3,2400},{58,12,3000},{54,9,3450},{61,3,3600},{58,24,4800},{65,12,5400},{65,12,6000},{65,12,6600},{66,9,7050},{61,3,7200},{57,12,7800},
+{54,9,8250},{61,3,8400},{58,24,9600},{70,12,10200},{58,9,10650},{58,3,10800},{70,12,11400},{69,9,11850},{68,3,12000},{64,3,12150},{66,3,12300},{67,6,12600},{59,6,12900},{59,6,13200},{52,12,13800},{59,9,14250},
+{62,3,14400},{61,0,14410},{61,3,14560},{60,3,14710}};
+
+const int songLength = 35;
+
+const int noteThreshold = 5;
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                          			 2616E Starstruck
@@ -73,6 +81,8 @@ void pre_auton()
 	}
 }
 
+
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 Autonomous
@@ -100,9 +110,24 @@ task autonomous()
 /*
 // Test song :D
 */
+
+//A task to get past robotc's limitation of 10 notes
+//in the tone queue, and play a song from an array of values
 task playSong()
 {
-
+	int currentNote = 0;
+	clearTimer(T1);
+	while(currentNote<songLength){
+		if(bSoundQueueAvailable){
+			if(abs(time1[T1]-song[currentNote][2])<noteThreshold){
+				playTone(song[currentNote][0],song[currentNote][1]);
+				currentNote++;
+			} else if(time1[T1]>song[currentNote][2]){
+				currentNote++;
+			}
+		}
+		wait1Msec(1);
+	}
 }
 
 /*
