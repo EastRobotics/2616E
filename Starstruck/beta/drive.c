@@ -2,6 +2,11 @@
 #define DRIVE_THRESHOLD_TURN 20 // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 20 // Joystick strafe threshold
 
+//A simple function for degree to radian conversions
+float degreeToRad(float degree){
+	return (degree*3.14)/180;
+}
+
 // Cleaner way of setting all four drive motor speeds.
 void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
 	motor[driveFL] = speedFL; // Front left
@@ -30,7 +35,7 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forw
 void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float currentDegree) {
 	if (speedForward <= DRIVE_THRESHOLD_FORWARD) speedForward = 0;
 	if (speedStrafe <= DRIVE_THRESHOLD_STRAFE) speedStrafe = 0;
-	float degree = currentDegree-startDegree;
+	float degree = degreeToRad(currentDegree-startDegree);
 	// Considering speed as x, x' = y*sin(a) + x*cos(a)
 	speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
 	// Considering strafe as y, y' = y*cos(a) - x*sin(a)
