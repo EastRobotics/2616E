@@ -179,7 +179,7 @@ void lcdLastPage()
 
 // View above
 void lcdNext() {
-	// Auton mode selector for page 1
+	// Page 1 [Auton mode selector]
 	if (currentPage == 1) {
 		int autonMode = getAutonMode();
 		int autonMin = getAutonModeMin();
@@ -193,21 +193,21 @@ void lcdNext() {
 		return;
 	}
 
-	// Auton position selector for page 1
-	if (currentPage == 1) {
+	// Page 2 [Auton position selector]
+	if (currentPage == 2) {
 		setAutonPosition(!getAutonPosition()); // Only ever true/false
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Auton color selector for page 1
-	if (currentPage == 1) {
+	// Page 2 [Auton color selector]
+	if (currentPage == 3) {
 		setAutonColor(!getAutonColor()); // Only ever true/false
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Example slider for page 6
+	// Page 6 [Slider example/test]
 	if (currentPage == 6) {
 		if (linePosition < linePosMax) {
 			linePosition += 1;
@@ -216,7 +216,7 @@ void lcdNext() {
 		return;
 	}
 
-	// Example menu for page 7
+	// Page 7 [Menu example]
 	if (currentPage == 7) {
 		if (menuMode < menuMax) {
 			menuMode += 1;
@@ -230,7 +230,7 @@ void lcdNext() {
 
 // View above
 void lcdBack() {
-	// Auton mode selector for page 1
+	// Page 1 [Auton mode selector]
 	if (currentPage == 1) {
 		int autonMode = getAutonMode();
 		int autonMin = getAutonModeMin();
@@ -244,21 +244,21 @@ void lcdBack() {
 		return;
 	}
 
-	// Auton position selector for page 1
-	if (currentPage == 1) {
+	// Page 2 [Auton position selector]
+	if (currentPage == 2) {
 		setAutonPosition(!getAutonPosition()); // Only ever true/false
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Auton color selector for page 1
+	// Page 3 [Auton color selector]
 	if (currentPage == 1) {
 		setAutonColor(!getAutonColor()); // Only ever true/false
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Example slider for page 6
+	// Page 6 [Slider example/test]
 	if (currentPage == 6) {
 		if (linePosition > linePosMin) {
 			linePosition -= 1;
@@ -267,7 +267,7 @@ void lcdBack() {
 		return;
 	}
 
-	// Example menu for page 7
+	// Page 7 [Menu example]
 	if (currentPage == 7) {
 		if (menuMode > menuMin) {
 			menuMode -= 1;
@@ -279,12 +279,12 @@ void lcdBack() {
 	}
 }
 
-// Reset the last time we've refreshed to now
+// Reset the last time we've refreshed to the current time
 void lcdResetAutoRefresh() {
 	lastRefresh = time1[T4];
 }
 
-// Task to update the page if we have no activity in refreshTime millis
+// Task to update the page if we have had no activity in refreshTime milliseconds
 task lcdAutoRefreshTask() {
 	lastHoldTime = -1.0;
 	lcdUpdatePage(false); // Insure a page is already drawn
@@ -300,7 +300,7 @@ task lcdAutoRefreshTask() {
 	}
 }
 
-// Sets the start of a button hold
+// Starts tracking the time of the press
 void lcdStartHold() {
 	holdStarted = time1[T4];
 }
@@ -320,9 +320,9 @@ long lcdEndHold() {
 }
 
 // This is where all of the default button handles are done, however you can use lcdNext
-//   and other methods anywhere. For example, from buttons on the controller.
+//  -> and other methods anywhere. For example, from buttons on the controller.
 // This implementation is really great for making sure we read the correct button presses,
-//   because we're reading so fast and not every release happens perfectly.
+//  -> because we're reading so fast and not every release happens perfectly.
 task lcdButtonTask() {
 	bool buttonReleased = true;
 	int highestCombination = 0;

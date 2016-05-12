@@ -20,8 +20,8 @@
 #pragma userControlDuration(120)
 
 #include "Vex_Competition_Includes.c" // Competition includes [DO NOT TOUCH]
+#include "sensors.c" // Sensor handling and math methods
 #include "drive.c" // Handles pid, joystick input, etc
-#include "sensors.c" // General sensor methods
 #include "auton.c" // Autonomous controller
 #include "lcd.c" // LCD methods
 
@@ -63,8 +63,7 @@ const int noteThreshold = 5;
 //
 //                          			  Pre-Autonomous
 //
-// - Set up general stuff
-// - Get rid of compiler errors we don't need to see
+// Gets rid of useless errors, does general setup.
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -86,7 +85,7 @@ void pre_auton()
 //
 //                                 Autonomous
 //
-// TODO Write what we [personally] do here
+// Runs the auton selector in auton.c
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -102,7 +101,8 @@ task autonomous()
 //
 //                                 User Control
 //
-// TODO Write what we [personally] do here
+// Handle controls from the user, run the LCD control, and generally allow user control of
+// the robot.
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 

@@ -2,12 +2,13 @@
 #define DRIVE_THRESHOLD_TURN 20 // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 20 // Joystick strafe threshold
 
-//A simple function for degree to radian conversions
-float degreeToRad(float degree){
-	return (degree*3.14)/180;
-}
-
 // Cleaner way of setting all four drive motor speeds.
+// Drive with checks to rule out errors with joystick controls
+// PARAMETERS:
+//	int: -127 to 127, speed for the front left motor
+//	int: -127 to 127, speed for the back left motor
+//	int: -127 to 127, speed for the front right motor
+//	int: -127 to 127, speed for the back right motor
 void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
 	motor[driveFL] = speedFL; // Front left
 	motor[driveBL] = speedBL; // Back left
@@ -15,6 +16,11 @@ void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
 	motor[driveBR] = speedBR; // Back right
 }
 
+// Set mecanum wheel motor speeds based on forward, turn, and strafe speeds
+// PARAMETERS:
+//	int: -127 to 127, speed to drive forward or backward respectively
+//	int: -127 to 127, speed to turn left or right respectively
+//	int: -127 to 127, speed to strafe left or right respectively
 void drive(int speedForward, int speedTurn, int speedStrafe) {
 	// Not using driveRaw, easier to read this in this case
 	motor[driveFL] = speedForward + speedTurn + speedStrafe;

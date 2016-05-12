@@ -78,7 +78,7 @@ int getExpanderBatteryStatus()
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//                          			 Gyroscope Methods
+//                          	Gyroscope/Angle Methods
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -97,6 +97,15 @@ int simplifyGyro(int degree, bool simplifyTo360) {
 
 float gyroToFloat(int degree) {
 	return ((float) abs(degree))/10.0;
+}
+
+// A simple function for degree to radian conversions
+// PARAMETERS:
+// 	float: A simplified degree like 180.7 (use gyroToFloat to simplify a gyro value)
+// RETURNS:
+// 	float: Provided degree in radians
+float degreeToRad(float degree){
+	return (degree*3.14)/180.0;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
