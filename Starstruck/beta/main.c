@@ -150,11 +150,13 @@ task usercontrol()
 			lastTurnSpeed = vexRT[Ch1];
 			lastStrafeSpeed = vexRT[Ch4];
 			lastDirection = gyroToFloat(SensorValue[gyroMain]);
-			driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed, 1.0, 1.0, 1.0);
+			driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed);
 			} else { // Time for some CRS (Crazy rotational shit)
-			// Here's where'd you use michael's program to find the degree target.
-			// We'd then find some way to mess with the degrees put into CRS to also turn towards that number
-			// ... This is why it's called CRS. It's crazy.
+			/* TODO
+			/* Here's where'd you use michael's program to find the degree target.
+			/* We'd then find some way to mess with the degrees put into CRS to also turn towards that number
+			/* This is why it's called CRS. It's crazy.
+			/* TODO End */
 			driveWithCRS(lastForwardSpeed, lastStrafeSpeed, lastDirection, gyroToFloat(SensorValue[gyroMain]));
 		}
 
