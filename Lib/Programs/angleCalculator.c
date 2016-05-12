@@ -19,23 +19,23 @@ float sidesToAngle(int sideOne, int sideTwo){
 	if((sideOne*sideTwo)<0){
 		if(sideOne>0){
 			quadrant = 4;
-		} else {
+			} else {
 			quadrant = 2;
 		}
-	} else if(sideOne<0){
+		} else if(sideOne<0){
 		quadrant = 3;
-	} else {
+		} else {
 		quadrant =1;
 	}
 	/*Use the quadrant of the angle added to the angle, depending on if the x or y
-		is greater.  If the x is greater, it adds the angle to the last cardinal direction
-		degree that came before.  If the y is greater it subtracts from the next cardinal
-		direction degree that is coming.  This allows us to have angles in more than just
-		the first and second quadrants (which is atan's range).
+	is greater.  If the x is greater, it adds the angle to the last cardinal direction
+	degree that came before.  If the y is greater it subtracts from the next cardinal
+	direction degree that is coming.  This allows us to have angles in more than just
+	the first and second quadrants (which is atan's range).
 	*/
 	if(abs(sideOne)>=abs(sideTwo)){
 		angle+=((quadrant-1)*90);
-	} else {
+		} else {
 		angle = (quadrant*90)-angle;
 	}
 	return angle;
@@ -43,6 +43,13 @@ float sidesToAngle(int sideOne, int sideTwo){
 
 task main()
 {
+	// Stress test the program for check issues. Run every possible calculation
+	for (int x=-127; x < 128; x++) {
+		for (int y=-127; y < 128; y++) {
+			sidesToAngle(x, y); // TODO Run checks with the number to make sure output is valid
+		}
+	}
+
 	while(true){
 		//clear the LCD
 		clearLCDLine(0);
