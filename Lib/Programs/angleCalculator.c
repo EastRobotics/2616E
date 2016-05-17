@@ -12,6 +12,24 @@ float sidesToAngle(int sideOne, int sideTwo){
 	if(sideOne==0&&sideTwo==0){
 		return -1;
 	}
+	
+	//Handle angles that fall on axis, to again avoid errors later
+	if(sideOne==0||sideTwo==0){
+		if(sideOne==0){
+			if(sideTwo>0){
+				return 90;
+			} else {
+				return 270;
+			}
+		} else {
+			if(sideOne>0){
+				return 0;
+			} else {
+				return 180;
+			}
+		}
+	}
+	
 	float angle = abs(atan(sideOne/sideTwo));
 	angle = ((angle*180)/3.14);
 	//Determine the quadrant of the angle, because of atan's range restrictions
