@@ -1,3 +1,5 @@
+/*
+
 #define DRIVE_THRESHOLD_FORWARD 20 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 20 // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 20 // Joystick strafe threshold
@@ -69,4 +71,46 @@ void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float cu
 	speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
 	// Considering strafe as y, y' = y*cos(a) - x*sin(a)
 	speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
+}
+
+*/
+
+int x2 = 0, y1 = 0, x1 = 0, threshold = 15;
+
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forwardMultiplier, float speedMultiplier, float strafeMultiplier) {
+	// Driver motion control
+	float driveMultiplier = -1;
+	float turnMultiplier = -1.5;
+	if (vexRT[Btn6D]) {
+		driveMultiplier = -0.25;
+		turnMultiplier =  -0.75;
+		} else if (vexRT[Btn6U]) {
+		driveMultiplier = -0.5;
+		turnMultiplier = -1;
+	}
+	if(abs(vexRT[Ch3]) > threshold)
+		y1 = floor(((float) vexRT[Ch3]) * driveMultiplier);
+	else
+		y1 = 0;
+	if (abs(vexRT[Ch4]) > threshold)
+		x1 = floor(((float) vexRT[Ch4]) * driveMultiplier);
+	else
+		x1 = 0;
+	if (abs(vexRT[Ch1]) > threshold)
+		x2 = floor(((float) vexRT[Ch1]) * turnMultiplier);
+	else
+		x2 = 0;
+
+	motor[driveFR] = y1 - x2 - x1;
+	motor[driveBR] = y1-x2 + x1;
+	motor[driveFL] = y1 + x2 + x1;
+	motor[driveBL] = y1 + x2 - x1;
+}
+
+void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float currentDegree){
+
+}
+
+void drive(int speedForward, int speedTurn, int speedStrafe) {
+
 }
