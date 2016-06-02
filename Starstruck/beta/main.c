@@ -1,6 +1,7 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    powerExpander,  sensorAnalog)
 #pragma config(Sensor, in2,    gyroMain,       sensorGyro)
+#pragma config(Sensor, in3,    SongDial,       sensorPotentiometer)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
@@ -43,6 +44,8 @@ const int song[165][3] = {{1568,192,1764.704},{1568,36,2095.586},{1568,36,2426.4
 {1865,12,32977.906000000105},{1865,12,33088.200000000106},{1865,24,33308.78800000011},{1397,12,33419.08200000011},{1397,12,33529.37600000011},{1568,12,33639.670000000115},{1568,12,33749.964000000116}};
 
 const int songLength = 165;
+
+float songSpeed = 1.0;
 
 const int noteThreshold = 5;
 
@@ -124,12 +127,12 @@ task playSong(){
 		clearTimer(T1);
 		while(currentNote<songLength){
 			if(bSoundQueueAvailable){
-				writeDebugStreamLine("[%d][%d]",time1[T1],(song[currentNote][2])/10);
-				if(abs(time1[T1]-song[currentNote][2])<noteThreshold){
-					writeDebugStreamLine("((%d))",song[currentNote][1]);
-					playTone(song[currentNote][0],song[currentNote][1]);
+				//writeDebugStreamLine("[%d][%d]",time1[T1],(song[currentNote][2])/10);
+				if(abs(time1[T1]-(song[currentNote][2]/songSpeed))<noteThreshold){
+					//writeDebugStreamLine("((%d))",song[currentNote][1]);
+					playTone(song[currentNote][0],(song[currentNote][1]/songSpeed));
 					currentNote++;
-				} else if(time1[T1]>round(song[currentNote][2])){
+				} else if(time1[T1]>round((song[currentNote][2])/songSpeed)){
 					currentNote++;
 				}
 			}
@@ -148,8 +151,18 @@ task usercontrol()
 	startTask ( playSong );
 	int lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed = 0;
 	float lastDirection = 0.0;
+	string potentiometerValDebug = "";
 	while (true)
 	{
+		//TEST SONG SPEED DIAL
+		sprintf(potentiometerValDebug,"%i",SensorValue(SongDial));
+		writeDebugStreamLine(potentiometerValDebug);
+		if (((((float)SensorValue(SongDial)/4100)*5)) != 0) {
+			songSpeed = (((float)SensorValue(SongDial)/4100)*5);
+		} else {
+			writeDebugStreamLine("Song Speed is zero");
+		}
+		//END TEST
 
 		//////////////////////////////
 		// Controller handling start

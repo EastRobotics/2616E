@@ -1,4 +1,4 @@
-/*
+
 
 #define DRIVE_THRESHOLD_FORWARD 20 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 20 // Joystick turn threshold
@@ -73,8 +73,8 @@ void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float cu
 	speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
 }
 
-*/
 
+/*
 int x2 = 0, y1 = 0, x1 = 0, threshold = 15;
 
 void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forwardMultiplier, float speedMultiplier, float strafeMultiplier) {
@@ -114,3 +114,4 @@ void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float cu
 void drive(int speedForward, int speedTurn, int speedStrafe) {
 
 }
+*/
