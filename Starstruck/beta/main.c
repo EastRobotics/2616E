@@ -82,6 +82,12 @@ void pre_auton()
 	bStopTasksBetweenModes = true; // Tasks stop when we need them to. Not doing this can be dangerous.
 	bLCDBacklight = true; // Turn our LCD backlight on
 
+	//Reset the motor encoders
+	nMotorEncoder[driveFL] = 0;
+	nMotorEncoder[driveBL] = 0;
+	nMotorEncoder[driveFR] = 0;
+	nMotorEncoder[driveBR] = 0;
+
 	// Never passing if statement. Lets us get rid of compile warnings so we can focus on the ones we need to see.
 	if (false) {
 		UserControlCodePlaceholderForTesting();
@@ -146,6 +152,15 @@ task playSong(){
 */
 task usercontrol()
 {
+	/*
+	setAutonMode(2);
+	runAuton();
+	while(true) {
+		wait1Msec(1);
+	}
+	return;
+	*/
+	// TODO Remove above
 	writeDebugStreamLine("Running Main...");
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
 	startTask ( playSong );
@@ -154,16 +169,6 @@ task usercontrol()
 	string potentiometerValDebug = "";
 	while (true)
 	{
-		//TEST SONG SPEED DIAL
-		sprintf(potentiometerValDebug,"%i",SensorValue(SongDial));
-		writeDebugStreamLine(potentiometerValDebug);
-		if (((((float)SensorValue(SongDial)/4100)*5)) != 0) {
-			songSpeed = (((float)SensorValue(SongDial)/4100)*5);
-		} else {
-			writeDebugStreamLine("Song Speed is zero");
-		}
-		//END TEST
-
 		//////////////////////////////
 		// Controller handling start
 		//////////////////////////////
