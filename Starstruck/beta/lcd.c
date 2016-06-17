@@ -8,7 +8,7 @@ bool cycles = false; // Make pages a continuous loop (loops to start when at the
 
 // Data vars (Millis to 1milli accuracy)
 long lastRefresh = 0.0; // Last time we've refreshed in millis
-long refreshTime = 1500.0; // How many millis to wait before refreshing. Increments of 100ms minimum.
+long refreshTime = 200.0; // How many millis to wait before refreshing. Increments of 100ms minimum.
 long holdStarted = 0.0; // Last time we've started a hold in millis
 long lastHoldTime = -1.0; // How long we held a button last time we did.
 // NOTE:
@@ -95,8 +95,14 @@ void lcdUpdatePage( bool userInteraction )
 		string title = "";
 		sprintf(title,"BatStat %c",0xF6);
 		displayLCDString(0,0,title);
-
-		displayLCDCenteredString(1,"TODO: Disply Bat");
+		string backupvolt = "";
+		sprintf(backupvolt,"%0.2fv",getBackupBatteryVoltage());
+		displayLCDChar(0,9,'!');
+		displayLCDString(0,10,backupvolt);
+		string mainvolt = "";
+		sprintf(mainvolt,"%0.2fv",getMainBatteryVoltage());
+		displayLCDChar(1,0,'!');
+		displayLCDString(1,1,mainvolt);
 		return;
 	}
 
@@ -134,7 +140,7 @@ void lcdUpdatePage( bool userInteraction )
 	// Page 8 [Debug Remotes]
 	else if (currentPage == 8){
 		string controllerValues = "";
-		sprintf(controllerValues,"%i,%i,%i,%i",vexRT[ch1],vexRT[ch2],vexRT[ch3],vexRT[ch4]);
+		sprintf(controllerValues,"%i,%i,%i,%i",vexRT[Ch1],vexRT[Ch2],vexRT[Ch3],vexRT[Ch4]);
 		displayLCDCenteredString(0,controllerValues);
 	}
 
@@ -297,7 +303,7 @@ task lcdAutoRefreshTask() {
 	lcdUpdatePage(false); // Insure a page is already drawn
 	while (true)
 	{
-		wait1Msec(100);
+		wait1Msec(10); // You only need to change this with a refresh rate lower than 10ms
 		// If it's been refreshTime since last update
 		if (time1[T4] - lastRefresh >= refreshTime) {
 			lastHoldTime = -1.0;

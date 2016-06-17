@@ -41,14 +41,18 @@ void drive(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forwardMultiplier, float speedMultiplier, float strafeMultiplier) {
-	if (speedForward <= DRIVE_THRESHOLD_FORWARD) speedForward = 0;
-	if (speedTurn <= DRIVE_THRESHOLD_TURN) speedTurn = 0;
-	if (speedStrafe <= DRIVE_THRESHOLD_STRAFE) speedStrafe = 0;
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forwardMultiplier, float turnMultiplier, float strafeMultiplier) {
+	float multipliedSpeedForward = ((float) speedForward)*forwardMultiplier;
+	float multipliedSpeedTurn = ((float) speedTurn)*turnMultiplier;
+	float multipliedSpeedStrafe = ((float) speedStrafe)*strafeMultiplier;
+
+	if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD) multipliedSpeedForward = 0;
+	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN) multipliedSpeedTurn = 0;
+	if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE) multipliedSpeedStrafe = 0;
 
 	// TODO Cooler stuff than just thresholds :P
 
-	drive(speedForward, speedTurn, speedStrafe); // Pass off the checked values to drive
+	drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
 }
 
 // Overriding method. See driveWithLogic(int, int, int, float, float, float).
