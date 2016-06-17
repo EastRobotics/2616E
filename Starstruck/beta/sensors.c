@@ -108,6 +108,76 @@ float degreeToRad(float degree){
 	return (degree*3.14)/180.0;
 }
 
+// Takes in the sides of a triangle and returns the angle made
+// PARAMETERS:
+//  float: The x value of the joystick, or just x value of the triangle
+//  float: The y value of the joystick, or just y value of the triangle
+// RETURNS:
+//  float: The angle calculated from the joystick values
+float sidesToAngle(float sideOne, float sideTwo){
+  //when using with a controller, sideOne should be the X axis
+	//and side two should be the y axis
+	//if the value is 0,0, meaning joystick not moved,
+	//return -1 to avoid errors, and allow caller to handle accordingly
+	if(sideOne==0.0&&sideTwo==0.0){
+		return -1.0;
+	}
+
+	//Handle angles that fall on axis, to again avoid errors later
+	if(sideOne==0.0||sideTwo==0.0){
+		if(sideOne==0.0){
+			if(sideTwo>0.0){
+				return 90.0;
+			} else {
+				return 270.0;
+			}
+		} else {
+			if(sideOne>0.0){
+				return 0.0;
+			} else {
+				return 180.0;
+			}
+		}
+	}
+
+    float angle = atan(sideTwo/sideOne);
+		angle = ((angle*180.0)/3.14);
+
+    //Determine the quadrant of the angle, because of atan's range restrictions
+    float quadrant = 0.0;
+    if(angle>0.0){
+      if(sideOne<0.0&&sideTwo<0.0){
+        quadrant = 3.0;
+      } else {
+        quadrant = 1.0;
+      }
+    } else {
+      if(sideOne<0.0){
+        quadrant = 2.0;
+      } else {
+        quadrant = 4.0;
+      }
+    }
+
+    //CD sstands for Cardinal Direction
+    float nearbyCD = (90.0*(quadrant-1.0));
+    float finalAngle = nearbyCD;
+    //Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
+    if(abs(sideOne)>=abs(sideTwo)){
+      finalAngle += abs(angle);
+    } else {
+      if(quadrant==1.0||quadrant==4.0){
+        if(quadrant==4.0){
+          finalAngle+=90.0;
+        }
+        finalAngle+=angle;
+      } else {
+        return (angle+180.0);
+      }
+    }
+    return finalAngle;
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                          			 Error escapes

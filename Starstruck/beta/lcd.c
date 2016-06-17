@@ -2,7 +2,7 @@
 int homePage = 4; // The page to go to when we hit the 'home' button
 int currentPage = homePage; // Can be whatever page you want within your set
 int minPage = 1; // Should be the first page number in your set
-int maxPage = 8; // Should be the last page number in your set
+int maxPage = 9; // Should be the last page number in your set
 //TODO make max page 7
 bool cycles = false; // Make pages a continuous loop (loops to start when at the end)
 
@@ -142,6 +142,17 @@ void lcdUpdatePage( bool userInteraction )
 		string controllerValues = "";
 		sprintf(controllerValues,"%i,%i,%i,%i",vexRT[Ch1],vexRT[Ch2],vexRT[Ch3],vexRT[Ch4]);
 		displayLCDCenteredString(0,controllerValues);
+		return;
+	}
+
+	// Page 9 [Debug Joystick Angle]
+	else if (currentPage == 9){
+		string angle = "";
+		sprintf(angle,"%f",sidesToAngle((float)(vexRT[Ch4]),(float)(vexRT[Ch3])));
+		displayLCDCenteredString(0,angle);
+		string controller = "";
+		sprintf(controller,"%i,%i",vexRT[Ch4],vexRT[Ch3]);
+		displayLCDCenteredString(1,controller);
 	}
 
 	// And pages carry on... make sure to increment maxPage for your page count!
