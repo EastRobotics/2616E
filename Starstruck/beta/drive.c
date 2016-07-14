@@ -18,6 +18,13 @@ void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
 	motor[driveBR] = speedBR; // Back right
 }
 
+void clearDriveEncoders() {
+	nMotorEncoder[driveFR] = 0;
+	nMotorEncoder[driveFL] = 0;
+	nMotorEncoder[driveBL]= 0;
+	nMotorEncoder[driveBR] = 0;
+}
+
 // Set mecanum wheel motor speeds based on forward, turn, and strafe speeds
 // PARAMETERS:
 //	int: -127 to 127, speed to drive forward or backward respectively
@@ -42,9 +49,9 @@ void drive(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
 void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forwardMultiplier, float turnMultiplier, float strafeMultiplier) {
-	float multipliedSpeedForward = ((float) speedForward)*forwardMultiplier;
-	float multipliedSpeedTurn = ((float) speedTurn)*turnMultiplier;
-	float multipliedSpeedStrafe = ((float) speedStrafe)*strafeMultiplier;
+	int multipliedSpeedForward = speedForward; // ((float) speedForward)*forwardMultiplier;
+	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
+	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
 
 	if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD) multipliedSpeedForward = 0;
 	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN) multipliedSpeedTurn = 0;
@@ -77,6 +84,23 @@ void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float cu
 	speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
 }
 
+long ticksFrontLeft, ticksBackLeft, ticksFrontRight, ticksBackRight = 0;
+
+void setupMotorTicks(long frontl, long backl, long frontr, long backr) {
+	ticksFrontLeft = frontl + nMotorEncoder[driveFL];
+	ticksBackLeft = backl + nMotorEncoder[driveBL];
+	ticksFrontRight = frontr + nMotorEncoder[driveFR];
+	ticksBackRight = backr + nMotorEncoder[driveBR];
+}
+
+void driveTilRightLeft(int speedLeft, long ticksLeft, int speedRight, long ticksRight) {
+	setupMotorTicks(ticksLeft, ticksLeft, ticksRight, ticksRight);
+	// While we're not where we want to be (Ternary allows for both forward and backward input)
+	while ((ticksLeft > 0 ? nMotorEncoder[driveFL] < ticksFrontLeft : nMotorEncoder[driveFL] > ticksFrontLeft) ||
+		(ticksRight > 0 ? nMotorEncoder[driveFR] < ticksFrontRight : nMotorEncoder[driveFR] > ticksFrontRight)) {
+		driveRaw(speedLeft, speedLeft, speedRight, speedRight);
+	}
+}
 
 /*
 int x2 = 0, y1 = 0, x1 = 0, threshold = 15;

@@ -23,6 +23,7 @@ int menuMax = 3;
 int linePosition = 0;
 int linePosMin = 0;
 int linePosMax = 13;
+int testTicks = 250;
 
 // Clears an entire LCD (Vex, y u no have)
 void clearLCD() {
@@ -139,10 +140,7 @@ void lcdUpdatePage( bool userInteraction )
 	}
 	// Page 8 [Debug Remotes]
 	else if (currentPage == 8){
-		string controllerValues = "";
-		sprintf(controllerValues,"%i,%i,%i,%i",vexRT[Ch1],vexRT[Ch2],vexRT[Ch3],vexRT[Ch4]);
-		displayLCDCenteredString(0,controllerValues);
-		return;
+		displayLCDNumber(0,0,testTicks);
 	}
 
 	// Page 9 [Debug Joystick Angle]
@@ -250,6 +248,12 @@ void lcdBack() {
 		lcdUpdatePage(true);
 		return;
 	}
+
+	if (currentPage == 8) {
+		testTicks -= 1;
+		setTestTicks(testTicks);
+		lcdUpdatePage(true);
+	}
 }
 
 // View above
@@ -300,6 +304,12 @@ void lcdNext() {
 		}
 		lcdUpdatePage(true);
 		return;
+	}
+
+	if (currentPage == 8) {
+		testTicks += 1;
+		setTestTicks(testTicks);
+		lcdUpdatePage(true);
 	}
 }
 
