@@ -190,7 +190,7 @@ task usercontrol()
 		}
 
 		// TODO add encoders to keep the sides synchronized
-		int intakeSpeed = 60
+		int intakeSpeed = 60;
 		if (vexRT[Btn5U]) { // Upper right bumper
 			motor[intakeL] = -1*intakeSpeed;
 			motor[intakeR] = intakeSpeed;

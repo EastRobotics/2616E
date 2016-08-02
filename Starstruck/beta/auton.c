@@ -4,6 +4,7 @@ int minAutonomous = 1;
 int maxAutonomous = 3;
 int currentMode = minAutonomous;
 int ticks = 250;
+int intakeLoadTime = 1000;
 
 void setTestTicks(int t) {
 	ticks =	t;
@@ -48,6 +49,24 @@ bool getAutonColor() {
 	return color;
 }
 
+//Fire the launcher
+void shoot() {
+
+}
+
+//Run the intake for one second
+task intake() {
+	motor[intakeL] = motor[intakeR] = 127;
+	wait1Msec(intakeLoadTime);
+	motor[intakeL] = motor[intakeR] = 0;
+}
+
+//synchronous version of startTask(intake);
+void startIntake() {
+	startTask(intake);
+	wait1Msec(round(intakeLoadTime)+3);
+}
+
 // Auton modes should handle team color and positon
 // (Thanks vex for making the pole opposite for each side)
 void runAuton() {
@@ -58,8 +77,48 @@ void runAuton() {
 		//0.04inches per tick
 		// ticks to travel = distance/distance per tick
 		float distance = 12.0; // Inches
+		//Shoot a star
+		shoot();
+		//Load and shoot 3 stars
+		for(int i = 0; i < 3; i ++){
+			startIntake();
+			shoot();
+		}
+		//Pivot turn right 90 degrees
 		driveTilRightLeft(50,ticks,-50,-1*ticks);
 		driveRaw(0,0,0,0);
+		//Load the last star ... asynchronously
+		startTask(intake);
+		//Drive forward for half a second
+		drive(60,0,0);
+		wait1Msec(500);
+		driveRaw(0,0,0,0);
+		//wait for other star to finish loading
+		if((intakeLoadTime-497)>0){
+			wait1Msec(intakeLoadTime-497);
+		}
+		//Make star go half of the way up intake
+		intakeLoadTime/=2;
+		//Grab star
+		startTask(intake);
+		//Wait for intake and star to get to know eachother
+		wait1Msec(round(intakeLoadTime/2));
+		//Time to go
+		drive(-60,0,0);
+		wait1Msec(500);
+		driveRaw(0,0,0,0);
+		//Pivot turn left 90 degrees
+		driveTilRightLeft(-50,-1*ticks,50,ticks);
+		//wait for star to finish loading
+		if(((intakeLoadTime/2)-500)>0){
+			wait1Msec((intakeLoadTime/2)-500);
+		}
+		//fire star
+		shoot();
+		//Finish loading other star
+		startIntake();
+		//reset intake load time
+		intakeLoadTime*=2;
 	}
 	if (currentMode == 3) { // Mode 3
 		// TODO: Stuff
