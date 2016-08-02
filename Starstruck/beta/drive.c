@@ -102,6 +102,10 @@ void driveTilRightLeft(int speedLeft, long ticksLeft, int speedRight, long ticks
 	}
 }
 
+void driveTank(int speedLeft, int speedRight){
+	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+}
+
 /*
 int x2 = 0, y1 = 0, x1 = 0, threshold = 15;
 

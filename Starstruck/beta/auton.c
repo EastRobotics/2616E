@@ -119,6 +119,8 @@ void runAuton() {
 		startIntake();
 		//reset intake load time
 		intakeLoadTime*=2;
+		//Fire
+		shoot();
 	}
 	if (currentMode == 3) { // Mode 3
 		// TODO: Stuff

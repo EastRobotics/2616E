@@ -186,7 +186,8 @@ task usercontrol()
 			/* We'd then find some way to mess with the degrees put into CRS to also turn towards that number
 			/* This is why it's called CRS. It's crazy.
 			/* TODO End */
-			driveWithCRS(lastForwardSpeed, lastStrafeSpeed, lastDirection, gyroToFloat(SensorValue[gyroMain]));
+			//driveWithCRS(lastForwardSpeed, lastStrafeSpeed, lastDirection, gyroToFloat(SensorValue[gyroMain]));
+			driveTank(vexRT[Ch3],vexRT[Ch2]);
 		}
 
 		// TODO add encoders to keep the sides synchronized
