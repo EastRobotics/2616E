@@ -77,6 +77,23 @@ const int noteThreshold = 5;
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+//Process the song and shorten all repetitive notes, to make them more distinct
+void processSong()
+{
+	//Loop through all but the last note in the song
+	for (int i = 0; i < (song.length-1); i ++) {
+		//If the notes are about the same
+		if(abs(song[i][0] - song[i+1][0])<=5){
+			//Take 2 milliseconds off of the note
+			song[i][1]-=2;
+			//If the note is really short
+			if(song[i][1]<5){
+				song[i][1]+=2;
+			}
+		}
+	}
+}
+
 void pre_auton()
 {
 	bStopTasksBetweenModes = true; // Tasks stop when we need them to. Not doing this can be dangerous.
@@ -84,6 +101,9 @@ void pre_auton()
 
 	//Reset the motor encoders
 	clearDriveEncoders();
+
+	//Setup song
+	processSong();
 
 	// Never passing if statement. Lets us get rid of compile warnings so we can focus on the ones we need to see.
 	if (false) {
