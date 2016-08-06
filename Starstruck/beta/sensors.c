@@ -115,7 +115,7 @@ float degreeToRad(float degree){
 // RETURNS:
 //  float: The angle calculated from the joystick values
 float sidesToAngle(float sideOne, float sideTwo){
-  //when using with a controller, sideOne should be the X axis
+	//when using with a controller, sideOne should be the X axis
 	//and side two should be the y axis
 	//if the value is 0,0, meaning joystick not moved,
 	//return -1 to avoid errors, and allow caller to handle accordingly
@@ -128,54 +128,95 @@ float sidesToAngle(float sideOne, float sideTwo){
 		if(sideOne==0.0){
 			if(sideTwo>0.0){
 				return 90.0;
-			} else {
+				} else {
 				return 270.0;
 			}
-		} else {
+			} else {
 			if(sideOne>0.0){
 				return 0.0;
-			} else {
+				} else {
 				return 180.0;
 			}
 		}
 	}
 
-    float angle = atan(sideTwo/sideOne);
-		angle = ((angle*180.0)/3.14);
+	float angle = atan(sideTwo/sideOne);
+	angle = ((angle*180.0)/3.14);
 
-    //Determine the quadrant of the angle, because of atan's range restrictions
-    float quadrant = 0.0;
-    if(angle>0.0){
-      if(sideOne<0.0&&sideTwo<0.0){
-        quadrant = 3.0;
-      } else {
-        quadrant = 1.0;
-      }
-    } else {
-      if(sideOne<0.0){
-        quadrant = 2.0;
-      } else {
-        quadrant = 4.0;
-      }
-    }
+	//Determine the quadrant of the angle, because of atan's range restrictions
+	float quadrant = 0.0;
+	if(angle>0.0){
+		if(sideOne<0.0&&sideTwo<0.0){
+			quadrant = 3.0;
+			} else {
+			quadrant = 1.0;
+		}
+		} else {
+		if(sideOne<0.0){
+			quadrant = 2.0;
+			} else {
+			quadrant = 4.0;
+		}
+	}
 
-    //CD sstands for Cardinal Direction
-    float nearbyCD = (90.0*(quadrant-1.0));
-    float finalAngle = nearbyCD;
-    //Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
-    if(abs(sideOne)>=abs(sideTwo)){
-      finalAngle += abs(angle);
-    } else {
-      if(quadrant==1.0||quadrant==4.0){
-        if(quadrant==4.0){
-          finalAngle+=90.0;
-        }
-        finalAngle+=angle;
-      } else {
-        return (angle+180.0);
-      }
-    }
-    return finalAngle;
+	//CD sstands for Cardinal Direction
+	float nearbyCD = (90.0*(quadrant-1.0));
+	float finalAngle = nearbyCD;
+	//Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
+	if(abs(sideOne)>=abs(sideTwo)){
+		finalAngle += abs(angle);
+		} else {
+		if(quadrant==1.0||quadrant==4.0){
+			if(quadrant==4.0){
+				finalAngle+=90.0;
+			}
+			finalAngle+=angle;
+			} else {
+			return (angle+180.0);
+		}
+	}
+	return finalAngle;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                          	Game time tracking Methods
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// TODO: Change the following values to correct ones in millis
+const int autonTime = 1000; // Auton time in millis
+const int controlTime = 1000; // User control time in millis
+const int skillsTime = 1000; // Skills time in millis
+bool gamemode = false; // False = auton control, true = user control
+
+// Sets up the timer for game time tracking
+// PARAMETERS:
+// 	bool: What gamemode to use. False = auton control, true = user control
+void setupGameTimer(bool _gamemode) {
+		gamemode = _gamemode;
+		clearTimer(T3);
+}
+
+// Gets how long the game has been running
+// RETURNS:
+// 	int: Time the game has been running, in milliseconds
+int getGameTimeRunning() {
+	return time1[T3];
+}
+
+// Gets how long is left in the game
+// RETURNS:
+// 	int: Time the game has left, in milliseconds
+int getGameTime() {
+	return time1[T3] - (gamemode ? controlTime : autonTime);
+}
+
+// Gets how long is left in the game, considering it's skills
+// RETURNS:
+// 	int: Time the skills match has left, in milliseconds
+int getSkillsTime() {
+	return time1[T3]-skillsTime;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -188,11 +229,16 @@ float sidesToAngle(float sideOne, float sideTwo){
 
 // THIS SHOULD NEVER BE CALLED.
 void sensorsErrorEscape() {
-		getMainBatteryVoltage();
-		getMainBatteryStatus();
-		getBackupBatteryVoltage();
-		getBackupBatteryStatus();
-		getExpanderBatteryVoltage();
-		getExpanderBatteryStatus();
-		simplifyGyro(0, false);
+	sidesToAngle(0,0);
+	getMainBatteryVoltage();
+	getMainBatteryStatus();
+	getBackupBatteryVoltage();
+	getBackupBatteryStatus();
+	getExpanderBatteryVoltage();
+	getExpanderBatteryStatus();
+	setupGameTimer(false);
+	getGameTimeRunning();
+	getGameTime();
+	getSkillsTime();
+	simplifyGyro(0, false);
 }

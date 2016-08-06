@@ -138,6 +138,7 @@ void pre_auton()
 */
 task autonomous()
 {
+	setupGameTimer(false); // sensors.c
 	runAuton(); // auton.c
 }
 
@@ -180,6 +181,8 @@ task playSong(){
 */
 task usercontrol()
 {
+	setupGameTimer(true); // sensors.c
+
 	// Inits for normal games and skills. See below for specifics
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
 	int lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed = 0;

@@ -2,7 +2,7 @@
 int homePage = 4; // The page to go to when we hit the 'home' button
 int currentPage = homePage; // Can be whatever page you want within your set
 int minPage = 1; // Should be the first page number in your set
-int maxPage = 9; // Should be the last page number in your set
+int maxPage = 8; // Should be the last page number in your set
 //TODO make max page 7
 bool cycles = false; // Make pages a continuous loop (loops to start when at the end)
 
@@ -23,7 +23,6 @@ int menuMax = 3;
 int linePosition = 0;
 int linePosMin = 0;
 int linePosMax = 13;
-int testTicks = 250;
 
 // Clears an entire LCD (Vex, y u no have)
 void clearLCD() {
@@ -138,19 +137,10 @@ void lcdUpdatePage( bool userInteraction )
 		displayLCDCenteredString(1,toDisplay);
 		return;
 	}
-	// Page 8 [Debug Remotes]
+	// Page 8 [Game Time]
 	else if (currentPage == 8){
-		displayLCDNumber(0,0,testTicks);
-	}
-
-	// Page 9 [Debug Joystick Angle]
-	else if (currentPage == 9){
-		string angle = "";
-		sprintf(angle,"%f",sidesToAngle((float)(vexRT[Ch4]),(float)(vexRT[Ch3])));
-		displayLCDCenteredString(0,angle);
-		string controller = "";
-		sprintf(controller,"%i,%i",vexRT[Ch4],vexRT[Ch3]);
-		displayLCDCenteredString(1,controller);
+		displayLCDNumber(0,0,getGameTime());
+		displayLCDNumber(0,0,getGameTimeRunning());
 	}
 
 	// And pages carry on... make sure to increment maxPage for your page count!
@@ -248,12 +238,6 @@ void lcdBack() {
 		lcdUpdatePage(true);
 		return;
 	}
-
-	if (currentPage == 8) {
-		testTicks -= 1;
-		setTestTicks(testTicks);
-		lcdUpdatePage(true);
-	}
 }
 
 // View above
@@ -280,7 +264,7 @@ void lcdNext() {
 	}
 
 	// Page 3 [Auton color selector]
-	if (currentPage == 1) {
+	if (currentPage == 3) {
 		setAutonColor(!getAutonColor()); // Only ever true/false
 		lcdUpdatePage(true);
 		return;
@@ -304,12 +288,6 @@ void lcdNext() {
 		}
 		lcdUpdatePage(true);
 		return;
-	}
-
-	if (currentPage == 8) {
-		testTicks += 1;
-		setTestTicks(testTicks);
-		lcdUpdatePage(true);
 	}
 }
 

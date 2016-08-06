@@ -6,10 +6,6 @@ int currentMode = minAutonomous;
 int ticks = 250;
 int intakeLoadTime = 1000;
 
-void setTestTicks(int t) {
-	ticks =	t;
-}
-
 bool setAutonMode(int mode) {
 	if ((mode < minAutonomous) || (mode > maxAutonomous)) { // Number is invalid
 		return false;
@@ -76,7 +72,6 @@ void runAuton() {
 		//313.6 Ticks per revolution
 		//0.04inches per tick
 		// ticks to travel = distance/distance per tick
-		float distance = 12.0; // Inches
 		//Shoot a star
 		shoot();
 		//Load and shoot 3 stars
