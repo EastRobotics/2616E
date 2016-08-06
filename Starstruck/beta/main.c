@@ -152,8 +152,8 @@ task autonomous()
 
 /*
 // Test song :D
-//A task to get past robotc's limitation of 10 notes
-//in the tone queue, and play a song from an array of values
+// A task to get past robotc's limitation of 10 notes
+// in the tone queue, and play a song from an array of values
 */
 task playSong(){
 	while(true){
@@ -161,9 +161,9 @@ task playSong(){
 		clearTimer(T1);
 		while(currentNote<songLength){
 			if(bSoundQueueAvailable){
-				//writeDebugStreamLine("[%d][%d]",time1[T1],(song[currentNote][2])/10);
+				// writeDebugStreamLine("[%d][%d]",time1[T1],(song[currentNote][2])/10);
 				if(abs(time1[T1]-(song[currentNote][2]/songSpeed))<noteThreshold){
-					//writeDebugStreamLine("((%d))",song[currentNote][1]);
+					// writeDebugStreamLine("((%d))",song[currentNote][1]);
 					playTone(song[currentNote][0],(song[currentNote][1]/songSpeed));
 					currentNote++;
 					} else if(time1[T1]>round((song[currentNote][2])/songSpeed)){
@@ -180,14 +180,20 @@ task playSong(){
 */
 task usercontrol()
 {
-
-	// TODO Remove above
-	writeDebugStreamLine("Running Main...");
+	// Inits for normal games and skills. See below for specifics
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
-	startTask ( playSong );
 	int lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed = 0;
-	float lastDirection = 0.0;
 	string potentiometerValDebug = "";
+	float lastDirection = 0.0;
+	startTask ( playSong );
+
+	bool isSkills = false; // TODO: Set this somehow (LCD?)
+	if (isSkills) {
+		writeDebugStreamLine("Running Driver Control [Skills]...");
+		} else {
+		writeDebugStreamLine("Running Driver Control [Normal]...");
+	}
+
 	while (true)
 	{
 		//////////////////////////////
@@ -217,11 +223,11 @@ task usercontrol()
 			/* We'd then find some way to mess with the degrees put into CRS to also turn towards that number
 			/* This is why it's called CRS. It's crazy.
 			/* TODO End */
-			//driveWithCRS(lastForwardSpeed, lastStrafeSpeed, lastDirection, gyroToFloat(SensorValue[gyroMain]));
+			// driveWithCRS(lastForwardSpeed, lastStrafeSpeed, lastDirection, gyroToFloat(SensorValue[gyroMain]));
 			driveTank(vexRT[Ch3],vexRT[Ch2]);
 		}
 
-		// TODO add encoders to keep the sides synchronized
+		// TODO: Add encoders to keep the sides synchronized
 		int intakeSpeed = 60;
 		if (vexRT[Btn5U]) { // Upper right bumper
 			motor[intakeL] = -1*intakeSpeed;
@@ -229,7 +235,7 @@ task usercontrol()
 			} else if (vexRT[Btn5D]) { // Lower right bumper
 			motor[intakeL] = intakeSpeed;
 			motor[intakeR] = -1*intakeSpeed;
-		} else {
+			} else {
 			motor[intakeL] = 0;
 			motor[intakeR] = 0;
 		}
@@ -238,5 +244,4 @@ task usercontrol()
 		// Controller handling end
 		//////////////////////////////
 	}
-	writeDebugStreamLine("PLS Work");
 }
