@@ -88,13 +88,25 @@ int getExpanderBatteryStatus()
 //	bool: Whether or not to make from 3600 degrees (1/10th) to 360 degreess (single)
 // RETURNS:
 //	int: The simplified degree
+// NOTE: If using simplifyTo360, please read NOTE of gyroToFloat below.
 int simplifyGyro(int degree, bool simplifyTo360) {
 	int simplified = abs(degree);
 	if (simplifyTo360)
-		simplified = floor((simplified/10.0) + 0.5);
+		simplified = floor((((float)simplified)/10.0) + 0.5);
+	// Make sure we don't round up to 360, a value gyro can't make
+	if (simplified == 360) simplified = 0;
 	return simplified;
 }
 
+// Simplifies raw gyro input (-3599 to 3599) to 0.0-359.99999...
+// PARAMETERS:
+// 	int: The raw data from the gyro, retrieved like SensorValue[sensor]
+//	bool: Whether or not to make from 3600 degrees (1/10th) to 360 degreess (single)
+// RETURNS:
+//	float: The simplified degree
+// NOTE:
+//  - While similar to simplifyGyro, this method doesn't cut off the remainder of the division.
+//  - For example, gyroToFloat(3137) = 313.7, but simplifyGyro(3137) returns 314
 float gyroToFloat(int degree) {
 	return ((float) abs(degree))/10.0;
 }
@@ -115,15 +127,15 @@ float degreeToRad(float degree){
 // RETURNS:
 //  float: The angle calculated from the joystick values
 float sidesToAngle(float sideOne, float sideTwo){
-	//when using with a controller, sideOne should be the X axis
-	//and side two should be the y axis
-	//if the value is 0,0, meaning joystick not moved,
-	//return -1 to avoid errors, and allow caller to handle accordingly
+	// When using with a controller, sideOne should be the X axis
+	// and side two should be the y axis
+	// If the value is 0,0, meaning joystick not moved,
+	// return -1 to avoid errors, and allow caller to handle accordingly
 	if(sideOne==0.0&&sideTwo==0.0){
 		return -1.0;
 	}
 
-	//Handle angles that fall on axis, to again avoid errors later
+	// Handle angles that fall on axis, to again avoid errors later
 	if(sideOne==0.0||sideTwo==0.0){
 		if(sideOne==0.0){
 			if(sideTwo>0.0){
@@ -143,7 +155,7 @@ float sidesToAngle(float sideOne, float sideTwo){
 	float angle = atan(sideTwo/sideOne);
 	angle = ((angle*180.0)/3.14);
 
-	//Determine the quadrant of the angle, because of atan's range restrictions
+	// Determine the quadrant of the angle, because of atan's range restrictions
 	float quadrant = 0.0;
 	if(angle>0.0){
 		if(sideOne<0.0&&sideTwo<0.0){
@@ -159,10 +171,10 @@ float sidesToAngle(float sideOne, float sideTwo){
 		}
 	}
 
-	//CD sstands for Cardinal Direction
+	// CD sstands for Cardinal Direction
 	float nearbyCD = (90.0*(quadrant-1.0));
 	float finalAngle = nearbyCD;
-	//Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
+	// Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
 	if(abs(sideOne)>=abs(sideTwo)){
 		finalAngle += abs(angle);
 		} else {
@@ -194,8 +206,8 @@ bool gamemode = false; // False = auton control, true = user control
 // PARAMETERS:
 // 	bool: What gamemode to use. False = auton control, true = user control
 void setupGameTimer(bool _gamemode) {
-		gamemode = _gamemode;
-		clearTimer(T3);
+	gamemode = _gamemode;
+	clearTimer(T3);
 }
 
 // Gets how long the game has been running
