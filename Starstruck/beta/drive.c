@@ -120,6 +120,8 @@ tMotor motorToChange;
 long tickTarget;
 
 // This method is used for getting a motor encoder value to match a target
+// This will likely be replaced in the future to integrate accelerometer/gyro alongside encoders
+// Basically, gyro PID supplies speed to turn at and which direction, encoder PID keeps us at that speed
 task driveMotorToTargetPID() {
 	doingOperation = true;
 	startTask( setMotorsToMotorsPID );
