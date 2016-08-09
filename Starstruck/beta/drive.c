@@ -104,7 +104,7 @@ task setMotorsToMotorsPID() {
 			// Loop through each key/value pair of motors
 			for (int key = 0; key < 2; key++) {
 				// Check if either of the motors are null, aka not set up
-				if (motorToMotorData[key][0] == null || motorToMotorData[key][1] == null)
+				if (motorToMotorData[key][0] == NULL || motorToMotorData[key][1] == NULL)
 					continue;
 				bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
 				int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
