@@ -88,27 +88,102 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBR] = 0;
 }
 
-// Used to set the tick targets, because tasks can't take parameters
-long ticksFrontLeft, ticksBackLeft, ticksFrontRight, ticksBackRight = 0;
+// Will make sure we don't do conflicting tasks in the future
+bool doingOperation = false;
 
-// Clean way to set above motor targets
+// This is used by the motorMirrorTask to store what it needs to do
+tMotor motorToMotorData[3][2];
+bool motorToMotorReverse[3];
+
+// This task sets the value motor speed to the key motor speed in the nested arrays above using PID
+// Michael: You might need to store more data than what's above, so feel free to create more arrays.
+// Just make sure you're setting and clearing them in the below code
+task setMotorsToMotorsPID() {
+		// Ends when task is terminated by the target controlling task
+		while (true) {
+			// Loop through each key/value pair of motors
+			for (int key = 0; key < 2; key++) {
+				// Check if either of the motors are null, aka not set up
+				if (motorToMotorData[key][0] == null || motorToMotorData[key][1] == null)
+					continue;
+				bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
+				int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
+				// Michael: This is where you do the PID stuffs to match motors.
+				// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
+				// Then set the motor like following
+				// motor[motorToMotorData[key][1]] = new speed
+			}
+		}
+}
+
+tMotor motorToChange;
+long tickTarget;
+
+// This method is used for getting a motor encoder value to match a target
+task driveMotorToTargetPID() {
+	doingOperation = true;
+	startTask( setMotorsToMotorsPID );
+	while (true) {
+		// Michael: This is where you do the PID stuffs to move a certain distance.
+		// cuurentTicks is the motors current position, the above tickTarget is what we need to be at
+		// Make sure you're checking nMotorEncoder ticks the current to see which way you need to spin
+		long currentTicks = nMotorEncoder[motorToChange];
+
+		// Then set the motor like following
+		// motor[motorToChange] = new speed
+
+		// IMPORTANT: Make sure when we reach the target, you're calling "break" so we stop the mirroring
+	}
+	stopTask( setMotorsToMotorsPID );
+	doingOperation = false;
+}
+
+// Clean way to set variables for driveMotorToTargetPID
 // PARAMETERS:
-//  int: Target ticks to change for front left motor
-//  int: Target ticks to change for back left motor
-//  int: Target ticks to change for front right motor
-//  int: Target ticks to change for back right motor
+//  tMotor: motor to use
+//  long: ticks to move
 // NOTE:
 //  - You should enter the delta, the method will figure out the total
 //  - For example, if you want it to go forward 300 and the encoder is already
 //    at 1000, you should still only put in 300.
 //  - Negative = backwards wheel movement.
-void setupMotorTicks(long frontl, long backl, long frontr, long backr) {
-	ticksFrontLeft = frontl + nMotorEncoder[driveFL];
-	ticksBackLeft = backl + nMotorEncoder[driveBL];
-	ticksFrontRight = frontr + nMotorEncoder[driveFR];
-	ticksBackRight = backr + nMotorEncoder[driveBR];
+void setupMotorTicks(tMotor _motorToChange, long ticks) {
+	motorToChange = _motorToChange;
+	tickTarget = ticks + nMotorEncoder[motorToChange];
 }
 
+// Drives the robot forward using PID to keep straight
+// PARAMETERS:
+//  long: How much to move forward (if positive) or backwards (if negative)
+void driveStraightPID(long ticksToMove) {
+	setupMotorTicks(driveFL, ticksToMove);
+	motorToMotorData = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};
+	motorToMotorReverse = {false, false, false};
+	startTask(driveMotorToTargetPID);
+}
+
+// Does a point turn using PID to stay in place
+// PARAMETERS:
+//  long: How much to turn right (if positive) or left (if negative)
+void drivePointTurnPID(long ticksToMove) {
+	setupMotorTicks(driveFL, ticksToMove);
+	motorToMotorData = {{driveFL, driveFR},{driveFL, driveBL},{driveFR, driveBR}};
+	motorToMotorReverse = {true, false, false};
+	startTask(driveMotorToTargetPID);
+}
+
+// TODO: Set all the values here, they're currently same as point turn
+// Does a strafe in a certain direction using PID to stay straight
+// PARAMETERS:
+//  long: How much to move right (if positive) or left (if negative)
+void driveStrafePID(long ticksToMove) {
+	setupMotorTicks(driveFL, ticksToMove);
+	motorToMotorData = {{driveFL, driveFR},{driveFL, driveBL},{driveFR, driveBR}};
+	motorToMotorReverse = {true, false, false};
+	startTask(driveMotorToTargetPID);
+}
+
+// DEPRECATED: Soon to be removed in favor of PID methods
 // Drive tick method. Controls left and right side useful for point turns.
 // Reads encoder valte of the front motors for each side.
 // PARAMETERS:

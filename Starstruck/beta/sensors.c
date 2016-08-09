@@ -253,4 +253,5 @@ void sensorsErrorEscape() {
 	getGameTime();
 	getSkillsTime();
 	simplifyGyro(0, false);
+	degreeToRad(0.0);
 }
