@@ -10,7 +10,7 @@
 #pragma config(Motor,  port2,           driveFR,       tmotorVex393_MC29, PIDControl, driveLeft, encoderPort, I2C_1)
 #pragma config(Motor,  port3,           driveBR,       tmotorVex393_MC29, PIDControl, driveLeft, encoderPort, I2C_2)
 #pragma config(Motor,  port4,           intakeL,       tmotorVex393_MC29, openLoop)
-#pragma config(Motor,  port5,           launcherRI,    tmotorVex393_MC29, openLoop)
+#pragma config(Motor,  port5,           launcherRI,    tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port6,           launcherLI,    tmotorVex393_MC29, openLoop, reversed)
 #pragma config(Motor,  port7,           intakeR,       tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port8,           driveFL,       tmotorVex393_MC29, PIDControl, reversed, driveRight, encoderPort, I2C_3)
@@ -180,9 +180,6 @@ task playSong(){
 	}
 }
 
-//TODO: REMOVE LATER
-int testing = 1;
-
 /*
 // Driver control task
 */
@@ -253,21 +250,9 @@ task usercontrol()
 		//Launcher code
 		if(vexRT[Btn8R]) {
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
-		} else if(vexRT[Btn8L]){
-			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = -127;
 		} else {
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
 		}
-
-		//TODO: REMOVE LATER
-		if(vexRT[Btn8U]) {
-			if(testing==1){
-				setupMotorTicks(driveFL,1000);
-				startTask( driveMotorToTargetPID, kHighPriority );
-				testing = 0;
-			}
-		}
-		endTimeSlice();
 		//////////////////////////////
 		// Controller handling end
 		//////////////////////////////

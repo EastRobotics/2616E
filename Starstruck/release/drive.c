@@ -120,25 +120,6 @@ task setMotorsToMotorsPID() {
 
 tMotor motorToChange;
 long tickTarget;
-float lastError;
-
-int PID_SENSOR_SCALE = 1;
-
-int PID_MOTOR_SCALE = 1;
-
-int PID_DRIVE_MAX = 127;
-int PID_DRIVE_MIN = -127;
-
-int PID_INTEGRAL_LIMIT = 50;
-
-// These could be constants but leaving
-// as variables allows them to be modified in the debugger "live"
-float  pid_Kp = 2.0;
-float  pid_Ki = 0.04;
-float  pid_Kd = 0.04;
-
-static int   pidRunning = 1;
-static float pidRequestedValue;
 
 // This method is used for getting a motor encoder value to match a target
 // This will likely be replaced in the future to integrate accelerometer/gyro alongside encoders
@@ -146,82 +127,17 @@ static float pidRequestedValue;
 task driveMotorToTargetPID() {
 	doingOperation = true;
 	startTask( setMotorsToMotorsPID );
-
-		// Init the variables
-		float  pidSensorCurrentValue;
-
-    float  pidError;
-    float  pidLastError;
-    float  pidIntegral;
-    float  pidDerivative;
-    float  pidDrive;
-
-    pidLastError  = 0;
-    pidIntegral   = 0;
-
+	while (true) {
 		// Michael: This is where you do the PID stuffs to move a certain distance.
 		// curentTicks is the motors current position, the above tickTarget is what we need to be at
 		// Make sure you're checking nMotorEncoder ticks the current to see which way you need to spin
-
-    while( true )
-        {
-        // Is PID control active ?
-        if( doingOperation )
-            {
-            // Read the sensor value and scale
-            long pidSensorCurrentValue = nMotorEncoder[motorToChange] * ((long)PID_SENSOR_SCALE);
-
-            // calculate error
-            pidError = ((float)pidSensorCurrentValue) - ((float)tickTarget);
-
-            // integral - if Ki is not 0
-            if( pid_Ki != 0 )
-                {
-                // If we are inside controlable window then integrate the error
-                if( abs(pidError) < PID_INTEGRAL_LIMIT )
-                    pidIntegral = pidIntegral + pidError;
-                else
-                    pidIntegral = 0;
-                }
-            else
-                pidIntegral = 0;
-
-            // calculate the derivative
-            pidDerivative = pidError - pidLastError;
-            pidLastError  = pidError;
-
-            // calculate drive
-            pidDrive = (pid_Kp * pidError) + (pid_Ki * pidIntegral) + (pid_Kd * pidDerivative);
-
-            // limit drive
-            if( pidDrive > PID_DRIVE_MAX )
-                pidDrive = PID_DRIVE_MAX;
-            if( pidDrive < PID_DRIVE_MIN )
-                pidDrive = PID_DRIVE_MIN;
-
-            // send to motor
-            motor[ motorToChange ] = pidDrive * PID_MOTOR_SCALE;
-
-            }
-        else
-            {
-	          // clear all
-	          pidError      = 0;
-	          pidLastError  = 0;
-	          pidIntegral   = 0;
-	          pidDerivative = 0;
-            }
-
-        // Run at 50Hz
-        wait1Msec( 25 );
-        endTimeSlice();
-        }
+		long currentTicks = nMotorEncoder[motorToChange];
 
 		// Then set the motor like following
 		// motor[motorToChange] = new speed
 
 		// IMPORTANT: Make sure when we reach the target, you're calling "break" so we stop the mirroring
-
+	}
 	stopTask( setMotorsToMotorsPID );
 	doingOperation = false;
 }
