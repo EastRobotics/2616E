@@ -202,6 +202,12 @@ void driveTilRightLeft(int speedLeft, long ticksLeft, int speedRight, long ticks
 	}
 }
 
+// Future control loop example:
+// We want to turn 45 degrees right...
+// -> PID loop gets speed based on degree from angle
+// --> Loop supplies speed to PID loop which keeps 1 wheel at that speed
+// ---> 3rd loop keeps other wheels at their speeds respective to the first
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                        CRS (Currently on the backburner)
