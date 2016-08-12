@@ -35,6 +35,14 @@ void drive(int speedForward, int speedTurn, int speedStrafe) {
 	driveRaw(speedFL, speedBL, speedFR, speedBR);
 }
 
+void driveBackwards(int speedForward, int speedTurn, int speedStrafe) {
+	int speedBR = speedForward + speedTurn + speedStrafe; // FL equivalent
+	int speedFR = speedForward + speedTurn - speedStrafe; // BL equivalent
+	int speedBL = speedForward - speedTurn - speedStrafe; // FR equivalent
+	int speedFL = speedForward - speedTurn + speedStrafe; // BR equivalent
+	driveRaw(speedFL, speedBL, speedFR, speedBR);
+}
+
 // Drive with checks to rule out errors with joystick controls
 // NOTE:
 // 	Multipliers should always be (0 <= x <= 1.0). This avoids going too fast or slow and going out of proportion
@@ -45,7 +53,7 @@ void drive(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forwardMultiplier, float turnMultiplier, float strafeMultiplier) {
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse, float forwardMultiplier, float turnMultiplier, float strafeMultiplier) {
 	int multipliedSpeedForward = speedForward; // ((float) speedForward)*forwardMultiplier;
 	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
 	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
@@ -56,14 +64,17 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, float forw
 
 	// TODO Cooler stuff than just thresholds :P
 
-	drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
+	if (!reverse)
+		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
+	else
+		driveBackwards(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
 }
 
 // Overriding method. See driveWithLogic(int, int, int, float, float, float).
 // NOTE:
 // 	-> Sets multipliers to 1.0
-void driveWithLogic(int speedForward, int speedTurn, int speedStrafe) {
-	driveWithLogic(speedForward, speedTurn, speedStrafe, 1.0, 1.0, 1.0);
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
+	driveWithLogic(speedForward, speedTurn, speedStrafe, reverse, 1.0, 1.0, 1.0);
 }
 
 // Set each side of the drive to a certain speed.
@@ -101,21 +112,21 @@ bool motorToMotorReverse[3];
 // Michael: You might need to store more data than what's above, so feel free to create more arrays.
 // Just make sure you're setting and clearing them in the below code
 task setMotorsToMotorsPID() {
-		// Ends when task is terminated by the target controlling task
-		while (true) {
-			// Loop through each key/value pair of motors
-			for (int key = 0; key < 2; key++) {
-				// Check if either of the motors are null, aka not set up
-				if (!motorToMotorData[key][0] || !motorToMotorData[key][1])
-					continue;
-				bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
-				int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
-				// Michael: This is where you do the PID stuffs to match motors.
-				// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
-				// Then set the motor like following
-				// motor[motorToMotorData[key][1]] = new speed
-			}
+	// Ends when task is terminated by the target controlling task
+	while (true) {
+		// Loop through each key/value pair of motors
+		for (int key = 0; key < 2; key++) {
+			// Check if either of the motors are null, aka not set up
+			if (!motorToMotorData[key][0] || !motorToMotorData[key][1])
+				continue;
+			bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
+			int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
+			// Michael: This is where you do the PID stuffs to match motors.
+			// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
+			// Then set the motor like following
+			// motor[motorToMotorData[key][1]] = new speed
 		}
+	}
 }
 
 tMotor motorToChange;
@@ -147,80 +158,80 @@ task driveMotorToTargetPID() {
 	doingOperation = true;
 	startTask( setMotorsToMotorsPID );
 
-		// Init the variables
-		float  pidSensorCurrentValue;
+	// Init the variables
+	float  pidSensorCurrentValue;
 
-    float  pidError;
-    float  pidLastError;
-    float  pidIntegral;
-    float  pidDerivative;
-    float  pidDrive;
+	float  pidError;
+	float  pidLastError;
+	float  pidIntegral;
+	float  pidDerivative;
+	float  pidDrive;
 
-    pidLastError  = 0;
-    pidIntegral   = 0;
+	pidLastError  = 0;
+	pidIntegral   = 0;
 
-		// Michael: This is where you do the PID stuffs to move a certain distance.
-		// curentTicks is the motors current position, the above tickTarget is what we need to be at
-		// Make sure you're checking nMotorEncoder ticks the current to see which way you need to spin
+	// Michael: This is where you do the PID stuffs to move a certain distance.
+	// curentTicks is the motors current position, the above tickTarget is what we need to be at
+	// Make sure you're checking nMotorEncoder ticks the current to see which way you need to spin
 
-    while( true )
-        {
-        // Is PID control active ?
-        if( doingOperation )
-            {
-            // Read the sensor value and scale
-            long pidSensorCurrentValue = nMotorEncoder[motorToChange] * ((long)PID_SENSOR_SCALE);
+	while( true )
+	{
+		// Is PID control active ?
+		if( doingOperation )
+		{
+			// Read the sensor value and scale
+			long pidSensorCurrentValue = nMotorEncoder[motorToChange] * ((long)PID_SENSOR_SCALE);
 
-            // calculate error
-            pidError = ((float)pidSensorCurrentValue) - ((float)tickTarget);
+			// calculate error
+			pidError = ((float)pidSensorCurrentValue) - ((float)tickTarget);
 
-            // integral - if Ki is not 0
-            if( pid_Ki != 0 )
-                {
-                // If we are inside controlable window then integrate the error
-                if( abs(pidError) < PID_INTEGRAL_LIMIT )
-                    pidIntegral = pidIntegral + pidError;
-                else
-                    pidIntegral = 0;
-                }
-            else
-                pidIntegral = 0;
+			// integral - if Ki is not 0
+			if( pid_Ki != 0 )
+			{
+				// If we are inside controlable window then integrate the error
+				if( abs(pidError) < PID_INTEGRAL_LIMIT )
+					pidIntegral = pidIntegral + pidError;
+				else
+					pidIntegral = 0;
+			}
+			else
+				pidIntegral = 0;
 
-            // calculate the derivative
-            pidDerivative = pidError - pidLastError;
-            pidLastError  = pidError;
+			// calculate the derivative
+			pidDerivative = pidError - pidLastError;
+			pidLastError  = pidError;
 
-            // calculate drive
-            pidDrive = (pid_Kp * pidError) + (pid_Ki * pidIntegral) + (pid_Kd * pidDerivative);
+			// calculate drive
+			pidDrive = (pid_Kp * pidError) + (pid_Ki * pidIntegral) + (pid_Kd * pidDerivative);
 
-            // limit drive
-            if( pidDrive > PID_DRIVE_MAX )
-                pidDrive = PID_DRIVE_MAX;
-            if( pidDrive < PID_DRIVE_MIN )
-                pidDrive = PID_DRIVE_MIN;
+			// limit drive
+			if( pidDrive > PID_DRIVE_MAX )
+				pidDrive = PID_DRIVE_MAX;
+			if( pidDrive < PID_DRIVE_MIN )
+				pidDrive = PID_DRIVE_MIN;
 
-            // send to motor
-            motor[ motorToChange ] = pidDrive * PID_MOTOR_SCALE;
+			// send to motor
+			motor[ motorToChange ] = pidDrive * PID_MOTOR_SCALE;
 
-            }
-        else
-            {
-	          // clear all
-	          pidError      = 0;
-	          pidLastError  = 0;
-	          pidIntegral   = 0;
-	          pidDerivative = 0;
-            }
+		}
+		else
+		{
+			// clear all
+			pidError      = 0;
+			pidLastError  = 0;
+			pidIntegral   = 0;
+			pidDerivative = 0;
+		}
 
-        // Run at 50Hz
-        wait1Msec( 25 );
-        endTimeSlice();
-        }
+		// Run at 50Hz
+		wait1Msec( 25 );
+		endTimeSlice();
+	}
 
-		// Then set the motor like following
-		// motor[motorToChange] = new speed
+	// Then set the motor like following
+	// motor[motorToChange] = new speed
 
-		// IMPORTANT: Make sure when we reach the target, you're calling "break" so we stop the mirroring
+	// IMPORTANT: Make sure when we reach the target, you're calling "break" so we stop the mirroring
 
 	stopTask( setMotorsToMotorsPID );
 	doingOperation = false;
@@ -286,12 +297,12 @@ void driveStrafePID(long ticksToMove) {
 //  int: How fast to move the right side drive (-127 to 127)
 //  long: How far to spin the right drive, in ticks. If above speed is negative, so should this number.
 /*void driveTilRightLeft(int speedLeft, long ticksLeft, int speedRight, long ticksRight) {
-	//setupMotorTicks(ticksLeft, ticksLeft, ticksRight, ticksRight);
-	// While we're not where we want to be (Ternary allows for both forward and backward input)
-	while ((ticksLeft > 0 ? nMotorEncoder[driveFL] < ticksFrontLeft : nMotorEncoder[driveFL] > ticksFrontLeft) ||
-		(ticksRight > 0 ? nMotorEncoder[driveFR] < ticksFrontRight : nMotorEncoder[driveFR] > ticksFrontRight)) {
-		driveRaw(speedLeft, speedLeft, speedRight, speedRight);
-	}
+//setupMotorTicks(ticksLeft, ticksLeft, ticksRight, ticksRight);
+// While we're not where we want to be (Ternary allows for both forward and backward input)
+while ((ticksLeft > 0 ? nMotorEncoder[driveFL] < ticksFrontLeft : nMotorEncoder[driveFL] > ticksFrontLeft) ||
+(ticksRight > 0 ? nMotorEncoder[driveFR] < ticksFrontRight : nMotorEncoder[driveFR] > ticksFrontRight)) {
+driveRaw(speedLeft, speedLeft, speedRight, speedRight);
+}
 }*/
 
 // Future control loop example:
@@ -313,12 +324,12 @@ void driveStrafePID(long ticksToMove) {
 // Beta, will add documentation when complete
 /*
 void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float currentDegree) {
-	if (speedForward <= DRIVE_THRESHOLD_FORWARD) speedForward = 0;
-	if (speedStrafe <= DRIVE_THRESHOLD_STRAFE) speedStrafe = 0;
-	float degree = degreeToRad(currentDegree-startDegree);
-	// Considering speed as x, x' = y*sin(a) + x*cos(a)
-	speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
-	// Considering strafe as y, y' = y*cos(a) - x*sin(a)
-	speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
+if (speedForward <= DRIVE_THRESHOLD_FORWARD) speedForward = 0;
+if (speedStrafe <= DRIVE_THRESHOLD_STRAFE) speedStrafe = 0;
+float degree = degreeToRad(currentDegree-startDegree);
+// Considering speed as x, x' = y*sin(a) + x*cos(a)
+speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
+// Considering strafe as y, y' = y*cos(a) - x*sin(a)
+speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
 }
 */
