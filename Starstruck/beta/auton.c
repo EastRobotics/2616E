@@ -76,7 +76,7 @@ void runAuton() {
 	// Mode 1 is do nothing
 	if (currentMode == 2) { // Mode 2
 		clearDriveEncoders();
-		//313.6 Ticks per revolution
+		//313.6 Ticks per revolution for the wheels
 		//0.04inches per tick
 		// ticks to travel = distance/distance per tick
 		//Shoot a star

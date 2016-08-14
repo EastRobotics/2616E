@@ -121,6 +121,9 @@ void pre_auton()
 	//Setup song
 	processSong();
 
+	//Start reading RPM of the drive motors
+	startTask( getRPMValues );
+
 	// Never passing if statement. Lets us get rid of compile warnings so we can focus on the ones we need to see.
 	if (false) {
 		UserControlCodePlaceholderForTesting();
@@ -261,7 +264,7 @@ task usercontrol()
 				testing = 0;
 			}
 		}
-		endTimeSlice();
+		EndTimeSlice();
 		//////////////////////////////
 		// Controller handling end
 		//////////////////////////////

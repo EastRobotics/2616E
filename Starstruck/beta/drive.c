@@ -93,6 +93,22 @@ void driveTank(int speedLeft, int speedRight){
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+float RPMValues[4] = {0,0,0,0};
+
+long lastTickCount[4] = {0,0,0,0};
+
+task getRPMValues() {
+	while(true){
+		long tickCount[4] = {nMotorEncoder[driveFL],nMotorEncoder[driveFR],nMotorEncoder[driveBL],nMotorEncoder[driveBR]};
+		for(int i = 0; i < 4; i++){
+			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*600.0)/627.2);
+			lastTickCount[i] = tickCount[i];
+		}
+		wait1Msec(100);
+	}
+
+}
+
 // Sets the encoders on all of our drive motors back to 0.
 void clearDriveEncoders() {
 	nMotorEncoder[driveFR] = 0;
@@ -121,10 +137,27 @@ task setMotorsToMotorsPID() {
 				continue;
 			bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
 			int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
+			float desiredRPM = RPMValues[0];
+			float currentRPM = 0;
 			// Michael: This is where you do the PID stuffs to match motors.
 			// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
 			// Then set the motor like following
 			// motor[motorToMotorData[key][1]] = new speed
+			if(motorToMotorData[key][1]==driveFR){
+				currentRPM = RPMValues[1];
+			} else if(motorToMotorData[key][1] == driveBL) {
+				currentRPM = RPMValues[2];
+			} else if (motorToMotorData[key][1] == driveBR) {
+				currentRPM = RPMValues[3];
+			}
+			if(reverse){
+				desiredRPM*=-1;
+			}
+			if(currentRPM > desiredRPM) {
+				motor[motorToMotorData[key][1]] = (currentSpeed-1);
+			} else if(currentRPM < desiredRPM) {
+				motor[motorToMotorData[key][1]] = (currentSpeed+1);
+			}
 		}
 	}
 }
@@ -174,6 +207,14 @@ task driveMotorToTargetPID() {
 	// curentTicks is the motors current position, the above tickTarget is what we need to be at
 	// Make sure you're checking nMotorEncoder ticks the current to see which way you need to spin
 
+	//DEBUG
+	writeDebugStreamLine("Starting PID");
+	string debugLine = "";
+	sprintf(debugLine,"Desired Ticks: %i",tickTarget);
+	writeDebugStreamLine(debugLine);
+	writeDebugStreamLine("-------------------------------------------------");
+	//DEBUG
+
 	while( true )
 	{
 		// Is PID control active ?
@@ -181,6 +222,12 @@ task driveMotorToTargetPID() {
 		{
 			// Read the sensor value and scale
 			long pidSensorCurrentValue = nMotorEncoder[motorToChange] * ((long)PID_SENSOR_SCALE);
+
+			//DEBUG
+			debugLine = "";
+			sprintf(debugLine,"Current Reading = %i",pidSensorCurrentValue);
+			writeDebugStreamLine(debugLine);
+			//DEBUG
 
 			// calculate error
 			pidError = pidSensorCurrentValue - tickTarget;
@@ -203,6 +250,12 @@ task driveMotorToTargetPID() {
 
 			// calculate drive
 			pidDrive = (pid_Kp * pidError) + (pid_Ki * pidIntegral) + (pid_Kd * pidDerivative);
+
+			//DEBUG
+			debugLine = "";
+			sprintf(debugLine,"pidDrive: %i",pidDrive);
+			writeDebugStreamLine(debugLine);
+			//DEBUG
 
 			// limit drive
 			if( pidDrive > PID_DRIVE_MAX )
@@ -231,7 +284,7 @@ task driveMotorToTargetPID() {
 
 		// Run at 50Hz
 		wait1Msec( 25 );
-		endTimeSlice();
+		EndTimeSlice();
 	}
 
 	// Then set the motor like following
