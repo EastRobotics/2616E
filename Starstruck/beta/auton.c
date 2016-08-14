@@ -47,12 +47,14 @@ bool getAutonColor() {
 
 //Fire the launcher
 void shoot() {
-
+	motor[launcherLI] = motor[launcherLO] = motor[launcherRI] = motor[launcherRO] = -127;
+	wait1Msec(3650);
+	motor[launcherLI] = motor[launcherLO] = motor[launcherRI] = motor[launcherRO] = 0;
 }
 
 //wait until button press to continue
 void breakpoint() {
-	while(!vexRT[Btn8D]){
+	while(!SensorValue[autonCont]){
 		wait1Msec(10);
 	}
 }
@@ -79,52 +81,23 @@ void runAuton() {
 		//313.6 Ticks per revolution for the wheels
 		//0.04inches per tick
 		// ticks to travel = distance/distance per tick
-		//Shoot a star
-		shoot();
-		//Load and shoot 3 stars
-		for(int i = 0; i < 3; i ++){
-			startIntake();
+		breakpoint();
+		for(int i = 0; i < 4; i ++){
 			shoot();
+			breakpoint();
 		}
-		//Pivot turn right 90 degrees
-		drivePointTurnPID(ticks);
-		driveRaw(0,0,0,0);
-		//Load the last star ... asynchronously
-		startTask(intake);
-		//Drive forward for half a second
-		drive(60,0,0);
-		wait1Msec(500);
-		driveRaw(0,0,0,0);
-		//wait for other star to finish loading
-		if((intakeLoadTime-497)>0){
-			wait1Msec(intakeLoadTime-497);
-		}
-		//Make star go half of the way up intake
-		intakeLoadTime/=2;
-		//Grab star
-		startTask(intake);
-		//Wait for intake and star to get to know eachother
-		wait1Msec(round(intakeLoadTime/2));
-		//Time to go
-		drive(-60,0,0);
-		wait1Msec(500);
-		driveRaw(0,0,0,0);
-		//Pivot turn left 90 degrees
-		drivePointTurnPID(ticks);
-		//wait for star to finish loading
-		if(((intakeLoadTime/2)-500)>0){
-			wait1Msec((intakeLoadTime/2)-500);
-		}
-		//fire star
-		shoot();
-		//Finish loading other star
-		startIntake();
-		//reset intake load time
-		intakeLoadTime*=2;
-		//Fire
-		shoot();
+
 	}
 	if (currentMode == 3) { // Mode 3
 		// TODO: Stuff
+		//DEBUG FOR NOW
+		string debugLine = "";
+		sprintf(debugLine,"nMotorEncoder[1]--%i",nMotorEncoder[1]);
+		writeDebugStreamLine(debugLine);
+		debugLine = "";
+		sprintf(debugLine,"driveFL = %i",driveFL);
+		writeDebugStreamLine(debugLine);
+		setupMotorTicks(driveFL,1000);
+		startTask( driveMotorToTargetPID, kHighPriority );
 	}
 }

@@ -3,6 +3,7 @@
 #pragma config(Sensor, in2,    gyroMain,       sensorGyro)
 #pragma config(Sensor, in3,    potLauncher,    sensorPotentiometer)
 #pragma config(Sensor, in4,    potIntake,      sensorPotentiometer)
+#pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
@@ -121,9 +122,6 @@ void pre_auton()
 	//Setup song
 	processSong();
 
-	//Start reading RPM of the drive motors
-	startTask( getRPMValues );
-
 	// Never passing if statement. Lets us get rid of compile warnings so we can focus on the ones we need to see.
 	if (false) {
 		UserControlCodePlaceholderForTesting();
@@ -146,6 +144,9 @@ void pre_auton()
 */
 task autonomous()
 {
+	//Start reading RPM of the drive motors
+	startTask( getRPMValues );
+
 	setupGameTimer(false); // sensors.c
 	runAuton(); // auton.c
 }
@@ -192,7 +193,15 @@ int testing = 1;
 */
 task usercontrol()
 {
+
+	setAutonMode(3);
+	runAuton();
+	return;
+
 	setupGameTimer(true); // sensors.c
+
+	//Start reading RPM of the drive motors
+	startTask( getRPMValues );
 
 	// Inits for normal games and skills. See below for specifics
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
@@ -255,16 +264,6 @@ task usercontrol()
 		} else {
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
 		}
-
-		//TODO: REMOVE LATER
-		if(vexRT[Btn8U]) {
-			if(testing==1){
-				setupMotorTicks(driveFL,1000);
-				startTask( driveMotorToTargetPID, kHighPriority );
-				testing = 0;
-			}
-		}
-		EndTimeSlice();
 		//////////////////////////////
 		// Controller handling end
 		//////////////////////////////
