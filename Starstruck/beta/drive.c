@@ -131,7 +131,6 @@ task setMotorsToMotorsPID() {
 
 tMotor motorToChange;
 long tickTarget;
-float lastError;
 
 int PID_SENSOR_SCALE = 1;
 
@@ -156,16 +155,17 @@ static float pidRequestedValue;
 // Basically, gyro PID supplies speed to turn at and which direction, encoder PID keeps us at that speed
 task driveMotorToTargetPID() {
 	doingOperation = true;
+
 	startTask( setMotorsToMotorsPID );
 
 	// Init the variables
-	float  pidSensorCurrentValue;
+	long  pidSensorCurrentValue;
 
-	float  pidError;
-	float  pidLastError;
-	float  pidIntegral;
-	float  pidDerivative;
-	float  pidDrive;
+	long  pidError;
+	long  pidLastError;
+	long  pidIntegral;
+	long  pidDerivative;
+	long  pidDrive;
 
 	pidLastError  = 0;
 	pidIntegral   = 0;
@@ -183,7 +183,7 @@ task driveMotorToTargetPID() {
 			long pidSensorCurrentValue = nMotorEncoder[motorToChange] * ((long)PID_SENSOR_SCALE);
 
 			// calculate error
-			pidError = ((float)pidSensorCurrentValue) - ((float)tickTarget);
+			pidError = pidSensorCurrentValue - tickTarget;
 
 			// integral - if Ki is not 0
 			if( pid_Ki != 0 )
@@ -212,6 +212,12 @@ task driveMotorToTargetPID() {
 
 			// send to motor
 			motor[ motorToChange ] = pidDrive * PID_MOTOR_SCALE;
+
+			//Break out of loop once desired tick amount reached
+			if(abs(pidError) < 5){
+				motor[ motorToChange ] = 0;
+				break;
+			}
 
 		}
 		else

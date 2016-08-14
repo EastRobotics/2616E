@@ -50,6 +50,13 @@ void shoot() {
 
 }
 
+//wait until button press to continue
+void breakpoint() {
+	while(!vexRT[Btn8D]){
+		wait1Msec(10);
+	}
+}
+
 //Run the intake for one second
 task intake() {
 	motor[intakeL] = motor[intakeR] = 127;
