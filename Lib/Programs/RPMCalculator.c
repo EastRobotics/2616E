@@ -8,6 +8,7 @@ long lastTicks = nMotorEncoder[testMotor];
 float RPMReadRate = 20.0;
 float totalTrial = 0;
 float trials = 200;
+bool shortData = true; // If you only want data from trial # 200
 
 // Michael's code for rpm, not 100% what each number is for
 task readRPM() {
@@ -42,16 +43,18 @@ task main()
 				if (abs(rpm) < abs(minimumSpeed))
 					minimumSpeed = rpm;
 				averageSpeed += rpm;
-				datalogDataGroupStart();
-				datalogAddValue(0, i*multiplier); // Motor speed
-				datalogAddValue(1, i1); // Trial count
-				datalogAddValue(2, totalTrial); // Total trial count
-				datalogAddValue(3, rpm); // Current speed
-				datalogAddValue(4, averageSpeed/i1); // Average speed
-				datalogAddValue(5, minimumSpeed); // Minimum speed
-				datalogAddValue(6, maximumSpeed); // Max speed
-				datalogDataGroupEnd();
-				wait1Msec(25);
+				if (shortData ? i1 == trials-1 : true) {
+					datalogDataGroupStart();
+					datalogAddValue(0, i*multiplier); // Motor speed
+					datalogAddValue(1, i1); // Trial count
+					datalogAddValue(2, totalTrial); // Total trial count
+					datalogAddValue(3, rpm); // Current speed
+					datalogAddValue(4, averageSpeed/i1); // Average speed
+					datalogAddValue(5, minimumSpeed); // Minimum speed
+					datalogAddValue(6, maximumSpeed); // Max speed
+					datalogDataGroupEnd();
+					wait1Msec(25);
+				}
 			}
 		}
 	}
