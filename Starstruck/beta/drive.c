@@ -98,22 +98,25 @@ void driveTank(int speedLeft, int speedRight){
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-float RPMValues[4] = {0,0,0,0};
-
-long lastTickCount[4] = {0,0,0,0};
-
-float RPMReadRate = 100.0;
+float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
+long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
+float RPMReadRate = 50.0;
+long tickTarget;
 
 task getRPMValues() {
 	while(true){
-		long tickCount[4] = {nMotorEncoder[driveFL],nMotorEncoder[driveFR],nMotorEncoder[driveBL],nMotorEncoder[driveBR]};
-		//datalogDataGroupStart();
-		for(int i = 0; i < 4; i++){
-			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*600.0)/627.2);
+		long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
+		for(int i = 0; i < 10; i++){
+			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/313.6);
 			lastTickCount[i] = tickCount[i];
-		//	datalogAddValueWithTimeStamp(i,RPMValues[i]);
 		}
-		//datalogDataGroupEnd();
+		datalogDataGroupStart();
+		datalogAddValue(1,RPMValues[1]);
+		datalogAddValue(2,RPMValues[2]);
+		datalogAddValue(3,RPMValues[7]);
+		datalogAddValue(4,RPMValues[8]);
+		datalogAddValue(5,150);
+		datalogDataGroupEnd();
 		wait1Msec((int)RPMReadRate);
 	}
 
@@ -131,49 +134,69 @@ void clearDriveEncoders() {
 bool doingOperation = false;
 
 // This is used by the motorMirrorTask to store what it needs to do
-tMotor motorToMotorData[3][2];
-bool motorToMotorReverse[3];
+tMotor motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};;
+bool motorToMotorReverse[3] = {false, false, false};
 
 // This task sets the value motor speed to the key motor speed in the nested arrays above using PID
 // Michael: You might need to store more data than what's above, so feel free to create more arrays.
 // Just make sure you're setting and clearing them in the below code
 task setMotorsToMotorsPID() {
 	// Ends when task is terminated by the target controlling task
+	long error[3] = {0, 0, 0};
+	long pError[3] = {0, 0, 0};
+	long p[3] = {0, 0, 0};
+	long i[3] = {0, 0, 0};
+	long d[3] = {0, 0, 0};
+	float kP = 1.0;
+	float kI = 0.0;
+	float kD = 0.0;
 	while (true) {
 		// Loop through each key/value pair of motors
-		for (int key = 0; key < 2; key++) {
+
+		for (int key = 0; key < 3; key++) {
 			// Check if either of the motors are null, aka not set up
-			if (!motorToMotorData[key][0] || !motorToMotorData[key][1])
-				continue;
+			//if (!motorToMotorData[key][0] || !motorToMotorData[key][1])
+			//	continue;
 			bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
 			int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
-			float desiredRPM = RPMValues[0];
-			float currentRPM = 0;
+			float desiredRPM = 150; //RPMValues[motorToMotorData[key][0]];
+			float currentRPM = RPMValues[motorToMotorData[key][1]];
 			// Michael: This is where you do the PID stuffs to match motors.
 			// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
 			// Then set the motor like following
 			// motor[motorToMotorData[key][1]] = new speed
-			if(motorToMotorData[key][1]==driveFR){
-				currentRPM = RPMValues[1];
-			} else if(motorToMotorData[key][1] == driveBL) {
-				currentRPM = RPMValues[2];
-			} else if (motorToMotorData[key][1] == driveBR) {
-				currentRPM = RPMValues[3];
-			}
 			if(reverse){
 				desiredRPM*=-1;
 			}
-			if(currentRPM > desiredRPM) {
-				motor[motorToMotorData[key][1]] = (currentSpeed-1);
-			} else if(currentRPM < desiredRPM) {
-				motor[motorToMotorData[key][1]] = (currentSpeed+1);
-			}
+
+			error[key] = desiredRPM - currentRPM;
+			p[key] = error[key];
+			i[key] = abs(i[key] + error[key]) < kI ? i[key] + error[key] : sgn(i[key] + error[key])*kI;
+			d[key] = error[key] - pError[key];
+			motor[motorToMotorData[key][1]] = p[key]*kP + i[key]*kI + d[key]*kD;
+
+			writeDebugStreamLine("--------------------")
+			string debugLine = "";
+			sprintf(debugLine,"%i",key);
+			writeDebugStreamLine(debugLine);
+			debugLine = "";
+			sprintf(debugLine,"%i - %i", motorToMotorData[key][0],desiredRPM);
+			writeDebugStreamLine(debugLine);
+			debugLine = "";
+			sprintf(debugLine, "%i - %i", motorToMotorData[key][1],currentRPM);
+			writeDebugStreamLine(debugLine);
+			debugLine = "";
+			sprintf(debugLine,"%i + %i + %i = %i", p[key], i[key], d[key], p[key]*kP + i[key]*kI + d[key]*kD);
+			writeDebugStreamLine(debugLine);
+
+			wait1Msec(25);
+
+
 		}
 	}
 }
 
 tMotor motorToChange;
-long tickTarget;
 
 int PID_SENSOR_SCALE = 1;
 
@@ -187,8 +210,8 @@ int PID_INTEGRAL_LIMIT = 50;
 // These could be constants but leaving
 // as variables allows them to be modified in the debugger "live"
 float  pid_Kp = 2.0;
-float  pid_Ki = 0.04;
-float  pid_Kd = 0.04;
+float  pid_Ki = 0.4;
+float  pid_Kd = 0.4;
 
 static int   pidRunning = 1;
 static float pidRequestedValue;
@@ -231,11 +254,11 @@ task driveMotorToTargetPID() {
 		if( doingOperation )
 		{
 			// Read the sensor value and scale
-			long pidSensorCurrentValue = nMotorEncoder[motorToChange] * ((long)PID_SENSOR_SCALE);
+			long pidSensorCurrentValue = nMotorEncoder[motorToChange];
 
 			//DEBUG
 			debugLine = "";
-			sprintf(debugLine,"Current Reading = %i",pidSensorCurrentValue);
+			sprintf(debugLine,"Current Reading = %ld",pidSensorCurrentValue);
 			writeDebugStreamLine(debugLine);
 			//DEBUG
 
@@ -274,7 +297,7 @@ task driveMotorToTargetPID() {
 				pidDrive = PID_DRIVE_MIN;
 
 			// send to motor
-			motor[ motorToChange ] = pidDrive * PID_MOTOR_SCALE;
+			motor[ motorToChange ] = -1*pidDrive;
 
 			//Break out of loop once desired tick amount reached
 			if(abs(pidError) < 5){
@@ -329,6 +352,16 @@ void driveStraightPID(long ticksToMove) {
 	bool _motorToMotorReverse[3] = {false, false, false};
 	motorToMotorReverse = _motorToMotorReverse;
 	startTask(driveMotorToTargetPID);
+}
+
+void driveStraightTest() {
+	motor[driveFL] = 100;
+	//tMotor _motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};
+	//motorToMotorData = _motorToMotorData;
+	//bool _motorToMotorReverse[3] = {false, false, false};
+	//motorToMotorReverse = _motorToMotorReverse;
+	writeDebugStreamLine("TESTING");
+	startTask( setMotorsToMotorsPID );
 }
 
 // Does a point turn using PID to stay in place

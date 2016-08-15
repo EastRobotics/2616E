@@ -97,7 +97,9 @@ void runAuton() {
 		debugLine = "";
 		sprintf(debugLine,"driveFL = %i",driveFL);
 		writeDebugStreamLine(debugLine);
-		setupMotorTicks(driveFL,1000);
-		startTask( driveMotorToTargetPID, kHighPriority );
+		driveStraightTest();
+		while(true) {
+			wait1Msec(1000);
+		}
 	}
 }
