@@ -116,7 +116,6 @@ void driveTank(int speedLeft, int speedRight){
 float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
 long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
 float RPMReadRate = 20.0;
-long tickTarget;
 int resetCount = 0;
 
 task getRPMValues() {
@@ -154,252 +153,74 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBR] = 0;
 }
 
-// Will make sure we don't do conflicting tasks in the future
-bool doingOperation = false;
+tMotor motorsToChange[4];
+bool motorToMotorReverse[4];
+long tickTarget[4];
+//Setup the weights for the various stages of pid
+float kP = 1.0; //Proportional Gain
+float kI = 0.0; //Integral Gain
+float kD = 0.0; //Derivitive Gain
+float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
-// This is used by the motorMirrorTask to store what it needs to do
-tMotor motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};
-bool motorToMotorReverse[3] = {false, false, false};
+task drivePID() {
+	//Initialize the PID variables
+	long error[4] = {0, 0, 0, 0};
+	long pError[4] = {0, 0, 0, 0};
+	long p[4] = {0, 0, 0, 0};
+	long i[4] = {0, 0, 0, 0};
+	long d[4] = {0, 0, 0, 0};
 
-float kP = 0.1;
-float kI = 0.0;
-float kD = 0.00;
-
-// This task sets the value motor speed to the key motor speed in the nested arrays above using PID
-// Michael: You might need to store more data than what's above, so feel free to create more arrays.
-// Just make sure you're setting and clearing them in the below code
-task setMotorsToMotorsPID() {
-	// Ends when task is terminated by the target controlling task
-	long error[3] = {0, 0, 0};
-	long pError[3] = {0, 0, 0};
-	long p[3] = {0, 0, 0};
-	long i[3] = {0, 0, 0};
-	long d[3] = {0, 0, 0};
-	while (true) {
-		// Loop through each key/value pair of motors
-
-		for (int key = 0; key < 3; key++) {
-			// Check if either of the motors are null, aka not set up
-			//if (!motorToMotorData[key][0] || !motorToMotorData[key][1])
-			//	continue;
-			bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
-			int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
-			float desiredRPM = 50; //RPMValues[motorToMotorData[key][0]];
-			float currentRPM = RPMValues[motorToMotorData[key][1]];
-			// Michael: This is where you do the PID stuffs to match motors.
-			// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
-			// Then set the motor like following
-			// motor[motorToMotorData[key][1]] = new speed
-			if(reverse){
-				desiredRPM*=-1;
-			}
-
-			error[key] = desiredRPM - currentRPM;
-			p[key] = error[key];
-			i[key] = abs(i[key] + error[key]) < kI ? i[key] + error[key] : sgn(i[key] + error[key])*kI;
-			d[key] = error[key] - pError[key];
-
-			string debugLine = "";
-			int newSpeed = RPMToMotor(p[key]*kP + i[key]*kI + d[key]*kD);
-			debugLine = "";
-			sprintf(debugLine,"Old... %i | %i",currentRPM,motor[motorToMotorData[key][1]]);
-			writeDebugStreamLine(debugLine);
-			debugLine = "";
-			sprintf(debugLine,"New... %i | %i",p[key]*kP + i[key]*kI + d[key]*kD,newSpeed);
-			writeDebugStreamLine(debugLine);
-			debugLine = "";
-			sprintf(debugLine,"Dif... %i - %i = %i",newSpeed,motor[motorToMotorData[key][1]], abs(newSpeed - motor[motorToMotorData[key][1]]));
-			writeDebugStreamLine(debugLine);
-			if (abs(newSpeed - motor[motorToMotorData[key][1]]) >= 1) {
-				motor[motorToMotorData[key][1]] = newSpeed;
-				writeDebugStreamLine("Set!");
-				} else {
-				writeDebugStreamLine("Didn't set!");
-			}
-
-			writeDebugStreamLine("--");
-			debugLine = "";
-			sprintf(debugLine,"%i",key);
-			//writeDebugStreamLine(debugLine);
-			debugLine = "";
-			sprintf(debugLine,"%i - %i", motorToMotorData[key][0],desiredRPM);
-			writeDebugStreamLine(debugLine);
-			debugLine = "";
-			sprintf(debugLine, "%i - %i", motorToMotorData[key][1],currentRPM);
-			writeDebugStreamLine(debugLine);
-			debugLine = "";
-			sprintf(debugLine,"%i + %i + %i = %i", p[key], i[key], d[key], p[key]*kP + i[key]*kI + d[key]*kD);
-			//writeDebugStreamLine(debugLine);
-
-			wait1Msec(25);
+	while(true){
+		long driveAvg = 0;
+		long errorAvg = 0;
+		for (int index = 0; index < 4; index ++){
+			error[index] = tickTarget[index] - nMotorEncoder[motorsToChange[index]];
+			p[index] = error[index]; //P is simply the error
+			i[index] = abs(i[index] + error[index]) < kL ? i[index] + error[index] : sgn(i[index] + error[index])*kL; //I is the sum of errors
+			d[index] = error[index] - pError[index]; //D is the change in error or delta error
+			driveAvg += abs(p[index]*kP + i[index]*kI + d[index]*kD);
+			errorAvg += abs(error[index]);
 		}
-		datalogDataGroupStart();
-		datalogAddValue(0,RPMValues[1]);
-		for (int key = 0; key < 3; key++) {
-			datalogAddValue(key,RPMValues[motorToMotorData[key][1]]);
-			datalogAddValue(key+3,motor[motorToMotorData[key][1]]);
+		//Find the average drive speed and error
+		driveAvg = round(driveAvg/4);
+		errorAvg = round(errorAvg/4);
+		for(int index = 0; index < 4; index ++){
+			//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
+			motor[motorsToChange[i]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[i]) ? (driveAvg*-1) : (driveAvg)) : (0);
 		}
-		datalogAddValue(6,50);
-		datalogDataGroupEnd();
-	}
-}
-
-tMotor motorToChange;
-
-int PID_SENSOR_SCALE = 1;
-
-int PID_MOTOR_SCALE = 1;
-
-int PID_DRIVE_MAX = 127;
-int PID_DRIVE_MIN = -127;
-
-int PID_INTEGRAL_LIMIT = 50;
-
-// These could be constants but leaving
-// as variables allows them to be modified in the debugger "live"
-float  pid_Kp = 2.0;
-float  pid_Ki = 0.4;
-float  pid_Kd = 0.4;
-
-static int   pidRunning = 1;
-static float pidRequestedValue;
-
-// This method is used for getting a motor encoder value to match a target
-// This will likely be replaced in the future to integrate accelerometer/gyro alongside encoders
-// Basically, gyro PID supplies speed to turn at and which direction, encoder PID keeps us at that speed
-task driveMotorToTargetPID() {
-	doingOperation = true;
-
-	startTask( setMotorsToMotorsPID );
-
-	// Init the variables
-	long  pidSensorCurrentValue;
-
-	long  pidError;
-	long  pidLastError;
-	long  pidIntegral;
-	long  pidDerivative;
-	long  pidDrive;
-
-	pidLastError  = 0;
-	pidIntegral   = 0;
-
-	// Michael: This is where you do the PID stuffs to move a certain distance.
-	// curentTicks is the motors current position, the above tickTarget is what we need to be at
-	// Make sure you're checking nMotorEncoder ticks the current to see which way you need to spin
-
-	//DEBUG
-	writeDebugStreamLine("Starting PID");
-	string debugLine = "";
-	sprintf(debugLine,"Desired Ticks: %i",tickTarget);
-	writeDebugStreamLine(debugLine);
-	writeDebugStreamLine("-------------------------------------------------");
-	//DEBUG
-
-	while( true )
-	{
-		// Is PID control active ?
-		if( doingOperation )
-		{
-			// Read the sensor value and scale
-			long pidSensorCurrentValue = nMotorEncoder[motorToChange];
-
-			//DEBUG
-			debugLine = "";
-			sprintf(debugLine,"Current Reading = %ld",pidSensorCurrentValue);
-			writeDebugStreamLine(debugLine);
-			//DEBUG
-
-			// calculate error
-			pidError = pidSensorCurrentValue - tickTarget;
-
-			// integral - if Ki is not 0
-			if( pid_Ki != 0 )
-			{
-				// If we are inside controlable window then integrate the error
-				if( abs(pidError) < PID_INTEGRAL_LIMIT )
-					pidIntegral = pidIntegral + pidError;
-				else
-					pidIntegral = 0;
-			}
-			else
-				pidIntegral = 0;
-
-			// calculate the derivative
-			pidDerivative = pidError - pidLastError;
-			pidLastError  = pidError;
-
-			// calculate drive
-			pidDrive = (pid_Kp * pidError) + (pid_Ki * pidIntegral) + (pid_Kd * pidDerivative);
-
-			//DEBUG
-			debugLine = "";
-			sprintf(debugLine,"pidDrive: %i",pidDrive);
-			writeDebugStreamLine(debugLine);
-			//DEBUG
-
-			// limit drive
-			if( pidDrive > PID_DRIVE_MAX )
-				pidDrive = PID_DRIVE_MAX;
-			if( pidDrive < PID_DRIVE_MIN )
-				pidDrive = PID_DRIVE_MIN;
-
-			// send to motor
-			motor[ motorToChange ] = -1*pidDrive;
-
-			//Break out of loop once desired tick amount reached
-			if(abs(pidError) < 5){
-				motor[ motorToChange ] = 0;
+		//if the error is low end the PID loop
+		if(abs(errorAvg) < 5){
 				break;
-			}
-
 		}
-		else
-		{
-			// clear all
-			pidError      = 0;
-			pidLastError  = 0;
-			pidIntegral   = 0;
-			pidDerivative = 0;
-		}
-
-		// Run at 50Hz
-		wait1Msec( 25 );
+		wait1Msec(25);
 	}
-
-	// Then set the motor like following
-	// motor[motorToChange] = new speed
-
-	// IMPORTANT: Make sure when we reach the target, you're calling "break" so we stop the mirroring
-
-	stopTask( setMotorsToMotorsPID );
-	doingOperation = false;
 }
 
 // Clean way to set variables for driveMotorToTargetPID
 // PARAMETERS:
-//  tMotor: motor to use
+//  tMotor: array of motors to use
 //  long: ticks to move
 // NOTE:
 //  - You should enter the delta, the method will figure out the total
 //  - For example, if you want it to go forward 300 and the encoder is already
 //    at 1000, you should still only put in 300.
 //  - Negative = backwards wheel movement.
-void setupMotorTicks(tMotor _motorToChange, long ticks) {
-	motorToChange = _motorToChange;
-	tickTarget = ticks + nMotorEncoder[motorToChange];
+void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
+	motorsToChange = _motorsToChange;
+	for(int i = 0; i < 4; i++){
+		tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1) + nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
+	}
 }
 
 // Drives the robot forward using PID to keep straight
 // PARAMETERS:
 //  long: How much to move forward (if positive) or backwards (if negative)
 void driveStraightPID(long ticksToMove) {
-	setupMotorTicks(driveFL, ticksToMove);
-	tMotor _motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};
-	motorToMotorData = _motorToMotorData;
-	bool _motorToMotorReverse[3] = {false, false, false};
+	bool _motorToMotorReverse[4] = {false, false, false, false};
 	motorToMotorReverse = _motorToMotorReverse;
-	startTask(driveMotorToTargetPID);
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+	setupMotorTicks(_motorsToChange, ticksToMove);
+	startTask( drivePID );
 }
 
 void driveStraightTest() {
@@ -409,19 +230,18 @@ void driveStraightTest() {
 	//bool _motorToMotorReverse[3] = {false, false, false};
 	//motorToMotorReverse = _motorToMotorReverse;
 	writeDebugStreamLine("TESTING");
-	startTask( setMotorsToMotorsPID );
+	startTask( drivePID );
 }
 
 // Does a point turn using PID to stay in place
 // PARAMETERS:
 //  long: How much to turn right (if positive) or left (if negative)
 void drivePointTurnPID(long ticksToMove) {
-	setupMotorTicks(driveFL, ticksToMove);
-	tMotor _motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBL},{driveFR, driveBR}};
-	motorToMotorData = _motorToMotorData;
-	bool _motorToMotorReverse[3] = {true, false, false};
+	bool _motorToMotorReverse[4] = {false, true, true, false};
 	motorToMotorReverse = _motorToMotorReverse;
-	startTask(driveMotorToTargetPID);
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+	setupMotorTicks(_motorsToChange, ticksToMove);
+	startTask( drivePID );
 }
 
 // TODO: Set all the values here, they're currently same as point turn
@@ -429,12 +249,11 @@ void drivePointTurnPID(long ticksToMove) {
 // PARAMETERS:
 //  long: How much to move right (if positive) or left (if negative)
 void driveStrafePID(long ticksToMove) {
-	setupMotorTicks(driveFL, ticksToMove);
-	tMotor _motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBL},{driveFR, driveBR}};
-	motorToMotorData = _motorToMotorData;
-	bool _motorToMotorReverse[3] = {true, false, false};
+	bool _motorToMotorReverse[4] = {false, true, false, true};
 	motorToMotorReverse = _motorToMotorReverse;
-	startTask(driveMotorToTargetPID);
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+	setupMotorTicks(_motorsToChange, ticksToMove);
+	startTask( drivePID );
 }
 
 // DEPRECATED: Soon to be removed in favor of PID methods
