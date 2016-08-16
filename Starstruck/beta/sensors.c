@@ -233,6 +233,35 @@ int getSkillsTime() {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+//													RPM and Motor Speed Conversions
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Converts an RPM value to a motor speed using the function f(x) = 11.431e^(0.0217x)
+//For use with a torque geared motor
+//PARAMETERS:
+// float: The RPM to be converted to a motor speed
+//RETURNS:
+// int: The motor speed that would get the RPM given
+int RPMToMotor(float RPM){
+	RPM = 11.431 * ((float)pow(2.71828,(RPM*0.0217)));
+	(RPM > 127.0) ? (RPM = 127.0) : ((RPM < -127.0) ? RPM = -127.0 : RPM = RPM);
+	return ((int)round(RPM));
+}
+
+//Converts a motor speed to an RPM value using the function f(x) = 44.486ln(x) - 105.47
+//For use with a torque geared motor
+//PARAMETERS:
+// int: The motor speed to be converted to an RPM value
+//RETURNS:
+// float: The RPM that a motor at the given speed should spin at
+float motorToRPM(int motorSpeed){
+	float RPM = (motorSpeed<0) ? ((log(((abs(motorSpeed))))*44.486) - 105.47) : -1*((log(((abs(motorSpeed))))*44.486) - 105.47);
+	return RPM;
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 //                          			 Error escapes
 //
 // Since this is a lib, we aren't going to use every method. Have a never called function to eliminate the warnings.
