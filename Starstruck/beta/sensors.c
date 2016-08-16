@@ -256,7 +256,6 @@ int RPMToMotor(float RPM){
 //RETURNS:
 // float: The RPM that a motor at the given speed should spin at
 float motorToRPM(int motorSpeed){
-	if (motorSpeed == 0) return 0;
 	return (motorSpeed<0) ? ((log(((abs(motorSpeed))))*44.486) - 105.47) : -1*((log(((abs(motorSpeed))))*44.486) - 105.47);
 }
 

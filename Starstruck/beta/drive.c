@@ -100,24 +100,33 @@ void driveTank(int speedLeft, int speedRight){
 
 float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
 long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
-float RPMReadRate = 50.0;
+float RPMReadRate = 20.0;
 long tickTarget;
+int resetCount = 0;
 
 task getRPMValues() {
 	while(true){
 		long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
 		for(int i = 0; i < 10; i++){
-			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/313.6);
+			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
 			lastTickCount[i] = tickCount[i];
 		}
+		resetCount +=1;
+		if (resetCount == 480) {
+			datalogClear();
+			resetCount = 0;
+		}
+		/*
 		datalogDataGroupStart();
-		datalogAddValue(1,RPMValues[1]);
-		datalogAddValue(2,RPMValues[2]);
-		datalogAddValue(3,RPMValues[7]);
-		datalogAddValue(4,RPMValues[8]);
-		datalogAddValue(5,150);
+		datalogAddValue(0,RPMValues[1]);
+		datalogAddValue(1,RPMValues[2]);
+		datalogAddValue(2,RPMValues[7]);
+		datalogAddValue(3,RPMValues[8]);
+		datalogAddValue(4,50);
 		datalogDataGroupEnd();
+		*/
 		wait1Msec((int)RPMReadRate);
+
 	}
 
 }
@@ -134,8 +143,12 @@ void clearDriveEncoders() {
 bool doingOperation = false;
 
 // This is used by the motorMirrorTask to store what it needs to do
-tMotor motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};;
+tMotor motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};
 bool motorToMotorReverse[3] = {false, false, false};
+
+float kP = 0.1;
+float kI = 0.0;
+float kD = 0.00;
 
 // This task sets the value motor speed to the key motor speed in the nested arrays above using PID
 // Michael: You might need to store more data than what's above, so feel free to create more arrays.
@@ -147,9 +160,6 @@ task setMotorsToMotorsPID() {
 	long p[3] = {0, 0, 0};
 	long i[3] = {0, 0, 0};
 	long d[3] = {0, 0, 0};
-	float kP = 1.0;
-	float kI = 0.0;
-	float kD = 0.0;
 	while (true) {
 		// Loop through each key/value pair of motors
 
@@ -159,7 +169,7 @@ task setMotorsToMotorsPID() {
 			//	continue;
 			bool reverse = motorToMotorReverse[key]; // Whether or not to match the speed opposite
 			int currentSpeed = motor[motorToMotorData[key][1]]; // Motor speed of our value (-127 to 127)
-			float desiredRPM = 150; //RPMValues[motorToMotorData[key][0]];
+			float desiredRPM = 50; //RPMValues[motorToMotorData[key][0]];
 			float currentRPM = RPMValues[motorToMotorData[key][1]];
 			// Michael: This is where you do the PID stuffs to match motors.
 			// You'll need to get RPM of both motors, and increment currentSpeed to try to match motorToMotorData[key][1]
@@ -173,12 +183,29 @@ task setMotorsToMotorsPID() {
 			p[key] = error[key];
 			i[key] = abs(i[key] + error[key]) < kI ? i[key] + error[key] : sgn(i[key] + error[key])*kI;
 			d[key] = error[key] - pError[key];
-			motor[motorToMotorData[key][1]] = p[key]*kP + i[key]*kI + d[key]*kD;
 
-			writeDebugStreamLine("--------------------")
 			string debugLine = "";
-			sprintf(debugLine,"%i",key);
+			int newSpeed = RPMToMotor(p[key]*kP + i[key]*kI + d[key]*kD);
+			debugLine = "";
+			sprintf(debugLine,"Old... %i | %i",currentRPM,motor[motorToMotorData[key][1]]);
 			writeDebugStreamLine(debugLine);
+			debugLine = "";
+			sprintf(debugLine,"New... %i | %i",p[key]*kP + i[key]*kI + d[key]*kD,newSpeed);
+			writeDebugStreamLine(debugLine);
+			debugLine = "";
+			sprintf(debugLine,"Dif... %i - %i = %i",newSpeed,motor[motorToMotorData[key][1]], abs(newSpeed - motor[motorToMotorData[key][1]]));
+			writeDebugStreamLine(debugLine);
+			if (abs(newSpeed - motor[motorToMotorData[key][1]]) >= 1) {
+				motor[motorToMotorData[key][1]] = newSpeed;
+				writeDebugStreamLine("Set!");
+				} else {
+				writeDebugStreamLine("Didn't set!");
+			}
+
+			writeDebugStreamLine("--");
+			debugLine = "";
+			sprintf(debugLine,"%i",key);
+			//writeDebugStreamLine(debugLine);
 			debugLine = "";
 			sprintf(debugLine,"%i - %i", motorToMotorData[key][0],desiredRPM);
 			writeDebugStreamLine(debugLine);
@@ -187,12 +214,18 @@ task setMotorsToMotorsPID() {
 			writeDebugStreamLine(debugLine);
 			debugLine = "";
 			sprintf(debugLine,"%i + %i + %i = %i", p[key], i[key], d[key], p[key]*kP + i[key]*kI + d[key]*kD);
-			writeDebugStreamLine(debugLine);
+			//writeDebugStreamLine(debugLine);
 
 			wait1Msec(25);
-
-
 		}
+		datalogDataGroupStart();
+		datalogAddValue(0,RPMValues[1]);
+		for (int key = 0; key < 3; key++) {
+			datalogAddValue(key,RPMValues[motorToMotorData[key][1]]);
+			datalogAddValue(key+3,motor[motorToMotorData[key][1]]);
+		}
+		datalogAddValue(6,50);
+		datalogDataGroupEnd();
 	}
 }
 
