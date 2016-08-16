@@ -163,12 +163,19 @@ task drivePID() {
 	long p[4] = {0, 0, 0, 0};
 	long i[4] = {0, 0, 0, 0};
 	long d[4] = {0, 0, 0, 0};
+	string debugString = ""; //FOR DEBUG, REMOVE LATER
+	writeDebugStreamLine("STARTING PID");
 
 	while(true){
 		long driveAvg = 0;
 		long errorAvg = 0;
 		for (int index = 0; index < 4; index ++){
 			error[index] = tickTarget[index] - nMotorEncoder[motorsToChange[index]];
+			//DEBUG
+			debugString = "";
+			sprintf(debugString,"Er[%i]:%i",index,error[index]);
+			writeDebugStreamLine(debugString);
+			//DEBUG
 			p[index] = error[index]; //P is simply the error
 			i[index] = abs(i[index] + error[index]) < kL ? i[index] + error[index] : sgn(i[index] + error[index])*kL; //I is the sum of errors
 			d[index] = error[index] - pError[index]; //D is the change in error or delta error
@@ -178,15 +185,22 @@ task drivePID() {
 		//Find the average drive speed and error
 		driveAvg = round(driveAvg/4);
 		errorAvg = round(errorAvg/4);
+		debugString = "";
+		sprintf(debugString,"DrAv:%i \n ErAv:%i",driveAvg,errorAvg);
+		writeDebugStreamLine(debugString);
 		float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
 		float yInt = 105.0-(slope*127.0);
 		int speedForward = RPMToMotor((driveAvg*slope)+yInt);
 		for(int index = 0; index < 4; index ++){
+			debugString = "";
+			sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (speedForward*-1) : (speedForward)) : (0));
+			writeDebugStreamLine(debugString);
 			//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
 			motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (speedForward*-1) : (speedForward)) : (0);
 		}
 		//if the error is low end the PID loop
 		if(abs(errorAvg) < 5){
+			writeDebugStreamLine("STOPPING PID");
 			break;
 		}
 		wait1Msec(25);
