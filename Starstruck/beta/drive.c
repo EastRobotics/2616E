@@ -151,7 +151,7 @@ tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
 long tickTarget[4];
 //Setup the weights for the various stages of pid
-float kP = 1.0; //Proportional Gain
+float kP = 0.01; //Proportional Gain
 float kI = 0.0; //Integral Gain
 float kD = 0.0; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
