@@ -4,6 +4,9 @@
 #define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 15 // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 15 // Joystick strafe threshold
+#define INITIAL_DRIVE_POWER 25 //The power that drive with logic will start it's linear function at for drive power
+#define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -67,7 +70,19 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN) multipliedSpeedTurn = 0;
 	if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE) multipliedSpeedStrafe = 0;
 
+	if(abs(multipliedSpeedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
+	if(abs(multipliedSpeedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
+	if(abs(multipliedSpeedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
+
 	// TODO Cooler stuff than just thresholds :P
+	// Consider it TODONE
+
+	//uses linear interpolation or lerp to fix the logarithmic nature of a motor's RPM to motor speed ratio into linear growth
+	float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
+	float yInt = 105.0-(slope*127.0);
+	multipliedSpeedForward = RPMToMotor((multipliedSpeedForward*slope)+yInt);
+	multipliedSpeedTurn = RPMToMotor((multipliedSpeedTurn*slope)+yInt);
+	multipliedSpeedStrafe = RPMToMotor((multipliedSpeedStrafe*slope)+yInt);
 
 	if (!reverse)
 		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
