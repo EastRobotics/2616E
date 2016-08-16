@@ -188,12 +188,12 @@ task drivePID() {
 		debugString = "";
 		sprintf(debugString,"DrAv:%i \nErAv:%i",driveAvg,errorAvg);
 		writeDebugStreamLine(debugString);
-		float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
-		float yInt = 105.0-(slope*127.0);
-		int speedForward = RPMToMotor((driveAvg*slope)+yInt);
+		//float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
+		//float yInt = 105.0-(slope*127.0);
+		//int speedForward = RPMToMotor((driveAvg*slope)+yInt);
 		for(int index = 0; index < 4; index ++){
 			debugString = "";
-			sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (speedForward*-1) : (speedForward)) : (0));
+			sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0)); //TODO switch back to speedForward
 			writeDebugStreamLine(debugString);
 			//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
 			motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (speedForward*-1) : (speedForward)) : (0);
