@@ -196,7 +196,7 @@ task drivePID() {
 			sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0)); //TODO switch back to speedForward
 			writeDebugStreamLine(debugString);
 			//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
-			motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (speedForward*-1) : (speedForward)) : (0);
+			motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0); //TODO switch back to speedForward
 		}
 		//if the error is low end the PID loop
 		if(abs(errorAvg) < 5){
