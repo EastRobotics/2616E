@@ -147,8 +147,8 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBR] = 0;
 }
 
-tMotor motorsToChange[4];
-bool motorToMotorReverse[4];
+tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+bool motorToMotorReverse[4] = {false, false, false, false};
 long tickTarget[4];
 //Setup the weights for the various stages of pid
 float kP = 1.0; //Proportional Gain
@@ -186,7 +186,7 @@ task drivePID() {
 		driveAvg = round(driveAvg/4);
 		errorAvg = round(errorAvg/4);
 		debugString = "";
-		sprintf(debugString,"DrAv:%i \n ErAv:%i",driveAvg,errorAvg);
+		sprintf(debugString,"DrAv:%i \nErAv:%i",driveAvg,errorAvg);
 		writeDebugStreamLine(debugString);
 		float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
 		float yInt = 105.0-(slope*127.0);
