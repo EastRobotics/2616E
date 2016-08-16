@@ -196,10 +196,6 @@ int testing = 1;
 */
 task usercontrol()
 {
-
-	//Start reading RPM of the drive motors
-	startTask( getRPMValues );
-
 	setAutonMode(3);
 	runAuton();
 	return;

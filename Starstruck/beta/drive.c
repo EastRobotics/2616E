@@ -116,7 +116,6 @@ void driveTank(int speedLeft, int speedRight){
 float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
 long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
 float RPMReadRate = 20.0;
-int resetCount = 0;
 
 task getRPMValues() {
 	while(true){
@@ -125,12 +124,7 @@ task getRPMValues() {
 			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
 			lastTickCount[i] = tickCount[i];
 		}
-		resetCount +=1;
-		if (resetCount == 480) {
-			datalogClear();
-			resetCount = 0;
-		}
-		/*
+		/* Logging RPM
 		datalogDataGroupStart();
 		datalogAddValue(0,RPMValues[1]);
 		datalogAddValue(1,RPMValues[2]);
@@ -184,13 +178,16 @@ task drivePID() {
 		//Find the average drive speed and error
 		driveAvg = round(driveAvg/4);
 		errorAvg = round(errorAvg/4);
+		float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
+		float yInt = 105.0-(slope*127.0);
+		int speedForward = RPMToMotor((driveAvg*slope)+yInt);
 		for(int index = 0; index < 4; index ++){
 			//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
-			motor[motorsToChange[i]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[i]) ? (driveAvg*-1) : (driveAvg)) : (0);
+			motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (speedForward*-1) : (speedForward)) : (0);
 		}
 		//if the error is low end the PID loop
 		if(abs(errorAvg) < 5){
-				break;
+			break;
 		}
 		wait1Msec(25);
 	}
@@ -206,7 +203,7 @@ task drivePID() {
 //    at 1000, you should still only put in 300.
 //  - Negative = backwards wheel movement.
 void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
-	motorsToChange = _motorsToChange;
+	motorsToChange = (tMotor) _motorsToChange;
 	for(int i = 0; i < 4; i++){
 		tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1) + nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
 	}

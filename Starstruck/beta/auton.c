@@ -72,6 +72,19 @@ void startIntake() {
 	wait1Msec(round(intakeLoadTime)+3);
 }
 
+task logTicks() {
+	while (true) {
+		datalogDataGroupStart();
+		datalogAddValue(0,nMotorEncoder[driveFL]);
+		datalogAddValue(1,nMotorEncoder[driveBL]);
+		datalogAddValue(2,nMotorEncoder[driveFR]);
+		datalogAddValue(3,nMotorEncoder[driveBR]);
+		datalogAddValue(4,2500);
+		datalogDataGroupEnd();
+		wait1Msec(20);
+	}
+}
+
 // Auton modes should handle team color and positon
 // (Thanks vex for making the pole opposite for each side)
 void runAuton() {
@@ -89,17 +102,8 @@ void runAuton() {
 
 	}
 	if (currentMode == 3) { // Mode 3
-		// TODO: Stuff
-		//DEBUG FOR NOW
-		string debugLine = "";
-		sprintf(debugLine,"nMotorEncoder[1]--%i",nMotorEncoder[1]);
-		writeDebugStreamLine(debugLine);
-		debugLine = "";
-		sprintf(debugLine,"driveFL = %i",driveFL);
-		writeDebugStreamLine(debugLine);
-		driveStraightTest();
-		while(true) {
-			wait1Msec(1000);
-		}
+		startTask(logTicks);
+		driveStraightPID(2500);
+		while(true) wait1Msec(25);
 	}
 }
