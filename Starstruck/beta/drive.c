@@ -140,7 +140,7 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBR] = 0;
 }
 
-tMotor motorsToChange[4] = {driveFL,driveFR,driveBL,driveBR};
+tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,launcherLO};
 bool motorToMotorReverse[4] = {false, false, false, false};
 long tickTarget[4];
 //Setup the weights for the various stages of pid
@@ -222,7 +222,7 @@ void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 void driveStraightPID(long ticksToMove) {
 	bool _motorToMotorReverse[4] = {false, false, false, false};
 	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBL,driveBR};
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,launcherLO};
 	setupMotorTicks(_motorsToChange, ticksToMove);
 	startTask( drivePID );
 }
@@ -233,7 +233,7 @@ void driveStraightPID(long ticksToMove) {
 void drivePointTurnPID(long ticksToMove) {
 	bool _motorToMotorReverse[4] = {false, true, true, false};
 	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,launcherLO};
 	setupMotorTicks(_motorsToChange, ticksToMove);
 	startTask( drivePID );
 }
@@ -245,7 +245,7 @@ void drivePointTurnPID(long ticksToMove) {
 void driveStrafePID(long ticksToMove) {
 	bool _motorToMotorReverse[4] = {false, true, false, true};
 	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,launcherLO};
 	setupMotorTicks(_motorsToChange, ticksToMove);
 	startTask( drivePID );
 }
