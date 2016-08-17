@@ -3,7 +3,6 @@ bool color = false; // False for red, true for blue
 int minAutonomous = 1;
 int maxAutonomous = 3;
 int currentMode = minAutonomous;
-int ticks = 250;
 int intakeLoadTime = 1000;
 
 bool setAutonMode(int mode) {
@@ -58,6 +57,8 @@ void breakpoint() {
 		wait1Msec(10);
 	}
 }
+
+void launch(); // Forward from main
 
 //Run the intake for one second
 task intake() {

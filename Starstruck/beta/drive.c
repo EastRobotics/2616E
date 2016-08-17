@@ -61,7 +61,7 @@ void driveBackwards(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse, float forwardMultiplier, float turnMultiplier, float strafeMultiplier) {
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
 	int multipliedSpeedForward = speedForward; // ((float) speedForward)*forwardMultiplier;
 	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
 	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
@@ -88,13 +88,6 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
 	else
 		driveBackwards(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
-}
-
-// Overriding method. See driveWithLogic(int, int, int, float, float, float).
-// NOTE:
-// 	-> Sets multipliers to 1.0
-void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
-	driveWithLogic(speedForward, speedTurn, speedStrafe, reverse, 1.0, 1.0, 1.0);
 }
 
 // Set each side of the drive to a certain speed.
@@ -147,7 +140,7 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBR] = 0;
 }
 
-tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+tMotor motorsToChange[4] = {driveFL,driveFR,driveBL,driveBR};
 bool motorToMotorReverse[4] = {false, false, false, false};
 long tickTarget[4];
 //Setup the weights for the various stages of pid
@@ -229,18 +222,8 @@ void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 void driveStraightPID(long ticksToMove) {
 	bool _motorToMotorReverse[4] = {false, false, false, false};
 	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBL,driveBR};
 	setupMotorTicks(_motorsToChange, ticksToMove);
-	startTask( drivePID );
-}
-
-void driveStraightTest() {
-	motor[driveFL] = 100;
-	//tMotor _motorToMotorData[3][2] = {{driveFL, driveFR},{driveFL, driveBR},{driveFL, driveBL}};
-	//motorToMotorData = _motorToMotorData;
-	//bool _motorToMotorReverse[3] = {false, false, false};
-	//motorToMotorReverse = _motorToMotorReverse;
-	writeDebugStreamLine("TESTING");
 	startTask( drivePID );
 }
 

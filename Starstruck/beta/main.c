@@ -62,6 +62,8 @@ const int noteThreshold = 5;
 // Welcome to the 2616E Starstruck program.
 //
 /////////////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------------//
+/////////////////////////////////////////////////////////////////////////////////////////
 //
 // Pinmap: https://drive.google.com/open?id=1mSrSJ1BPUzoXAdo2x8ED-OwT-OZY7r5Y9P7FmuNDcLY
 // Controller map: // TODO Add link
@@ -74,17 +76,63 @@ const int noteThreshold = 5;
 //   -> and stored in the team boxes.
 //
 /////////////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------------//
+/////////////////////////////////////////////////////////////////////////////////////////
 // Timer distribution:
 // - T1: Unassigned
 // - T2: Unassigned
 // - T3: Game time tracking
 // - T4: LCD Hanlding
 /////////////////////////////////////////////////////////////////////////////////////////
+//-------------------------------------------------------------------------------------//
+/////////////////////////////////////////////////////////////////////////////////////////
 // Global TODO:
 // - Replace data/unchanging variables to defitions
 // - Comment bare code
 // - Remove unused testing code
 /////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                                 Bot methods
+//
+// Methods for doing different actions on the robot, like launching, intaking, etc using
+// our robot's sensor array
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+// Launcher methods
+
+bool canLaunch = false;
+
+task taskLauncherReset() {
+	// Read pot, get where we are now
+	// Run launcher motors until the spot we know is about to launch
+	// Stop motors
+	wait1Msec(3000); // TODO Remove once we write task
+	canLaunch = true;
+}
+
+task taskLaunch() {
+	canLaunch = false;
+	// Read pot, get where we are now
+	// Run launcher motors until we can see that we've launched
+	// Stop motors
+	wait1Msec(500); // TODO Remove once we write task
+	startTask(taskLauncherReset);
+}
+
+void launch() {
+	if (canLaunch)
+		startTask(taskLaunch);
+	else
+		writeDebugStreamLine("Tried to launch but we aren't currently able to!");
+}
+
+// Intake methods
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -188,9 +236,6 @@ task playSong(){
 	}
 }
 
-//TODO: REMOVE LATER
-int testing = 1;
-
 /*
 // Driver control task
 */
@@ -236,10 +281,7 @@ task usercontrol()
 			lastTurnSpeed = vexRT[Ch1];
 			lastStrafeSpeed = vexRT[Ch4];
 			lastDirection = gyroToFloat(SensorValue[gyroMain]);
-			if (!vexRT[Btn6U]) // If the button isn't pressed, drive slow
-				driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed, false, 0.25, 0.25, 0.25);
-			else // Drive full speed
-				driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed, false);
+			driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed, false);
 			} else { // Drive with tank controls
 			driveTank(vexRT[Ch3],vexRT[Ch2]);
 		}
@@ -259,11 +301,12 @@ task usercontrol()
 		//Launcher code
 		if(vexRT[Btn8R]) {
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
-		} else if(vexRT[Btn8L]){
+			} else if(vexRT[Btn8L]){
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = -127;
-		} else {
+			} else {
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
 		}
+
 		//////////////////////////////
 		// Controller handling end
 		//////////////////////////////
