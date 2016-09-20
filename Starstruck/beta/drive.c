@@ -66,6 +66,14 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
 	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
 
+	byte forwardMult = (multipliedSpeedForward < 0) ? -1 : 1;
+	byte turnMult = (multipliedSpeedTurn < 0) ? -1 : 1;
+	byte strafeMult = (multipliedSpeedStrafe < 0) ? -1 : 1;
+
+	multipliedSpeedForward = abs(multipliedSpeedForward);
+	multipliedSpeedTurn = abs(multipliedSpeedTurn);
+	multipliedSpeedStrafe = abs(multipliedSpeedStrafe);
+
 	if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD) multipliedSpeedForward = 0;
 	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN) multipliedSpeedTurn = 0;
 	if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE) multipliedSpeedStrafe = 0;
@@ -83,6 +91,14 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	multipliedSpeedForward = RPMToMotor((multipliedSpeedForward*slope)+yInt);
 	multipliedSpeedTurn = RPMToMotor((multipliedSpeedTurn*slope)+yInt);
 	multipliedSpeedStrafe = RPMToMotor((multipliedSpeedStrafe*slope)+yInt);
+
+	if (abs(speedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
+	if (abs(speedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
+	if (abs(speedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
+
+	multipliedSpeedForward *= forwardMult;
+	multipliedSpeedTurn *= turnMult;
+	multipliedSpeedStrafe *= strafeMult;
 
 	if (!reverse)
 		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive

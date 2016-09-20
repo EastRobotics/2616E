@@ -241,9 +241,6 @@ task playSong(){
 */
 task usercontrol()
 {
-	setAutonMode(3);
-	runAuton();
-	return;
 
 	setupGameTimer(true); // sensors.c
 
