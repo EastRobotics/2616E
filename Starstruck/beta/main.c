@@ -118,9 +118,15 @@ task taskLauncherReset() {
 task taskLaunch() {
 	canLaunch = false;
 	// Read pot, get where we are now
+	int launcherAngle = SensorValue[potLauncher];
 	// Run launcher motors until we can see that we've launched
+	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
+	while((SensorValue[potLauncher]-launcherAngle)>0){
+		launcherAngle = SensorValue[potLauncher];
+		wait1Msec(100);
+	}
 	// Stop motors
-	wait1Msec(500); // TODO Remove once we write task
+	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = 0;
 	startTask(taskLauncherReset);
 }
 
@@ -296,12 +302,17 @@ task usercontrol()
 		}
 
 		//Launcher code
-		if(vexRT[Btn8R]) {
-			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
-			} else if(vexRT[Btn8L]){
-			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = -127;
-			} else {
-			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
+		if(canLaunch){
+			if(vexRT[Btn8R]) {
+				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
+				} else if(vexRT[Btn8L]){
+				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = -127;
+				} else {
+				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
+			}
+			if(vexRT[Btn8U]){
+				launch();
+			}
 		}
 
 		//////////////////////////////
