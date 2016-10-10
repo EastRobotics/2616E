@@ -332,7 +332,7 @@ task usercontrol()
 		}
 		if(vexRT[Btn8D]) { // Emergency launcher task stop
 			stopTask(taskLaunch);
-			stopTask(taskLaunchReset);
+			stopTask(taskLauncherReset);
 		}
 
 		//////////////////////////////
