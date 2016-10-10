@@ -300,7 +300,6 @@ task usercontrol()
 			lastForwardSpeed = vexRT[Ch3];
 			lastTurnSpeed = vexRT[Ch1];
 			lastStrafeSpeed = vexRT[Ch4];
-			lastDirection = gyroToFloat(SensorValue[gyroMain]);
 			driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed, false);
 			} else { // Drive with tank controls
 			driveTank(vexRT[Ch3],vexRT[Ch2]);
@@ -330,6 +329,10 @@ task usercontrol()
 			if(vexRT[Btn8U]){
 				launch();
 			}
+		}
+		if(vexRT[Btn8D]) { // Emergency launcher task stop
+			stopTask(taskLaunch);
+			stopTask(taskLaunchReset);
 		}
 
 		//////////////////////////////
