@@ -2,7 +2,7 @@
 int homePage = 4; // The page to go to when we hit the 'home' button
 int currentPage = homePage; // Can be whatever page you want within your set
 int minPage = 1; // Should be the first page number in your set
-int maxPage = 8; // Should be the last page number in your set
+int maxPage = 7; // Should be the last page number in your set
 //TODO make max page 7
 bool cycles = false; // Make pages a continuous loop (loops to start when at the end)
 
@@ -47,7 +47,22 @@ void lcdUpdatePage( bool userInteraction )
 		string title = "";
 		sprintf(title,"AutonMode%c",0xF6);
 		displayLCDString(0,0,title);
-
+		string toDisplay = "";
+		int autonMode = getAutonMode();
+		switch(expression) {
+			case 1 :
+				sprintf(toDisplay, "%c Do Nothing %c", 0xBC, 0xBB);
+				break;
+			case 2 :
+				sprintf(toDisplay, "%c Test 1 %c", 0xBC, 0xBB);
+				break;
+			case 2 :
+				sprintf(toDisplay, "%c Test 2 %c", 0xBC, 0xBB);
+				break;
+			default :
+				sprintf(toDisplay, "%c Unknown mode: %i %c", 0xBC, autonMode, 0xBB);
+		}
+		displayLCDCenteredString(1,toDisplay);
 		return;
 	}
 
@@ -56,7 +71,13 @@ void lcdUpdatePage( bool userInteraction )
 		string title = "";
 		sprintf(title,"StartPos%c",0xF6);
 		displayLCDString(0,0,title);
-
+		string toDisplay = "";
+		if (getAutonPosition()) { // Right
+			sprintf(toDisplay, "%c Right %c", 0xBC, 0xBB);
+		} else { // Left
+			sprintf(toDisplay, "%c Left %c", 0xBC, 0xBB);
+		}
+		displayLCDCenteredString(1,toDisplay);
 		return;
 	}
 
@@ -65,7 +86,13 @@ void lcdUpdatePage( bool userInteraction )
 		string title = "";
 		sprintf(title,"TeamColor%c",0xF6);
 		displayLCDString(0,0,title);
-
+		string toDisplay = "";
+		if (getAutonColor()) { // Blue
+			sprintf(toDisplay, "%c Blue %c", 0xBC, 0xBB);
+		} else { // Red
+			sprintf(toDisplay, "%c Red %c", 0xBC, 0xBB);
+		}
+		displayLCDCenteredString(1,toDisplay);
 		return;
 	}
 
@@ -106,8 +133,9 @@ void lcdUpdatePage( bool userInteraction )
 		return;
 	}
 
-	// Page 6 [Slider example/test]
-	else if (currentPage == 6) {
+	/*
+	[Slider example/test]
+	else if (currentPage == 0) {
 		string title = "";
 		sprintf(title,"SliderExample %c",0xF6);
 		displayLCDString(0,0,title);
@@ -116,31 +144,22 @@ void lcdUpdatePage( bool userInteraction )
 		displayLCDChar(1,linePosition+1,'O');
 		return;
 	}
+	*/
 
-	// Page 7 [Menu example]
-	else if (currentPage == 7) {
-		// TODO Draw the page
+	// Page 6 [Game Time]
+	else if (currentPage == 6){
 		string title = "";
-		sprintf(title,"MenuExample %c",0xF6);
-
+		sprintf(title,"Game Time %c",0xF6);
 		displayLCDString(0,0,title);
-		string toDisplay = "";
-		if (menuMode == 1) {
-			sprintf(toDisplay, "%c Menu opt. 1 %c", 0xBC, 0xBB);
-			} else if (menuMode == 2) {
-			sprintf(toDisplay, "%c Menu opt. 2 %c", 0xBC, 0xBB);
-			} else if (menuMode == 3) {
-			sprintf(toDisplay, "%c Menu opt. 3 %c", 0xBC, 0xBB);
-			} else {
-			sprintf(toDisplay, "%c Menu opt. 4 %c", 0xBC, 0xBB);
-		}
-		displayLCDCenteredString(1,toDisplay);
-		return;
+		displayLCDNumber(1,0,getGameTime());
+		displayLCDNumber(1,8,getGameTimeRunning());
 	}
-	// Page 8 [Game Time]
-	else if (currentPage == 8){
-		displayLCDNumber(0,0,getGameTime());
-		displayLCDNumber(0,0,getGameTimeRunning());
+	
+	// Page 7 [Launcher arm position]
+	else if (currentPage == 7){
+		string title = "";
+		sprintf(title,"Launcher Pot %c",0xF6);
+		displayLCDNumber(1,0,SensorValue[potLauncher];);
 	}
 
 	// And pages carry on... make sure to increment maxPage for your page count!
@@ -212,32 +231,22 @@ void lcdBack() {
 		return;
 	}
 
-	// Page 2 [Auton color selector]
+	// Page 3 [Auton color selector]
 	if (currentPage == 3) {
 		setAutonColor(!getAutonColor()); // Only ever true/false
 		lcdUpdatePage(true);
 		return;
 	}
 
-	// Page 6 [Slider example/test]
-	if (currentPage == 6) {
+	/* [Slider example/test]
+	if (currentPage == 0) {
 		if (linePosition < linePosMax) {
 			linePosition += 1;
 			lcdUpdatePage(true);
 		}
 		return;
 	}
-
-	// Page 7 [Menu example]
-	if (currentPage == 7) {
-		if (menuMode < menuMax) {
-			menuMode += 1;
-			} else {
-			menuMode = menuMin;
-		}
-		lcdUpdatePage(true);
-		return;
-	}
+	*/
 }
 
 // View above
@@ -270,25 +279,15 @@ void lcdNext() {
 		return;
 	}
 
-	// Page 6 [Slider example/test]
-	if (currentPage == 6) {
+	/* [Slider example/test]
+	if (currentPage == 0) {
 		if (linePosition > linePosMin) {
 			linePosition -= 1;
 			lcdUpdatePage(true);
 		}
 		return;
 	}
-
-	// Page 7 [Menu example]
-	if (currentPage == 7) {
-		if (menuMode > menuMin) {
-			menuMode -= 1;
-			} else {
-			menuMode = menuMax;
-		}
-		lcdUpdatePage(true);
-		return;
-	}
+	*/
 }
 
 // Reset the last time we've refreshed to the current time
