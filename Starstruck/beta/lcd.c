@@ -49,14 +49,14 @@ void lcdUpdatePage( bool userInteraction )
 		displayLCDString(0,0,title);
 		string toDisplay = "";
 		int autonMode = getAutonMode();
-		switch(expression) {
+		switch(autonMode) {
 			case 1 :
 				sprintf(toDisplay, "%c Do Nothing %c", 0xBC, 0xBB);
 				break;
 			case 2 :
 				sprintf(toDisplay, "%c Test 1 %c", 0xBC, 0xBB);
 				break;
-			case 2 :
+			case 3 :
 				sprintf(toDisplay, "%c Test 2 %c", 0xBC, 0xBB);
 				break;
 			default :
@@ -154,12 +154,12 @@ void lcdUpdatePage( bool userInteraction )
 		displayLCDNumber(1,0,getGameTime());
 		displayLCDNumber(1,8,getGameTimeRunning());
 	}
-	
+
 	// Page 7 [Launcher arm position]
 	else if (currentPage == 7){
 		string title = "";
 		sprintf(title,"Launcher Pot %c",0xF6);
-		displayLCDNumber(1,0,SensorValue[potLauncher];);
+		displayLCDNumber(1,0,SensorValue[potLauncher]);
 	}
 
 	// And pages carry on... make sure to increment maxPage for your page count!

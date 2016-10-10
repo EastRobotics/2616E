@@ -129,7 +129,7 @@ task taskLaunch() {
 	canLaunch = false;
 	// Run launcher motors until we can see that we've launched
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
-	
+
 	short changeCount = 0;
 	int lastAngle = SensorValue[potLauncher];
 	wait1Msec(15);
