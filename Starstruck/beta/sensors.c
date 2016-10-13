@@ -282,4 +282,6 @@ void sensorsErrorEscape() {
 	getSkillsTime();
 	simplifyGyro(0, false);
 	degreeToRad(0.0);
+	gyroToFloat(100);
+	motorToRPM(1);
 }

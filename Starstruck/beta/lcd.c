@@ -17,12 +17,11 @@ long lastHoldTime = -1.0; // How long we held a button last time we did.
 //   -> You shouldn't use button hold times anywhere else, because the value will not always be recent.
 
 // Example page vars
-int menuMode = 1;
-int menuMin = 1;
-int menuMax = 3;
+/* For the slider example
 int linePosition = 0;
 int linePosMin = 0;
 int linePosMax = 13;
+*/
 
 // Clears an entire LCD (Vex, y u no have)
 void clearLCD() {
@@ -50,17 +49,17 @@ void lcdUpdatePage( bool userInteraction )
 		string toDisplay = "";
 		int autonMode = getAutonMode();
 		switch(autonMode) {
-			case 1 :
-				sprintf(toDisplay, "%c Do Nothing %c", 0xBC, 0xBB);
-				break;
-			case 2 :
-				sprintf(toDisplay, "%c Test 1 %c", 0xBC, 0xBB);
-				break;
-			case 3 :
-				sprintf(toDisplay, "%c Test 2 %c", 0xBC, 0xBB);
-				break;
-			default :
-				sprintf(toDisplay, "%c Unknown mode: %i %c", 0xBC, autonMode, 0xBB);
+		case 1 :
+			sprintf(toDisplay, "%c Do Nothing %c", 0xBC, 0xBB);
+			break;
+		case 2 :
+			sprintf(toDisplay, "%c Test 1 %c", 0xBC, 0xBB);
+			break;
+		case 3 :
+			sprintf(toDisplay, "%c Test 2 %c", 0xBC, 0xBB);
+			break;
+		default :
+			sprintf(toDisplay, "%c Unknown mode: %i %c", 0xBC, autonMode, 0xBB);
 		}
 		displayLCDCenteredString(1,toDisplay);
 		return;
@@ -74,7 +73,7 @@ void lcdUpdatePage( bool userInteraction )
 		string toDisplay = "";
 		if (getAutonPosition()) { // Right
 			sprintf(toDisplay, "%c Right %c", 0xBC, 0xBB);
-		} else { // Left
+			} else { // Left
 			sprintf(toDisplay, "%c Left %c", 0xBC, 0xBB);
 		}
 		displayLCDCenteredString(1,toDisplay);
@@ -89,7 +88,7 @@ void lcdUpdatePage( bool userInteraction )
 		string toDisplay = "";
 		if (getAutonColor()) { // Blue
 			sprintf(toDisplay, "%c Blue %c", 0xBC, 0xBB);
-		} else { // Red
+			} else { // Red
 			sprintf(toDisplay, "%c Red %c", 0xBC, 0xBB);
 		}
 		displayLCDCenteredString(1,toDisplay);
@@ -136,13 +135,13 @@ void lcdUpdatePage( bool userInteraction )
 	/*
 	[Slider example/test]
 	else if (currentPage == 0) {
-		string title = "";
-		sprintf(title,"SliderExample %c",0xF6);
-		displayLCDString(0,0,title);
+	string title = "";
+	sprintf(title,"SliderExample %c",0xF6);
+	displayLCDString(0,0,title);
 
-		displayLCDString(1,1,"--------------");
-		displayLCDChar(1,linePosition+1,'O');
-		return;
+	displayLCDString(1,1,"--------------");
+	displayLCDChar(1,linePosition+1,'O');
+	return;
 	}
 	*/
 
@@ -240,11 +239,11 @@ void lcdBack() {
 
 	/* [Slider example/test]
 	if (currentPage == 0) {
-		if (linePosition < linePosMax) {
-			linePosition += 1;
-			lcdUpdatePage(true);
-		}
-		return;
+	if (linePosition < linePosMax) {
+	linePosition += 1;
+	lcdUpdatePage(true);
+	}
+	return;
 	}
 	*/
 }
@@ -281,11 +280,11 @@ void lcdNext() {
 
 	/* [Slider example/test]
 	if (currentPage == 0) {
-		if (linePosition > linePosMin) {
-			linePosition -= 1;
-			lcdUpdatePage(true);
-		}
-		return;
+	if (linePosition > linePosMin) {
+	linePosition -= 1;
+	lcdUpdatePage(true);
+	}
+	return;
 	}
 	*/
 }

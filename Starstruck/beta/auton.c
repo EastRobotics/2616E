@@ -104,7 +104,6 @@ void runAuton() {
 	}
 	if (currentMode == 3) { // Mode 3
 		startTask(logTicks);
-		driveStraightPID(2500);
 		while(true) wait1Msec(25);
 	}
 }

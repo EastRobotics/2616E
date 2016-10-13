@@ -143,9 +143,7 @@ task getRPMValues() {
 		datalogDataGroupEnd();
 		*/
 		wait1Msec((int)RPMReadRate);
-
 	}
-
 }
 
 // Sets the encoders on all of our drive motors back to 0.
@@ -156,67 +154,13 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBR] = 0;
 }
 
+// Variables used for encoder. Should probably be replaced with a struct
 tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
+int motorsToChangeSpeed[4] = {0,0,0,0};
 long tickTarget[4];
-//Setup the weights for the various stages of pid
-float kP = 0.01; //Proportional Gain
-float kI = 0.0; //Integral Gain
-float kD = 0.0; //Derivitive Gain
-float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
-task drivePID() {
-	//Initialize the PID variables
-	long error[4] = {0, 0, 0, 0};
-	long pError[4] = {0, 0, 0, 0};
-	long p[4] = {0, 0, 0, 0};
-	long i[4] = {0, 0, 0, 0};
-	long d[4] = {0, 0, 0, 0};
-	string debugString = ""; //FOR DEBUG, REMOVE LATER
-	writeDebugStreamLine("STARTING PID");
-
-	while(true){
-		long driveAvg = 0;
-		long errorAvg = 0;
-		for (int index = 0; index < 4; index ++){
-			error[index] = tickTarget[index] - nMotorEncoder[motorsToChange[index]];
-			//DEBUG
-			debugString = "";
-			sprintf(debugString,"Er[%i]:%i",index,error[index]);
-			writeDebugStreamLine(debugString);
-			//DEBUG
-			p[index] = error[index]; //P is simply the error
-			i[index] = abs(i[index] + error[index]) < kL ? i[index] + error[index] : sgn(i[index] + error[index])*kL; //I is the sum of errors
-			d[index] = error[index] - pError[index]; //D is the change in error or delta error
-			driveAvg += abs(p[index]*kP + i[index]*kI + d[index]*kD);
-			errorAvg += abs(error[index]);
-		}
-		//Find the average drive speed and error
-		driveAvg = round(driveAvg/4);
-		errorAvg = round(errorAvg/4);
-		debugString = "";
-		sprintf(debugString,"DrAv:%i \nErAv:%i",driveAvg,errorAvg);
-		writeDebugStreamLine(debugString);
-		//float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
-		//float yInt = 105.0-(slope*127.0);
-		//int speedForward = RPMToMotor((driveAvg*slope)+yInt);
-		for(int index = 0; index < 4; index ++){
-			debugString = "";
-			sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0)); //TODO switch back to speedForward
-			writeDebugStreamLine(debugString);
-			//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
-			motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0); //TODO switch back to speedForward
-		}
-		//if the error is low end the PID loop
-		if(abs(errorAvg) < 5){
-			writeDebugStreamLine("STOPPING PID");
-			break;
-		}
-		wait1Msec(25);
-	}
-}
-
-// Clean way to set variables for driveMotorToTargetPID
+// Clean way to set variables for storing tick values
 // PARAMETERS:
 //  tMotor: array of motors to use
 //  long: ticks to move
@@ -232,56 +176,30 @@ void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 	}
 }
 
-// Drives the robot forward using PID to keep straight
-// PARAMETERS:
-//  long: How much to move forward (if positive) or backwards (if negative)
-void driveStraightPID(long ticksToMove) {
-	bool _motorToMotorReverse[4] = {false, false, false, false};
-	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
-	setupMotorTicks(_motorsToChange, ticksToMove);
-	startTask( drivePID );
-}
-
-// Does a point turn using PID to stay in place
-// PARAMETERS:
-//  long: How much to turn right (if positive) or left (if negative)
-void drivePointTurnPID(long ticksToMove) {
-	bool _motorToMotorReverse[4] = {false, true, true, false};
-	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
-	setupMotorTicks(_motorsToChange, ticksToMove);
-	startTask( drivePID );
-}
-
-// TODO: Set all the values here, they're currently same as point turn
-// Does a strafe in a certain direction using PID to stay straight
-// PARAMETERS:
-//  long: How much to move right (if positive) or left (if negative)
-void driveStrafePID(long ticksToMove) {
-	bool _motorToMotorReverse[4] = {false, true, false, true};
-	motorToMotorReverse = _motorToMotorReverse;
-	tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
-	setupMotorTicks(_motorsToChange, ticksToMove);
-	startTask( drivePID );
-}
-
-// DEPRECATED: Soon to be removed in favor of PID methods
-// Drive tick method. Controls left and right side useful for point turns.
+// Logic driving method to check against ticks. Base method for other encoder methods
 // Reads encoder valte of the front motors for each side.
 // PARAMETERS:
-//  int: How fast to move the left side drive (-127 to 127)
-//  long: How far to spin the left drive, in ticks. If above speed is negative, so should this number.
-//  int: How fast to move the right side drive (-127 to 127)
-//  long: How far to spin the right drive, in ticks. If above speed is negative, so should this number.
-/*void driveTilRightLeft(int speedLeft, long ticksLeft, int speedRight, long ticksRight) {
-//setupMotorTicks(ticksLeft, ticksLeft, ticksRight, ticksRight);
-// While we're not where we want to be (Ternary allows for both forward and backward input)
-while ((ticksLeft > 0 ? nMotorEncoder[driveFL] < ticksFrontLeft : nMotorEncoder[driveFL] > ticksFrontLeft) ||
-(ticksRight > 0 ? nMotorEncoder[driveFR] < ticksFrontRight : nMotorEncoder[driveFR] > ticksFrontRight)) {
-driveRaw(speedLeft, speedLeft, speedRight, speedRight);
+//  motor array: The motors to change
+void driveTilEncoder(tMotor *_motorsToChange, int arrayLength) {
+	motorsToChange = (tMotor) _motorsToChange;
+	bool continueRunning = true;
+	while (continueRunning) {
+		continueRunning = false;
+		for (int i=0; i<arrayLength; i++) {
+			tMotor _motor = motorsToChange[i];
+			// If we're not at the target yet
+			if (motorToMotorReverse[i] ? tickTarget[i] > nMotorEncoder[_motor]
+				: tickTarget[i] < nMotorEncoder[_motor]) {
+				// Make sure we keep running and are at the right speed
+				continueRunning = true;
+				motor[_motor] = motorsToChangeSpeed[i];
+				} else {
+				// Stop the motor
+				motor[_motor] = 0;
+			}
+		}
+	}
 }
-}*/
 
 // Future control loop example:
 // We want to turn 45 degrees right...
@@ -309,5 +227,95 @@ float degree = degreeToRad(currentDegree-startDegree);
 speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
 // Considering strafe as y, y' = y*cos(a) - x*sin(a)
 speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
+}
+*/
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                        PID (Currently on the backburner)
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+bool motorToMotorReverse[4] = {false, false, false, false};
+long tickTarget[4];
+//Setup the weights for the various stages of pid
+float kP = 0.01; //Proportional Gain
+float kI = 0.0; //Integral Gain
+float kD = 0.0; //Derivitive Gain
+float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
+
+task drivePID() {
+//Initialize the PID variables
+long error[4] = {0, 0, 0, 0};
+long pError[4] = {0, 0, 0, 0};
+long p[4] = {0, 0, 0, 0};
+long i[4] = {0, 0, 0, 0};
+long d[4] = {0, 0, 0, 0};
+string debugString = ""; //FOR DEBUG, REMOVE LATER
+writeDebugStreamLine("STARTING PID");
+
+while(true){
+long driveAvg = 0;
+long errorAvg = 0;
+for (int index = 0; index < 4; index ++){
+error[index] = tickTarget[index] - nMotorEncoder[motorsToChange[index]];
+//DEBUG
+debugString = "";
+sprintf(debugString,"Er[%i]:%i",index,error[index]);
+writeDebugStreamLine(debugString);
+//DEBUG
+p[index] = error[index]; //P is simply the error
+i[index] = abs(i[index] + error[index]) < kL ? i[index] + error[index] : sgn(i[index] + error[index])*kL; //I is the sum of errors
+d[index] = error[index] - pError[index]; //D is the change in error or delta error
+driveAvg += abs(p[index]*kP + i[index]*kI + d[index]*kD);
+errorAvg += abs(error[index]);
+}
+//Find the average drive speed and error
+driveAvg = round(driveAvg/4);
+errorAvg = round(errorAvg/4);
+debugString = "";
+sprintf(debugString,"DrAv:%i \nErAv:%i",driveAvg,errorAvg);
+writeDebugStreamLine(debugString);
+//float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
+//float yInt = 105.0-(slope*127.0);
+//int speedForward = RPMToMotor((driveAvg*slope)+yInt);
+for(int index = 0; index < 4; index ++){
+debugString = "";
+sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0)); //TODO switch back to speedForward
+writeDebugStreamLine(debugString);
+//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
+motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0); //TODO switch back to speedForward
+}
+//if the error is low end the PID loop
+if(abs(errorAvg) < 5){
+writeDebugStreamLine("STOPPING PID");
+break;
+}
+wait1Msec(25);
+}
+}
+
+// Drives the robot forward using PID to keep straight
+// PARAMETERS:
+//  long: How much to move forward (if positive) or backwards (if negative)
+void driveStraightPID(long ticksToMove) {
+bool _motorToMotorReverse[4] = {false, false, false, false};
+motorToMotorReverse = _motorToMotorReverse;
+tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+setupMotorTicks(_motorsToChange, ticksToMove);
+startTask( drivePID );
+}
+
+// Does a point turn using PID to stay in place
+// PARAMETERS:
+//  long: How much to turn right (if positive) or left (if negative)
+void drivePointTurnPID(long ticksToMove) {
+bool _motorToMotorReverse[4] = {false, true, true, false};
+motorToMotorReverse = _motorToMotorReverse;
+tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+setupMotorTicks(_motorsToChange, ticksToMove);
+startTask( drivePID );
 }
 */

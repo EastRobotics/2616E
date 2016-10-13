@@ -111,8 +111,8 @@ const int noteThreshold = 5;
 // Launcher methods
 
 // TODO Fix according to the below explanation
-bool canLaunch = true; // In reality this _should_ start as false, and when the robot is set up on the field the 
-					  // arm should cock and this should set to true (Since the robot will be turned on with arm up)
+bool canLaunch = true; // In reality this _should_ start as false, and when the robot is set up on the field the
+// arm should cock and this should set to true (Since the robot will be turned on with arm up)
 
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
@@ -122,9 +122,9 @@ task taskLauncherReset() {
 	while(true) {
 		int currentAngle = SensorValue[potLauncher];
 		// If we are close enough to target or seem to have launched, stop resetting
-		if (abs(currentAngle-(COCKED_POT_DIFFERENCE+startingAngle)) <= COCKED_POT_THRESHOLD || 
+		if (abs(currentAngle-(COCKED_POT_DIFFERENCE+startingAngle)) <= COCKED_POT_THRESHOLD ||
 			(COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-100) // If the new difference is 100 in the back direction from the last
-			break;
+		break;
 		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher];
 		wait1Msec(15);
 	}
@@ -151,7 +151,7 @@ task taskLaunch() {
 	}
 	// Stop motors now that we have launched
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = 0;
-	
+
 	// Wait until we can see that the arm has stopped moving, then start resetting
 	// TODO Once we tested the above code, test the below commented block
 	// TODO Michael, delete so this is now a block start /*
@@ -294,9 +294,7 @@ task usercontrol()
 
 	// Inits for normal games and skills. See below for specifics
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
-	int lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed = 0;
 	string potentiometerValDebug = "";
-	float lastDirection = 0.0;
 	startTask ( playSong );
 
 	bool isSkills = false; // TODO: Set this somehow (LCD?)
@@ -321,10 +319,10 @@ task usercontrol()
 
 		// Drive train (forward speed, turn speed, strafe speed)(forward multiplier, turn multiplier, stafe multiplier
 		if(!vexRT[Btn6D]) { // Normal drive... Bottom left bumper
-			lastForwardSpeed = vexRT[Ch3];
-			lastTurnSpeed = vexRT[Ch1];
-			lastStrafeSpeed = vexRT[Ch4];
-			driveWithLogic(lastForwardSpeed, lastTurnSpeed, lastStrafeSpeed, false);
+			int speedForward = vexRT[Ch3];
+			int speedTurn = vexRT[Ch1];
+			int speedStrafe = vexRT[Ch4];
+			driveWithLogic(speedForward, speedTurn, speedStrafe, false);
 			} else { // Drive with tank controls
 			driveTank(vexRT[Ch3],vexRT[Ch2]);
 		}
