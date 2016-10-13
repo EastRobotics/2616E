@@ -40,6 +40,7 @@
 #define COCKED_POT_VALUE 1500
 #define COCKED_POT_THRESHOLD 7
 #define LAUNCH_ACCURACY_COUNT 5
+#define LAUNCH_STOP_COUNT 5
 
 int song[165][3] = {{1568,192,1764.704},{1568,36,2095.586},{1568,36,2426.468},{1568,24,2647.056},{1568,1,2656.2471666666665},{1568,35,2977.938},{1568,36,3308.82},{2093,24,3529.4080000000004},{2093,36,3860.2900000000004},{2093,36,4191.1720000000005},{1865,24,4411.76},{1865,36,4742.642},{1865,36,5073.523999999999},{1397,24,5294.111999999999},
 	{1568,36,5624.993999999999},{1568,36,5955.875999999998},{1568,24,6176.463999999998},{1568,36,6507.345999999998},{1568,36,6838.227999999997},{2093,24,7058.815999999997},{1568,36,7389.697999999997},{1568,36,7720.579999999996},{1568,24,7941.167999999996},{1568,36,8272.049999999996},{1568,36,8602.931999999995},{2093,24,8823.519999999995},{1568,36,9154.401999999995},{1568,36,9485.283999999994},{1568,24,9705.871999999994},{1568,36,10036.753999999994},
@@ -114,10 +115,14 @@ bool canLaunch = false;
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
+	int lastDifference = COCKED_POT_VALUE-SensorValue[potLauncher];
 	while(true) {
 		int currentAngle = SensorValue[potLauncher];
-		if (abs(currentAngle-COCKED_POT_VALUE) <= COCKED_POT_THRESHOLD)
+		// If we are close enough to target or seem to have launched, stop resetting
+		if (abs(currentAngle-COCKED_POT_VALUE) <= COCKED_POT_THRESHOLD || 
+			(COCKED_POT_VALUE-SensorValue[potLauncher]) < lastDifference-100) // If the new difference is 100 in the back direction from the last
 			break;
+		lastDifference = COCKED_POT_VALUE-SensorValue[potLauncher];
 		wait1Msec(15);
 	}
 	// Stop motors now that we have cocked
@@ -143,7 +148,23 @@ task taskLaunch() {
 	}
 	// Stop motors now that we have launched
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = 0;
-	// TODO UNCOMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+	
+	// Wait until we can see that the arm has stopped moving, then start resetting
+	// TODO Once we tested the above code, test the below commented block
+	// TODO Michael, delete so this is now a block start /*
+	changeCount = 0;
+	lastAngle = SensorValue[potLauncher];
+	wait1Msec(15);
+	while(true) {
+		int currentAngle = SensorValue[potLauncher];
+		if (abs(currentAngle-lastAngle) < 5)
+			changeCount+=1;
+		if(changeCount == LAUNCH_STOP_COUNT)
+			break;
+		wait1Msec(15);
+	}
+	// TODO Michael, delete so this is now a block end /*
+	// TODO Uncomment below once we know launching works!!!
 	//startTask(taskLauncherReset);
 }
 
