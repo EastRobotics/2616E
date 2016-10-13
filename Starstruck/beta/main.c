@@ -37,7 +37,7 @@
 #define VERSION_BUILD 1
 #define VERSION_TYPE "ALPHA"
 
-#define COCKED_POT_VALUE 1500
+#define COCKED_POT_DIFFERENCE 1500
 #define COCKED_POT_THRESHOLD 7
 #define LAUNCH_ACCURACY_COUNT 5
 #define LAUNCH_STOP_COUNT 5
@@ -110,19 +110,22 @@ const int noteThreshold = 5;
 
 // Launcher methods
 
-bool canLaunch = false;
+// TODO Fix according to the below explanation
+bool canLaunch = true; // In reality this _should_ start as false, and when the robot is set up on the field the 
+					  // arm should cock and this should set to true (Since the robot will be turned on with arm up)
 
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
+	int startingAngle = SensorValue[potLauncher];
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
-	int lastDifference = COCKED_POT_VALUE-SensorValue[potLauncher];
+	int lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher];
 	while(true) {
 		int currentAngle = SensorValue[potLauncher];
 		// If we are close enough to target or seem to have launched, stop resetting
-		if (abs(currentAngle-COCKED_POT_VALUE) <= COCKED_POT_THRESHOLD || 
-			(COCKED_POT_VALUE-SensorValue[potLauncher]) < lastDifference-100) // If the new difference is 100 in the back direction from the last
+		if (abs(currentAngle-(COCKED_POT_DIFFERENCE+startingAngle)) <= COCKED_POT_THRESHOLD || 
+			(COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-100) // If the new difference is 100 in the back direction from the last
 			break;
-		lastDifference = COCKED_POT_VALUE-SensorValue[potLauncher];
+		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher];
 		wait1Msec(15);
 	}
 	// Stop motors now that we have cocked
