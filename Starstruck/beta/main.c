@@ -23,7 +23,7 @@
 #pragma platform(VEX)
 
 #pragma competitionControl(Competition)
-#pragma autonomousDuration(20)
+#pragma autonomousDuration(20) // TODO Make sure these are still right, and change the values in sensors.c for time tracking
 #pragma userControlDuration(120)
 
 #include "Vex_Competition_Includes.c" // Competition includes [DO NOT TOUCH]
@@ -34,7 +34,7 @@
 
 #define VERSION_MAJOR 1
 #define VERSION_MINOR 0
-#define VERSION_BUILD 1
+#define VERSION_BUILD 2
 #define VERSION_TYPE "ALPHA"
 
 #define COCKED_POT_DIFFERENCE 1500
@@ -53,11 +53,8 @@ int song[165][3] = {{1568,192,1764.704},{1568,36,2095.586},{1568,36,2426.468},{1
 	{1568,12,28345.55800000006},{1568,12,28455.85200000006},{1568,12,28566.146000000062},{1568,12,28676.440000000064},{1568,12,28786.734000000066},{1568,12,28897.028000000068},{1568,12,29007.32200000007},{1568,12,29117.61600000007},{1568,96,29999.96800000007},{1568,12,30110.26200000007},{1568,12,30220.556000000073},{1568,12,30330.850000000075},{1568,12,30441.144000000077},{1568,24,30661.732000000076},{1568,12,30772.026000000078},{1568,12,30882.32000000008},
 	{1568,12,30992.61400000008},{1568,12,31102.908000000083},{1568,12,31213.202000000085},{1568,12,31323.496000000086},{1568,24,31544.084000000086},{2093,12,31654.378000000088},{2093,12,31764.67200000009},{2093,12,31874.96600000009},{2093,12,31985.260000000093},{2093,12,32095.554000000095},{2093,12,32205.848000000096},{2093,24,32426.436000000096},{1865,12,32536.730000000098},{1865,12,32647.0240000001},{1865,12,32757.3180000001},{1865,12,32867.6120000001},
 	{1865,12,32977.906000000105},{1865,12,33088.200000000106},{1865,24,33308.78800000011},{1397,12,33419.08200000011},{1397,12,33529.37600000011},{1568,12,33639.670000000115},{1568,12,33749.964000000116}};
-
 const int songLength = 165;
-
 float songSpeed = 1.0;
-
 const int noteThreshold = 5;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -154,19 +151,19 @@ task taskLaunch() {
 
 	// Wait until we can see that the arm has stopped moving, then start resetting
 	// TODO Once we tested the above code, test the below commented block
-	// TODO Michael, delete so this is now a block start /*
+	/*
 	changeCount = 0;
 	lastAngle = SensorValue[potLauncher];
 	wait1Msec(15);
 	while(true) {
-		int currentAngle = SensorValue[potLauncher];
-		if (abs(currentAngle-lastAngle) < 5)
-			changeCount+=1;
-		if(changeCount == LAUNCH_STOP_COUNT)
-			break;
-		wait1Msec(15);
+	int currentAngle = SensorValue[potLauncher];
+	if (abs(currentAngle-lastAngle) < 5)
+	changeCount+=1;
+	if(changeCount == LAUNCH_STOP_COUNT)
+	break;
+	wait1Msec(15);
 	}
-	// TODO Michael, delete so this is now a block end /*
+	*/
 	// TODO Uncomment below once we know launching works!!!
 	//startTask(taskLauncherReset);
 }
@@ -177,9 +174,6 @@ void launch() {
 	else
 		writeDebugStreamLine("Tried to launch but we aren't currently able to!");
 }
-
-// Intake methods
-
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -217,6 +211,7 @@ void pre_auton()
 	//Setup song
 	processSong();
 
+	// Clear datalog incase we are using it
 	clearDebugStream();
 	datalogClear();
 
@@ -242,7 +237,7 @@ void pre_auton()
 */
 task autonomous()
 {
-	//Start reading RPM of the drive motors
+	// Start reading RPM of the drive motors
 	startTask( getRPMValues );
 
 	setupGameTimer(false); // sensors.c
@@ -317,7 +312,7 @@ task usercontrol()
 			// End auton tester
 		}
 
-		// Drive train (forward speed, turn speed, strafe speed)(forward multiplier, turn multiplier, stafe multiplier
+		// Drive (forward speed, turn speed, strafe speed)(forward multiplier, turn multiplier, stafe multiplier)
 		if(!vexRT[Btn6D]) { // Normal drive... Bottom left bumper
 			int speedForward = vexRT[Ch3];
 			int speedTurn = vexRT[Ch1];
@@ -327,6 +322,7 @@ task usercontrol()
 			driveTank(vexRT[Ch3],vexRT[Ch2]);
 		}
 
+		// Intake
 		int intakeSpeed = 60;
 		if (vexRT[Btn5U]) { // Upper right bumper
 			motor[intakeL] = -1*intakeSpeed;
@@ -339,7 +335,7 @@ task usercontrol()
 			motor[intakeR] = 0;
 		}
 
-		//Launcher code
+		// Launcher
 		if(canLaunch){
 			if(vexRT[Btn8R]) {
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
