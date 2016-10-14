@@ -261,6 +261,68 @@ float motorToRPM(int motorSpeed){
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
+//													Linear Interpolation Functions
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Calculates a slope using the equation m = (y2-y1)/(x2-x1)
+//PARAMETERS:
+// float: the first x value
+// float: the first y value
+// float: the second x value
+// float: the second y value
+//RETURNS
+// float: the slope of the line with the given points
+float getSlope(float x1 = 15.0, float y1 = 25.0, float x2 = 127.0, float y2 = 105.0){
+	return ((y2-y1)/(x2-x1));
+}
+
+//Calculates the y-intercept of a line given by the equation y = mx + b
+//rewritten for these purposes as b = y - mx
+//PARAMETERS:
+// float: the slope of the line
+// float: the x coordinate of a given point
+// float: the y coordinate of a given point
+//RETURNS:
+// float: the y-intercept of the line with the given point and slope
+float getYInt(float slope = 0.714, float x = 127.0, float y = 105.0){
+	return  (y - (slope * x));
+}
+
+//Gives a direct relationship between two points and the values inbetween by
+//finding the equation of the line between the min and max values and plugging
+//the value into the equation
+//PARAMETERS:
+// float: the minimum value of the dependent variable
+// float: the minimum value of the independent variable
+// float: the maximum value of the dependent variable
+// float: the maximum value of the independent variable
+// float: a decimal between 0 and 1, indicating the amount
+//        the current value is accross the line (like a
+//        percent completed)
+//RETURNS:
+// float: the result of the linear interpolation function with the given progress
+float lerp(float x1, float y1, float x2, float y2, float progress){
+		return ((progress*x2)*getSlope(x1,y1,x2,y2))+getYInt(getSlope(x1,y1,x2,y2),x2,y2);
+}
+
+//Performs linear interpolation specific to the motors
+//PARAMETERS:
+// float: the power that the motor should be run at (possibly directly from joystick)
+// float: the minimum speed that the motor should run at
+// float: the minimum power that the motors should be allowed to move with
+//				(sort of like a joystick threshold)
+//RETURNS:
+// float: the motor speed with the linear interpolation performed on it
+int getLerpedSpeed(int power = 0, int minSpeed = 25, int minPower = 15){
+	if(power < minPower)
+		return 0;
+	int speed = RPMToMotor(lerp((float) minPower, (float) minSpeed, 127.0, 105.0, (float) power/127.0));
+	return (speed > 127) ? 127 : ((speed<0) ? 0 : speed);
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
 //                          			 Error escapes
 //
 // Since this is a lib, we aren't going to use every method. Have a never called function to eliminate the warnings.

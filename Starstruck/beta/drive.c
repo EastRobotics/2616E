@@ -86,11 +86,9 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	// Consider it TODONE
 
 	//uses linear interpolation or lerp to fix the logarithmic nature of a motor's RPM to motor speed ratio into linear growth
-	float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
-	float yInt = 105.0-(slope*127.0);
-	multipliedSpeedForward = RPMToMotor((multipliedSpeedForward*slope)+yInt);
-	multipliedSpeedTurn = RPMToMotor((multipliedSpeedTurn*slope)+yInt);
-	multipliedSpeedStrafe = RPMToMotor((multipliedSpeedStrafe*slope)+yInt);
+	multipliedSpeedForward = getLerpedSpeed(multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
+	multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
+	multipliedSpeedStrafe = getLerpedSpeed(multipliedSpeedStrafe, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
 
 	if (abs(speedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
 	if (abs(speedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
@@ -99,6 +97,9 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	multipliedSpeedForward *= forwardMult;
 	multipliedSpeedTurn *= turnMult;
 	multipliedSpeedStrafe *= strafeMult;
+	//Double strafe speeds
+	multipliedSpeedStrafe *= 2;
+	multipliedSpeedStrafe = (multipliedSpeedStrafe > 127) ? 127 : multipliedSpeedStrafe;
 
 	if (!reverse)
 		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
