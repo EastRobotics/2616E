@@ -233,7 +233,7 @@ int getSkillsTime() {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//													RPM and Motor Speed Conversions
+//                          RPM and Motor Speed Conversions
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -308,12 +308,12 @@ float lerp(float x1, float y1, float x2, float y2, float progress){
 
 //Performs linear interpolation specific to the motors
 //PARAMETERS:
-// float: the power that the motor should be run at (possibly directly from joystick)
-// float: the minimum speed that the motor should run at
-// float: the minimum power that the motors should be allowed to move with
+// int: the power that the motor should be run at (possibly directly from joystick)
+// int: the minimum speed that the motor should run at
+// int: the minimum power that the motors should be allowed to move with
 //				(sort of like a joystick threshold)
 //RETURNS:
-// float: the motor speed with the linear interpolation performed on it
+// int: the motor speed with the linear interpolation performed on it
 int getLerpedSpeed(int power = 0, int minSpeed = 25, int minPower = 15){
 	if(power < minPower)
 		return 0;
