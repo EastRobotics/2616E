@@ -175,7 +175,7 @@ float sidesToAngle(float sideOne, float sideTwo){
 	float nearbyCD = (90.0*(quadrant-1.0));
 	float finalAngle = nearbyCD;
 	// Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
-	if(abs(sideOne)>=abs(sideTwo)){
+	if(fabs(sideOne)>=fabs(sideTwo)){
 		finalAngle += abs(angle);
 		} else {
 		if(quadrant==1.0||quadrant==4.0){

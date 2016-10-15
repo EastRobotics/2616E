@@ -53,13 +53,22 @@ void lcdUpdatePage( bool userInteraction )
 			sprintf(toDisplay, "%c Do Nothing %c", 0xBC, 0xBB);
 			break;
 		case 2 :
-			sprintf(toDisplay, "%c Test 1 %c", 0xBC, 0xBB);
+			sprintf(toDisplay, "%c Max Points %c", 0xBC, 0xBB);
 			break;
 		case 3 :
-			sprintf(toDisplay, "%c Test 2 %c", 0xBC, 0xBB);
+			sprintf(toDisplay, "%c Push Cube %c", 0xBC, 0xBB);
+			break;
+		case 4 :
+			sprintf(toDisplay, "%c Stay In Plc %c", 0xBC, 0xBB);
+			break;
+		case 5 :
+			sprintf(toDisplay, "%c Corner %c", 0xBC, 0xBB);
+			break;
+		case 6 :
+			sprintf(toDisplay, "%c Corn & Cube %c", 0xBC, 0xBB);
 			break;
 		default :
-			sprintf(toDisplay, "%c Unknown mode: %i %c", 0xBC, autonMode, 0xBB);
+			sprintf(toDisplay, "%c Mode ?: %i %c", 0xBC, autonMode, 0xBB);
 		}
 		displayLCDCenteredString(1,toDisplay);
 		return;
@@ -119,7 +128,7 @@ void lcdUpdatePage( bool userInteraction )
 	// Page 5 [Battery values]
 	else if (currentPage == 5) {
 		string title = "";
-		sprintf(title,"BatStat %c",0xF6);
+		sprintf(title,"BatStat%c",0xF6);
 		displayLCDString(0,0,title);
 		string backupvolt = "";
 		sprintf(backupvolt,"%0.2fv",getBackupBatteryVoltage());
@@ -148,7 +157,7 @@ void lcdUpdatePage( bool userInteraction )
 	// Page 6 [Game Time]
 	else if (currentPage == 6){
 		string title = "";
-		sprintf(title,"Game Time %c",0xF6);
+		sprintf(title,"GameTime%c",0xF6);
 		displayLCDString(0,0,title);
 		displayLCDNumber(1,0,getGameTime());
 		displayLCDNumber(1,8,getGameTimeRunning());
@@ -157,7 +166,8 @@ void lcdUpdatePage( bool userInteraction )
 	// Page 7 [Launcher arm position]
 	else if (currentPage == 7){
 		string title = "";
-		sprintf(title,"Launcher Pot %c",0xF6);
+		sprintf(title,"LaunchPot%c",0xF6);
+		displayLCDString(0,0,title);
 		displayLCDNumber(1,0,SensorValue[potLauncher]);
 	}
 

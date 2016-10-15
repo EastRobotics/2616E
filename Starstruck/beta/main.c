@@ -110,18 +110,22 @@ const int noteThreshold = 5;
 
 // TODO Fix according to the below explanation
 bool canLaunch = true; // In reality this _should_ start as false, and when the robot is set up on the field the
+int startingAngle = 0;
 // arm should cock and this should set to true (Since the robot will be turned on with arm up)
+
+bool getCanLaunch() {
+	return canLaunch;
+}
 
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
-	int startingAngle = SensorValue[potLauncher];
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
 	int lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher];
 	while(true) {
 		int currentAngle = SensorValue[potLauncher];
 		// If we are close enough to target or seem to have launched, stop resetting
 		if (abs(currentAngle-(COCKED_POT_DIFFERENCE+startingAngle)) <= COCKED_POT_THRESHOLD ||
-			(COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-100) // If the new difference is 100 in the back direction from the last
+			(COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-15) // If the new difference is 100 in the back direction from the last
 		break;
 		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher];
 		wait1Msec(15);
@@ -170,6 +174,8 @@ task taskLaunch() {
 	*/
 	// TODO Uncomment below once we know launching works!!!
 	//startTask(taskLauncherReset);
+	// TODO Delete below when you uncomment above
+	canLaunch = true;
 }
 
 void launch() {
@@ -218,6 +224,9 @@ void pre_auton()
 	// Clear datalog incase we are using it
 	clearDebugStream();
 	datalogClear();
+
+	// Set the arm position
+	startingAngle = SensorValue[potLauncher];
 
 	// Never passing if statement. Lets us get rid of compile warnings so we can focus on the ones we need to see.
 	if (false) {
@@ -356,6 +365,7 @@ task usercontrol()
 			stopTask(taskLaunch);
 			stopTask(taskLauncherReset);
 			motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
+			canLaunch = true;
 		}
 
 		//////////////////////////////
