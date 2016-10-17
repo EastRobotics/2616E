@@ -199,7 +199,7 @@ float sidesToAngle(float sideOne, float sideTwo){
 // TODO: Change the following values to correct ones in millis
 const long autonTime = 15000; // Auton time in millis
 const long controlTime = 105000; // User control time in millis
-const long skillsTime = 1000; // Skills time in millis
+const long skillsTime = 60000; // Skills time in millis
 bool gamemode = false; // False = auton control, true = user control
 
 // Sets up the timer for game time tracking
