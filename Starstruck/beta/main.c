@@ -38,10 +38,10 @@
 #define VERSION_BUILD 3
 #define VERSION_TYPE "ALPHA"
 
-#define COCKED_POT_DIFFERENCE 1160
-#define COCKED_POT_THRESHOLD 30
-#define LAUNCH_ACCURACY_COUNT 2
-#define LAUNCH_STOP_COUNT 5
+#define COCKED_POT_DIFFERENCE 1160 // How far from the starting value the arm should pull down
+#define COCKED_POT_THRESHOLD 30 // How close we need to be to the target difference value to pass
+#define LAUNCH_ACCURACY_COUNT 2 // How many times we need to see an upward change to count it as a launch
+#define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 seconds to count it as stopped launching
 
 int song[165][3] = {{1568,192,1764.704},{1568,36,2095.586},{1568,36,2426.468},{1568,24,2647.056},{1568,1,2656.2471666666665},{1568,35,2977.938},{1568,36,3308.82},
 	{2093,24,3529.4080000000004},{2093,36,3860.2900000000004},{2093,36,4191.1720000000005},{1865,24,4411.76},{1865,36,4742.642},{1865,36,5073.523999999999},{1397,24,5294.111999999999},
