@@ -197,9 +197,9 @@ float sidesToAngle(float sideOne, float sideTwo){
 /////////////////////////////////////////////////////////////////////////////////////////
 
 // TODO: Change the following values to correct ones in millis
-const int autonTime = 1000; // Auton time in millis
-const int controlTime = 1000; // User control time in millis
-const int skillsTime = 1000; // Skills time in millis
+const long autonTime = 15000; // Auton time in millis
+const long controlTime = 105000; // User control time in millis
+const long skillsTime = 1000; // Skills time in millis
 bool gamemode = false; // False = auton control, true = user control
 
 // Sets up the timer for game time tracking
@@ -213,21 +213,21 @@ void setupGameTimer(bool _gamemode) {
 // Gets how long the game has been running
 // RETURNS:
 // 	int: Time the game has been running, in milliseconds
-int getGameTimeRunning() {
+long getGameTimeRunning() {
 	return time1[T3];
 }
 
 // Gets how long is left in the game
 // RETURNS:
 // 	int: Time the game has left, in milliseconds
-int getGameTime() {
+long getGameTime() {
 	return time1[T3] - (gamemode ? controlTime : autonTime);
 }
 
 // Gets how long is left in the game, considering it's skills
 // RETURNS:
 // 	int: Time the skills match has left, in milliseconds
-int getSkillsTime() {
+long getSkillsTime() {
 	return time1[T3]-skillsTime;
 }
 
