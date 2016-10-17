@@ -150,13 +150,13 @@ task getRPMValues() {
 // Sets the encoders on all of our drive motors back to 0.
 void clearDriveEncoders() {
 	nMotorEncoder[driveFR] = 0;
-	nMotorEncoder[driveFL] = 0;
-	nMotorEncoder[driveBL]= 0;
 	nMotorEncoder[driveBR] = 0;
+	nMotorEncoder[driveFL]= 0;
+	nMotorEncoder[driveBL] = 0;
 }
 
 // Variables used for encoder. Should probably be replaced with a struct
-tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
+tMotor motorsToChange[4] = {driveFR,driveBR,driveFL,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
 int motorsToChangeSpeed[4] = {0,0,0,0};
 long tickTarget[4];
@@ -200,6 +200,36 @@ void driveTilEncoder(tMotor *_motorsToChange, int arrayLength) {
 			}
 		}
 	}
+}
+
+// Point turn
+void driveEncoderPointTurn(int ticks, bool right) {
+	motorToMotorReverse[0] = right ? true : false;
+	motorToMotorReverse[1] = right ? true : false;
+	motorToMotorReverse[2] = right ? false : true;
+	motorToMotorReverse[3] = right ? false : true;
+	setupMotorTicks(motorsToChange, ticks);
+	driveTilEncoder(motorsToChange, 4);
+}
+
+// Straight
+void driveEncoderNormal(int ticks, bool forward) {
+	motorToMotorReverse[0] = forward ? false : true;
+	motorToMotorReverse[1] = forward ? false : true;
+	motorToMotorReverse[2] = forward ? false : true;
+	motorToMotorReverse[3] = forward ? false : true;
+	setupMotorTicks(motorsToChange, ticks);
+	driveTilEncoder(motorsToChange, 4);
+}
+
+// Strafe
+void driveEncoderStrafe(int ticks, bool right) {
+	motorToMotorReverse[0] = right ? true : false;
+	motorToMotorReverse[1] = right ? false : true;
+	motorToMotorReverse[2] = right ? false : true;
+	motorToMotorReverse[3] = right ? true : false;
+	setupMotorTicks(motorsToChange, ticks);
+	driveTilEncoder(motorsToChange, 4);
 }
 
 // Future control loop example:
