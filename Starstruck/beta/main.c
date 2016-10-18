@@ -38,7 +38,7 @@
 #define VERSION_BUILD 3
 #define VERSION_TYPE "ALPHA"
 
-#define COCKED_POT_DIFFERENCE 1160 // How far from the starting value the arm should pull down
+#define COCKED_POT_DIFFERENCE 1230 // How far from the starting value the arm should pull down
 #define COCKED_POT_THRESHOLD 30 // How close we need to be to the target difference value to pass
 #define LAUNCH_ACCURACY_COUNT 2 // How many times we need to see an upward change to count it as a launch
 #define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 seconds to count it as stopped launching
@@ -367,7 +367,7 @@ task usercontrol()
 		// Launcher
 		*/
 		// Normal handling (right pad)
-		if(canLaunch || vexRT[Btn7D]){ // If we can launch or override is pressed
+		if(canLaunch && vexRT[Btn7D]){ // If we can launch or override is pressed
 			if(vexRT[Btn8R] && vexRT[Btn7D]) { // Backdrive launcher (Requires the override button)
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
 				} else if(vexRT[Btn8L]){ // Pull launcher down
@@ -375,22 +375,23 @@ task usercontrol()
 				} else { // Stop launcher
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
 			}
-			if(vexRT[Btn8U]){ // Launch
-				launch();
-			}
+		}
+		if(canLaunch && vexRT[Btn8U]){
+			launch();
 		}
 		// Special handling (left pad)
 		if(vexRT[Btn8D]) { // Emergency launcher stopping
 			stopAllLaunching();
-			canLaunch = true;
 		}
 		if (vexRT[Btn7U]) { // If test auton button is pressed
 			if (vexRT[Btn7D] && vexRT[Btn7L] && vexRT[Btn7R]) {
 				runAuton();
 			}
-			} else { // Not pressing testing auton
-			if(vexRT[Btn7R] && vexRT[Btn7D]){ // Reset launcher
-				stopAllLaunching();
+		} else { // Not pressing testing auton
+			if(vexRT[Btn7R]){ // Reset launcher
+				stopTask(taskLaunch);
+				stopTask(taskLauncherReset);
+				canLaunch = false;
 				startTask( taskLauncherReset );
 			}
 			if(vexRT[Btn7L] && vexRT[Btn7D]){ // Force reset startingAngle

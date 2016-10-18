@@ -118,6 +118,9 @@ task logTicks() {
 // Auton modes should handle team color and positon
 // (Thanks vex for making the pole opposite for each side)
 void runAuton() {
+	string debug = "";
+	sprintf(debug,"Running Auton Mode: %i",currentMode);
+	writeDebugStreamLine(debug);
 	// Mode 1 [Do nothing]
 
 	// Mode 2 [Default mode/Max Points]
@@ -129,6 +132,9 @@ void runAuton() {
 			// Pick up star, shoot, and reset (While resetting move to next star)
 			// Pick up next star, repeat
 		// Push cube into near zone
+
+		setupMotorTicks(motorsToChange, 1000);
+		driveTilEncoder(motorsToChange,4);
 	}
 
 	// Mode 3 [Launch + Push Cube]
