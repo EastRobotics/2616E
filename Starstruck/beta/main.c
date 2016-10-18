@@ -386,7 +386,6 @@ task usercontrol()
 		}
 		if (vexRT[Btn7U]) { // If test auton button is pressed
 			if (vexRT[Btn7D] && vexRT[Btn7L] && vexRT[Btn7R]) {
-				setAutonMode(2);
 				runAuton();
 			}
 			} else { // Not pressing testing auton
