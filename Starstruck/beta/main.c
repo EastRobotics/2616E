@@ -41,7 +41,7 @@
 #define COCKED_POT_DIFFERENCE 1230 // How far from the starting value the arm should pull down
 #define COCKED_POT_THRESHOLD 30 // How close we need to be to the target difference value to pass
 #define LAUNCH_ACCURACY_COUNT 2 // How many times we need to see an upward change to count it as a launch
-#define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 seconds to count it as stopped launching
+#define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 milliseconds to count it as stopped launching
 
 int song[165][3] = {{1568,192,1764.704},{1568,36,2095.586},{1568,36,2426.468},{1568,24,2647.056},{1568,1,2656.2471666666665},{1568,35,2977.938},{1568,36,3308.82},
 	{2093,24,3529.4080000000004},{2093,36,3860.2900000000004},{2093,36,4191.1720000000005},{1865,24,4411.76},{1865,36,4742.642},{1865,36,5073.523999999999},{1397,24,5294.111999999999},
@@ -367,16 +367,17 @@ task usercontrol()
 		// Launcher
 		*/
 		// Normal handling (right pad)
-		if(canLaunch && vexRT[Btn7D]){ // If we can launch or override is pressed
-			if(vexRT[Btn8R] && vexRT[Btn7D]) { // Backdrive launcher (Requires the override button)
+		if(canLaunch && vexRT[Btn7D]){ // If we can launch and override is pressed
+			if(vexRT[Btn8R]) { // Backdrive launcher
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
-				} else if(vexRT[Btn8L]){ // Pull launcher down
+				} else if(vexRT[Btn8U]){ // Pull launcher down
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = -127;
 				} else { // Stop launcher
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 0;
 			}
 		}
-		if(canLaunch && vexRT[Btn8U]){
+		// Launch using our automated tasks
+		if(canLaunch && vexRT[Btn8L]){
 			launch();
 		}
 		// Special handling (left pad)
