@@ -133,18 +133,20 @@ bool getCanLaunch() {
 	return canLaunch;
 }
 
+// If the new difference is within CURRENT_POT_THRESHOLD of COCKED_POT_DIFFERENCE+startingAngle
+bool isLauncherValueCocked(int currentAngle) {
+	return abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD;
+}
+
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
-	int lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
-	while(true) {
-		int currentAngle = SensorValue[potLauncher];
-		// If we are close enough to target or seem to have launched, stop resetting
+	int lastDifference, currentAngle = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
+	// If we are close enough to target or seem to have launched, stop resetting
+	while(isLauncherValueCocked(currentAngle)) {
+		// TODO: Uncomment the following to make sure we don't loop shooting if somethings wrong
 		// || (COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-15
-		if (abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD) // If the new difference is 100 in the back direction from the last
-			break;
 		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
-		//wait1Msec(15);
 	}
 	// Stop motors now that we have cocked the launcher arm
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = 0;
@@ -160,7 +162,7 @@ task taskLaunch() {
 	short changeCount = 0;
 	int lastAngle = SensorValue[potLauncher];
 	SensorValue[LED] = true;
-	wait1Msec(15);
+	wait1Msec(10);
 	while(true) {
 		int currentAngle = SensorValue[potLauncher];
 		if (currentAngle-lastAngle<-5)
@@ -168,7 +170,7 @@ task taskLaunch() {
 		if(changeCount == LAUNCH_ACCURACY_COUNT)
 			break;
 		lastAngle = SensorValue[potLauncher];
-		wait1Msec(15);
+		wait1Msec(10);
 	}
 
 	// Stop motors now that we have launched
@@ -178,7 +180,7 @@ task taskLaunch() {
 	// Wait until we can see that the arm has stopped moving, then start resetting
 	changeCount = 0;
 	lastAngle = SensorValue[potLauncher];
-	wait1Msec(15);
+	wait1Msec(10);
 	while(true) {
 		int currentAngle = SensorValue[potLauncher];
 		if (abs(currentAngle-lastAngle) < 3)
@@ -186,7 +188,7 @@ task taskLaunch() {
 		if(changeCount == LAUNCH_STOP_COUNT)
 			break;
 		lastAngle = SensorValue[potLauncher];
-		wait1Msec(15);
+		wait1Msec(10);
 	}
 
 	startTask(taskLauncherReset);
@@ -388,7 +390,7 @@ task usercontrol()
 			if (vexRT[Btn7D] && vexRT[Btn7L] && vexRT[Btn7R]) {
 				runAuton();
 			}
-		} else { // Not pressing testing auton
+			} else { // Not pressing testing auton
 			if(vexRT[Btn7R]){ // Reset launcher
 				stopTask(taskLaunch);
 				stopTask(taskLauncherReset);
