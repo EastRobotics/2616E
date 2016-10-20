@@ -140,8 +140,10 @@ bool isLauncherValueCocked(int currentAngle) {
 
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
-	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
 	int lastDifference, currentAngle = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
+	if (!isLauncherValueCocked(currentAngle)) {
+		motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
+	}
 	// If we are close enough to target or seem to have launched, stop resetting
 	while(isLauncherValueCocked(currentAngle)) {
 		// TODO: Uncomment the following to make sure we don't loop shooting if somethings wrong

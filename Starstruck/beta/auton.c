@@ -78,6 +78,13 @@ void startIntake() {
 	wait1Msec(round(intakeLoadTime)+3);
 }
 
+// Blocking method to wait for the launcher when we're in position
+void waitForLauncherReady() {
+		while (!getCanLaunch()) {
+			wait1Msec(5);
+		}
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 Debug methods
@@ -125,44 +132,123 @@ void runAuton() {
 
 	// Mode 2 [Default mode/Max Points]
 	if (currentMode == 2) {
-		// Move backwards 1 foot (cause we start backward) (so robot is half on tile half not)
-		// While doing above, shoot and start resetting
-		// Move to the middle group of stars, based on if we are left/right side
-		// For all 3 stars....
-			// Pick up star, shoot, and reset (While resetting move to next star)
-			// Pick up next star, repeat
-		// Push cube into near zone
+		// TODO Deploy intake
+		launch(); // Launch preload
 
-		setupMotorTicks(motorsToChange, 1000);
-		driveTilEncoder(motorsToChange,4);
+		/*
+		// Preload
+		*/
+		// Drive away from wall to line up with star, turn intake towards star, then drive to it
+		driveEncoderNormal(100, false); // Drive away from wall (ENCODER VALUE NOT SET)
+		breakpoint();
+		/*
+		// First star
+		*/
+		driveEncoderPointTurn(100,position); // Turn to the middle (ENCODER VALUE NOT SET)
+		breakpoint();
+		driveEncoderNormal(100, true); // Drive to first star (ENCODER VALUE NOT SET)
+		breakpoint();
+		waitForLauncherReady(); // Make sure we're ready to shoot
+		// TODO Intake star
+		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		launch(); // Launch picked up star
+		breakpoint();
+		/*
+		// Second star
+		*/
+		driveEncoderNormal(100, false); // Align with second star
+		breakpoint();
+		driveEncoderPointTurn(100,position); // Turn to second star (ENCODER VALUE NOT SET)
+		breakpoint();
+		driveEncoderNormal(100, true); // Drive to second star (ENCODER VALUE NOT SET)
+		breakpoint();
+		waitForLauncherReady(); // Make sure we're ready to shoot
+		// TODO Intake star
+		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		launch(); // Launch picked up star
+		breakpoint();
+		/*
+		// Third star
+		*/
+		driveEncoderNormal(100, false); // Align with second star
+		breakpoint();
+		driveEncoderPointTurn(100,position); // Turn to second star (ENCODER VALUE NOT SET)
+		breakpoint();
+		driveEncoderNormal(100, true); // Drive to second star (ENCODER VALUE NOT SET)
+		breakpoint();
+		waitForLauncherReady(); // Make sure we're ready to shoot
+		// TODO Intake star
+		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		launch(); // Launch picked up star
+		breakpoint();
+
+		// TODO If drive is ever powerful enough, push cube
 	}
 
 	// Mode 3 [Launch + Push Cube]
 	if (currentMode == 3) {
-		// Move backwards 1/2 foot (cause we start backward)
-		// While doing above, shoot and start resetting
-		// Push cube into near zone
+		// TODO Deploy intake
+		launch(); // Launch preload
+
+		// TODO If drive is ever powerful enough, push cube
 	}
 
 	// Mode 4 [Launch in place]
 	if (currentMode == 4) {
-		// Move backwards 1/2 foot (cause we start backward)
-		// While doing above, shoot and start resetting
+		// TODO Deploy intake
+		launch(); // Launch preload
 	}
 
 	// Mode 5 [Launch + Corner]
 	if (currentMode == 5) {
-		// Move backwards 1/2 foot (cause we start backward)
-		// While doing above, shoot and start resetting
-		// Move to corner and intake/shoot star when ready
+		// TODO Deploy intake
+		launch(); // Launch preload
+
+		/*
+		// Preload
+		*/
+		// Drive away from wall to line up with star, turn intake towards star, then drive to it
+		driveEncoderNormal(100, false); // Drive away from wall (ENCODER VALUE NOT SET)
+		breakpoint();
+		/*
+		// Corner star
+		*/
+		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		breakpoint();
+		driveEncoderNormal(100, true); // Drive to first star (ENCODER VALUE NOT SET)
+		breakpoint();
+		waitForLauncherReady(); // Make sure we're ready to shoot
+		// TODO Intake star
+		driveEncoderPointTurn(100,position); // Turn to the middle (ENCODER VALUE NOT SET)
+		launch(); // Launch picked up star
+		breakpoint();
 	}
 
 	// Mode 6 [Launch + Corner + Cube]
 	if (currentMode == 6) {
-		// Move backwards 1/2 foot (cause we start backward)
-		// While doing above, shoot and start resetting
-		// Move to corner and intake/shoot star when ready
-	  // Push cube into near zone
+		// TODO Deploy intake
+		launch(); // Launch preload
+
+		/*
+		// Preload
+		*/
+		// Drive away from wall to line up with star, turn intake towards star, then drive to it
+		driveEncoderNormal(100, false); // Drive away from wall (ENCODER VALUE NOT SET)
+		breakpoint();
+		/*
+		// Corner star
+		*/
+		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		breakpoint();
+		driveEncoderNormal(100, true); // Drive to first star (ENCODER VALUE NOT SET)
+		breakpoint();
+		waitForLauncherReady(); // Make sure we're ready to shoot
+		// TODO Intake star
+		driveEncoderPointTurn(100,position); // Turn to the middle (ENCODER VALUE NOT SET)
+		launch(); // Launch picked up star
+		breakpoint();
+
+		// TODO If drive is ever powerful enough, push cube
 	}
 
 	// Mode 7 [Unnamed atm]

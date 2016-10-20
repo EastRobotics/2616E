@@ -127,6 +127,7 @@ float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
 long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
 float RPMReadRate = 20.0;
 
+/*
 task getRPMValues() {
 	while(true){
 		long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
@@ -134,18 +135,19 @@ task getRPMValues() {
 			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
 			lastTickCount[i] = tickCount[i];
 		}
-		/* Logging RPM
-		datalogDataGroupStart();
-		datalogAddValue(0,RPMValues[1]);
-		datalogAddValue(1,RPMValues[2]);
-		datalogAddValue(2,RPMValues[7]);
-		datalogAddValue(3,RPMValues[8]);
-		datalogAddValue(4,50);
-		datalogDataGroupEnd();
-		*/
+		Logging RPM
+	  // datalogDataGroupStart();
+	  // datalogAddValue(0,RPMValues[1]);
+	  // datalogAddValue(1,RPMValues[2]);
+	  // datalogAddValue(2,RPMValues[7]);
+		// datalogAddValue(3,RPMValues[8]);
+		// datalogAddValue(4,50);
+		// datalogDataGroupEnd();
+
 		wait1Msec((int)RPMReadRate);
 	}
 }
+*/
 
 // Sets the encoders on all of our drive motors back to 0.
 void clearDriveEncoders() {
@@ -173,7 +175,8 @@ long tickTarget[4];
 void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 	motorsToChange = (tMotor) _motorsToChange;
 	for(int i = 0; i < 4; i++){
-		tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1) + nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
+		tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1)
+		+ nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
 	}
 }
 
