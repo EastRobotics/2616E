@@ -132,59 +132,20 @@ void runAuton() {
 
 	// Mode 2 [Default mode/Max Points]
 	if (currentMode == 2) {
-		// TODO Deploy intake
-		launch(); // Launch preload
+		launch();
+		driveRaw(-80,-80,-80,-80);
+		wait1Msec(350);
+		driveRaw(0,0,0,0);
+		wait1Msec(500);
+		driveRaw(80,80,-80,-80);
+		wait1Msec(500);
+		driveRaw(0,0,0,0);
+		wait1Msec(500);
+		driveRaw(80,80,80,80);
+		wait1Msec(500);
+		driveRaw(0,0,0,0);
 
-		/*
-		// Preload
-		*/
-		// Drive away from wall to line up with star, turn intake towards star, then drive to it
-		driveEncoderNormal(100, false); // Drive away from wall (ENCODER VALUE NOT SET)
-		breakpoint();
-		/*
-		// First star
-		*/
-		driveEncoderPointTurn(100,position); // Turn to the middle (ENCODER VALUE NOT SET)
-		breakpoint();
-		driveEncoderNormal(100, true); // Drive to first star (ENCODER VALUE NOT SET)
-		breakpoint();
-		waitForLauncherReady(); // Make sure we're ready to shoot
-		// TODO Intake star
-		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
-		launch(); // Launch picked up star
-		breakpoint();
-		/*
-		// Second star
-		*/
-		driveEncoderNormal(100, false); // Align with second star
-		breakpoint();
-		driveEncoderPointTurn(100,position); // Turn to second star (ENCODER VALUE NOT SET)
-		breakpoint();
-		driveEncoderNormal(100, true); // Drive to second star (ENCODER VALUE NOT SET)
-		breakpoint();
-		waitForLauncherReady(); // Make sure we're ready to shoot
-		// TODO Intake star
-		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
-		launch(); // Launch picked up star
-		breakpoint();
-		/*
-		// Third star
-		*/
-		driveEncoderNormal(100, false); // Align with second star
-		breakpoint();
-		driveEncoderPointTurn(100,position); // Turn to second star (ENCODER VALUE NOT SET)
-		breakpoint();
-		driveEncoderNormal(100, true); // Drive to second star (ENCODER VALUE NOT SET)
-		breakpoint();
-		waitForLauncherReady(); // Make sure we're ready to shoot
-		// TODO Intake star
-		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
-		launch(); // Launch picked up star
-		breakpoint();
-
-		// TODO If drive is ever powerful enough, push cube
 	}
-
 	// Mode 3 [Launch + Push Cube]
 	if (currentMode == 3) {
 		// TODO Deploy intake
@@ -208,18 +169,18 @@ void runAuton() {
 		// Preload
 		*/
 		// Drive away from wall to line up with star, turn intake towards star, then drive to it
-		driveEncoderNormal(100, false); // Drive away from wall (ENCODER VALUE NOT SET)
+		driveEncoderNormal(100, false,80); // Drive away from wall (ENCODER VALUE NOT SET)
 		breakpoint();
 		/*
 		// Corner star
 		*/
-		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		driveEncoderPointTurn(100,!position,80); // Turn to the middle (ENCODER VALUE NOT SET)
 		breakpoint();
-		driveEncoderNormal(100, true); // Drive to first star (ENCODER VALUE NOT SET)
+		driveEncoderNormal(100, true,80); // Drive to first star (ENCODER VALUE NOT SET)
 		breakpoint();
 		waitForLauncherReady(); // Make sure we're ready to shoot
 		// TODO Intake star
-		driveEncoderPointTurn(100,position); // Turn to the middle (ENCODER VALUE NOT SET)
+		driveEncoderPointTurn(100,position,80); // Turn to the middle (ENCODER VALUE NOT SET)
 		launch(); // Launch picked up star
 		breakpoint();
 	}
@@ -233,18 +194,18 @@ void runAuton() {
 		// Preload
 		*/
 		// Drive away from wall to line up with star, turn intake towards star, then drive to it
-		driveEncoderNormal(100, false); // Drive away from wall (ENCODER VALUE NOT SET)
+		driveEncoderNormal(100, false,80); // Drive away from wall (ENCODER VALUE NOT SET)
 		breakpoint();
 		/*
 		// Corner star
 		*/
-		driveEncoderPointTurn(100,!position); // Turn to the middle (ENCODER VALUE NOT SET)
+		driveEncoderPointTurn(100,!position,80); // Turn to the middle (ENCODER VALUE NOT SET)
 		breakpoint();
-		driveEncoderNormal(100, true); // Drive to first star (ENCODER VALUE NOT SET)
+		driveEncoderNormal(100, true,80); // Drive to first star (ENCODER VALUE NOT SET)
 		breakpoint();
 		waitForLauncherReady(); // Make sure we're ready to shoot
 		// TODO Intake star
-		driveEncoderPointTurn(100,position); // Turn to the middle (ENCODER VALUE NOT SET)
+		driveEncoderPointTurn(100,position,80); // Turn to the middle (ENCODER VALUE NOT SET)
 		launch(); // Launch picked up star
 		breakpoint();
 

@@ -4,6 +4,7 @@
 #pragma config(Sensor, in3,    potLauncher,    sensorPotentiometer)
 #pragma config(Sensor, in4,    potIntake,      sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
+#pragma config(Sensor, dgtl2,  limitLauncher,  sensorTouch)
 #pragma config(Sensor, dgtl5,  LED,            sensorLEDtoVCC)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
@@ -38,7 +39,7 @@
 #define VERSION_BUILD 3
 #define VERSION_TYPE "ALPHA"
 
-#define COCKED_POT_DIFFERENCE 1230 // How far from the starting value the arm should pull down
+#define COCKED_POT_DIFFERENCE 1290 // How far from the starting value the arm should pull down
 #define COCKED_POT_THRESHOLD 30 // How close we need to be to the target difference value to pass
 #define LAUNCH_ACCURACY_COUNT 2 // How many times we need to see an upward change to count it as a launch
 #define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 milliseconds to count it as stopped launching
@@ -133,22 +134,18 @@ bool getCanLaunch() {
 	return canLaunch;
 }
 
-// If the new difference is within CURRENT_POT_THRESHOLD of COCKED_POT_DIFFERENCE+startingAngle
-bool isLauncherValueCocked(int currentAngle) {
-	return abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD;
-}
-
 task taskLauncherReset() {
 	// Run launcher motors until we can see we're cocked
-	int lastDifference, currentAngle = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
-	if (!isLauncherValueCocked(currentAngle)) {
-		motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
-	}
-	// If we are close enough to target or seem to have launched, stop resetting
-	while(isLauncherValueCocked(currentAngle)) {
-		// TODO: Uncomment the following to make sure we don't loop shooting if somethings wrong
+	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = -127;
+	int lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
+	while(true) {
+		int currentAngle = SensorValue[potLauncher];
+		// If we are close enough to target or seem to have launched, stop resetting
 		// || (COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-15
+		if (abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD||SensorValue[limitLauncher]) // If the new difference is 100 in the back direction from the last
+			break;
 		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
+		//wait1Msec(15);
 	}
 	// Stop motors now that we have cocked the launcher arm
 	motor[launcherRO] = motor[launcherRI] = motor[launcherLO] = motor[launcherLI] = 0;
@@ -327,6 +324,13 @@ task usercontrol()
 	string potentiometerValDebug = "";
 	startTask ( playSong );
 
+	///TEST AUTON/////
+	//setAutonMode(2);//
+	//setAutonPosition(true);
+	//runAuton();			//
+	//while(true){}		//
+	///TEST AUTON/////
+
 	bool isSkills = false; // TODO: Set this somehow (LCD?)
 	if (isSkills) {
 		writeDebugStreamLine("Running Driver Control [Skills]...");
@@ -371,7 +375,7 @@ task usercontrol()
 		// Launcher
 		*/
 		// Normal handling (right pad)
-		if(canLaunch && vexRT[Btn7D]){ // If we can launch and override is pressed
+		if(vexRT[Btn7D]){ // If override is pressed
 			if(vexRT[Btn8R]) { // Backdrive launcher
 				motor[launcherRI] = motor[launcherRO] = motor[launcherLI] = motor[launcherLO] = 127;
 				} else if(vexRT[Btn8U]){ // Pull launcher down

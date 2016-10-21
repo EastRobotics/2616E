@@ -158,10 +158,10 @@ void clearDriveEncoders() {
 }
 
 // Variables used for encoder. Should probably be replaced with a struct
-tMotor motorsToChange[4] = {driveFR,driveBR,driveFL,driveBL};
-bool motorToMotorReverse[4] = {false, false, false, false};
-int motorsToChangeSpeed[4] = {0,0,0,0};
-long tickTarget[4];
+tMotor motorsToChange[5] = {driveFR,driveFR,driveBR,driveFL,driveBL}; //robotc glitch with value 0 we think
+bool motorToMotorReverse[5] = {false,false, false, false, false};
+int motorsToChangeSpeed[5] = {80,80,80,80,80};
+long tickTarget[5];
 
 // Clean way to set variables for storing tick values
 // PARAMETERS:
@@ -174,7 +174,7 @@ long tickTarget[4];
 //  - Negative = backwards wheel movement.
 void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 	motorsToChange = (tMotor) _motorsToChange;
-	for(int i = 0; i < 4; i++){
+	for(int i = 1; i < 5; i++){
 		tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1)
 		+ nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
 	}
@@ -185,18 +185,35 @@ void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 // PARAMETERS:
 //  motor array: The motors to change
 void driveTilEncoder(tMotor *_motorsToChange, int arrayLength) {
+	writeDebugStreamLine("------------------------------------");
+	writeDebugStreamLine("--       DRIVING TIL ENCODER      --");
+	writeDebugStreamLine("------------------------------------");
+	string debug = "";
+	writeDebugStreamLine("Driving til Encoder");
+	sprintf(debug,"FR: %i AR: %i",driveFR,motorsToChange[0]);
+	writeDebugStreamLine(debug);
 	motorsToChange = (tMotor) _motorsToChange;
 	bool continueRunning = true;
 	while (continueRunning) {
 		continueRunning = false;
-		for (int i=0; i<arrayLength; i++) {
+		for (int i=1; i<arrayLength; i++) {
 			tMotor _motor = motorsToChange[i];
 			// If we're not at the target yet
-			if (motorToMotorReverse[i] ? tickTarget[i] > nMotorEncoder[_motor]
-				: tickTarget[i] < nMotorEncoder[_motor]) {
+			sprintf(debug, "at %i : goal: %i",nMotorEncoder[_motor],tickTarget[i]);
+			writeDebugStreamLine(debug);
+			if (motorToMotorReverse[i] ? nMotorEncoder[_motor] > tickTarget[i]
+				: nMotorEncoder[_motor] < tickTarget[i]) {
 				// Make sure we keep running and are at the right speed
 				continueRunning = true;
-				motor[_motor] = motorsToChangeSpeed[i];
+				motor[_motor] = (motorToMotorReverse[i]) ? motorsToChangeSpeed[i]*-1 : motorsToChangeSpeed[i];
+				sprintf(debug,"set m %i to %i",i,motorsToChangeSpeed[i]);
+				writeDebugStreamLine(debug);
+				sprintf(debug,"mtmr: %d m:%i",motorToMotorReverse[i],_motor);
+				writeDebugStreamLine(debug);
+				sprintf(debug,"FR:%i,BR:%i,FL:%i,BL:%i",driveFR,driveBR,driveFL,driveBL);
+				writeDebugStreamLine(debug);
+				sprintf(debug,"FR:%i,BR:%i,FL:%i,BL:%i",motorsToChange[0],motorsToChange[1],motorsToChange[2],motorsToChange[3]);
+				writeDebugStreamLine(debug);
 				} else {
 				// Stop the motor
 				motor[_motor] = 0;
@@ -205,34 +222,43 @@ void driveTilEncoder(tMotor *_motorsToChange, int arrayLength) {
 	}
 }
 
+void setEncoderDriveSpeed(int speed) {
+	for(int i = 1; i < 5; i ++){
+		motorsToChangeSpeed[i] = speed;
+	}
+}
+
 // Point turn
-void driveEncoderPointTurn(int ticks, bool right) {
-	motorToMotorReverse[0] = right ? true : false;
+void driveEncoderPointTurn(int ticks, bool right, int speed) {
+	setEncoderDriveSpeed(speed);
 	motorToMotorReverse[1] = right ? true : false;
-	motorToMotorReverse[2] = right ? false : true;
+	motorToMotorReverse[2] = right ? true : false;
 	motorToMotorReverse[3] = right ? false : true;
+	motorToMotorReverse[4] = right ? false : true;
 	setupMotorTicks(motorsToChange, ticks);
-	driveTilEncoder(motorsToChange, 4);
+	driveTilEncoder(motorsToChange, 5);
 }
 
 // Straight
-void driveEncoderNormal(int ticks, bool forward) {
-	motorToMotorReverse[0] = forward ? false : true;
+void driveEncoderNormal(int ticks, bool forward, int speed) {
+	setEncoderDriveSpeed(speed);
 	motorToMotorReverse[1] = forward ? false : true;
 	motorToMotorReverse[2] = forward ? false : true;
 	motorToMotorReverse[3] = forward ? false : true;
+	motorToMotorReverse[4] = forward ? false : true;
 	setupMotorTicks(motorsToChange, ticks);
-	driveTilEncoder(motorsToChange, 4);
+	driveTilEncoder(motorsToChange, 5);
 }
 
 // Strafe
-void driveEncoderStrafe(int ticks, bool right) {
-	motorToMotorReverse[0] = right ? true : false;
-	motorToMotorReverse[1] = right ? false : true;
+void driveEncoderStrafe(int ticks, bool right, int speed) {
+	setEncoderDriveSpeed(speed);
+	motorToMotorReverse[1] = right ? true : false;
 	motorToMotorReverse[2] = right ? false : true;
-	motorToMotorReverse[3] = right ? true : false;
+	motorToMotorReverse[3] = right ? false : true;
+	motorToMotorReverse[4] = right ? true : false;
 	setupMotorTicks(motorsToChange, ticks);
-	driveTilEncoder(motorsToChange, 4);
+	driveTilEncoder(motorsToChange, 5);
 }
 
 // Future control loop example:
