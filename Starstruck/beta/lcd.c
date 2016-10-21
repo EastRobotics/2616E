@@ -56,16 +56,7 @@ void lcdUpdatePage( bool userInteraction )
 			sprintf(toDisplay, "%c Max Points %c", 0xBC, 0xBB);
 			break;
 		case 3 :
-			sprintf(toDisplay, "%c Push Cube %c", 0xBC, 0xBB);
-			break;
-		case 4 :
-			sprintf(toDisplay, "%c Stay In Plc %c", 0xBC, 0xBB);
-			break;
-		case 5 :
-			sprintf(toDisplay, "%c Corner %c", 0xBC, 0xBB);
-			break;
-		case 6 :
-			sprintf(toDisplay, "%c Corn & Cube %c", 0xBC, 0xBB);
+			sprintf(toDisplay, "%c Hit Fence %c", 0xBC, 0xBB);
 			break;
 		default :
 			sprintf(toDisplay, "%c Mode ?: %i %c", 0xBC, autonMode, 0xBB);

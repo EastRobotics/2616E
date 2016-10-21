@@ -324,12 +324,17 @@ task usercontrol()
 	string potentiometerValDebug = "";
 	startTask ( playSong );
 
-	///TEST AUTON/////
-	//setAutonMode(2);//
-	//setAutonPosition(true);
-	//runAuton();			//
-	//while(true){}		//
-	///TEST AUTON/////
+	/*//TEST AUTON/////
+	setAutonMode(2);//
+	startTask( taskLauncherReset );
+	while(!canLaunch){
+		wait1Msec(1);
+	}
+	wait1Msec(15000);
+	setAutonPosition(true);
+	runAuton();			//
+	while(true){}		//
+	///TEST AUTON////*/
 
 	bool isSkills = false; // TODO: Set this somehow (LCD?)
 	if (isSkills) {

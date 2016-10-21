@@ -1,9 +1,9 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 8;
+int maxAutonomous = 3;
 int currentMode = minAutonomous;
-int intakeLoadTime = 1000;
+int intakeLoadTime = 800;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -65,17 +65,24 @@ bool getAutonColor() {
 void launch(); // Forward from main
 bool getCanLaunch(); // Forward from main
 
-//Run the intake for one second
+//Run the intake for one second and reset
 task intake() {
-	motor[intakeL] = motor[intakeR] = 127;
+	motor[intakeL] = -127;
+	motor[intakeR] = 127;
+	wait1Msec(intakeLoadTime);
+	motor[intakeL] = motor[intakeR] = 0;
+	wait1Msec(300);
+	//reset the intake
+	motor[intakeL] = 127;
+	motor[intakeR] = -127;
 	wait1Msec(intakeLoadTime);
 	motor[intakeL] = motor[intakeR] = 0;
 }
 
 //synchronous version of startTask(intake);
 void startIntake() {
-	startTask(intake);
-	wait1Msec(round(intakeLoadTime)+3);
+	startTask( intake );
+	wait1Msec(intakeLoadTime+300);
 }
 
 // Blocking method to wait for the launcher when we're in position
@@ -83,6 +90,22 @@ void waitForLauncherReady() {
 		while (!getCanLaunch()) {
 			wait1Msec(5);
 		}
+}
+
+void driveForTime(int powerFL, int powerBL, int powerFR, int powerBR, int time){
+	driveRaw(powerFL,powerBL,powerFR,powerBR);
+	wait1Msec(time);
+	driveRaw(0,0,0,0);
+}
+
+void tempEncoderForward(int speed, int ticks){
+	int tickTarget = (speed < 0) ? ((ticks*-1)
+	+ nMotorEncoder[driveFL]) : (ticks + nMotorEncoder[driveFL]);
+	driveRaw(speed,speed,speed,speed);
+	while((speed<0) ? nMotorEncoder[driveFL] > tickTarget : nMotorEncoder[driveFL] < tickTarget){
+			wait1Msec(10);
+	}
+	driveRaw(0,0,0,0);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -128,106 +151,63 @@ void runAuton() {
 	string debug = "";
 	sprintf(debug,"Running Auton Mode: %i",currentMode);
 	writeDebugStreamLine(debug);
+	int sideMult = getAutonPosition() ? 1 : -1;
 	// Mode 1 [Do nothing]
 
 	// Mode 2 [Default mode/Max Points]
 	if (currentMode == 2) {
+		motor[intakeL] = 127;
+		motor[intakeR] = -127;
+		wait1Msec(500);
 		launch();
-		driveRaw(-80,-80,-80,-80);
-		wait1Msec(350);
-		driveRaw(0,0,0,0);
+		//driveForTime(-80,-80,-80,-80,400); //backwards
+		resetMotorEncoder(driveFL);
+		tempEncoderForward(-60,300);
 		wait1Msec(500);
-		driveRaw(80,80,-80,-80);
+		driveForTime(80*sideMult,80*sideMult,-80*sideMult,-80*sideMult,500);//turn left towards star
 		wait1Msec(500);
-		driveRaw(0,0,0,0);
+		driveForTime(80,80,80,80,400);//forwards
+		driveForTime(40,40,40,40,200);//coast slowly to star
 		wait1Msec(500);
-		driveRaw(80,80,80,80);
+		startIntake(); //pick up star
+		wait1Msec(300);
+		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
 		wait1Msec(500);
-		driveRaw(0,0,0,0);
+		launch();
 
 	}
 	// Mode 3 [Launch + Push Cube]
 	if (currentMode == 3) {
-		// TODO Deploy intake
-		launch(); // Launch preload
+		motor[intakeL] = 127;
+		motor[intakeR] = -127;
+		wait1Msec(500);
+		launch();
+		driveForTime(-80,-80,-80,-80,500);
 
-		// TODO If drive is ever powerful enough, push cube
 	}
 
 	// Mode 4 [Launch in place]
 	if (currentMode == 4) {
-		// TODO Deploy intake
-		launch(); // Launch preload
+
 	}
 
 	// Mode 5 [Launch + Corner]
 	if (currentMode == 5) {
-		// TODO Deploy intake
-		launch(); // Launch preload
 
-		/*
-		// Preload
-		*/
-		// Drive away from wall to line up with star, turn intake towards star, then drive to it
-		driveEncoderNormal(100, false,80); // Drive away from wall (ENCODER VALUE NOT SET)
-		breakpoint();
-		/*
-		// Corner star
-		*/
-		driveEncoderPointTurn(100,!position,80); // Turn to the middle (ENCODER VALUE NOT SET)
-		breakpoint();
-		driveEncoderNormal(100, true,80); // Drive to first star (ENCODER VALUE NOT SET)
-		breakpoint();
-		waitForLauncherReady(); // Make sure we're ready to shoot
-		// TODO Intake star
-		driveEncoderPointTurn(100,position,80); // Turn to the middle (ENCODER VALUE NOT SET)
-		launch(); // Launch picked up star
-		breakpoint();
 	}
 
 	// Mode 6 [Launch + Corner + Cube]
 	if (currentMode == 6) {
-		// TODO Deploy intake
-		launch(); // Launch preload
 
-		/*
-		// Preload
-		*/
-		// Drive away from wall to line up with star, turn intake towards star, then drive to it
-		driveEncoderNormal(100, false,80); // Drive away from wall (ENCODER VALUE NOT SET)
-		breakpoint();
-		/*
-		// Corner star
-		*/
-		driveEncoderPointTurn(100,!position,80); // Turn to the middle (ENCODER VALUE NOT SET)
-		breakpoint();
-		driveEncoderNormal(100, true,80); // Drive to first star (ENCODER VALUE NOT SET)
-		breakpoint();
-		waitForLauncherReady(); // Make sure we're ready to shoot
-		// TODO Intake star
-		driveEncoderPointTurn(100,position,80); // Turn to the middle (ENCODER VALUE NOT SET)
-		launch(); // Launch picked up star
-		breakpoint();
-
-		// TODO If drive is ever powerful enough, push cube
 	}
 
 	// Mode 7 [Unnamed atm]
 	if (currentMode == 7) {
-		clearDriveEncoders();
-		//313.6 Ticks per revolution for the wheels
-		//0.04inches per tick
-		// ticks to travel = distance/distance per tick
-		breakpoint();
-		for(int i = 0; i < 4; i ++){
-			launch();
-			breakpoint();
-		}
+
 	}
 
 	// Mode 8 [Unnamed atm]
 	if (currentMode == 8) {
-		startTask(logTicks);
-		while(true) wait1Msec(25);
+
 	}
 }
