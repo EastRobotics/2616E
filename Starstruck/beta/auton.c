@@ -136,7 +136,7 @@ void breakpoint() {
 	}
 }
 
-task logTicks() {
+/*task logTicks() {
 	while (true) {
 		datalogDataGroupStart();
 		datalogAddValue(0,nMotorEncoder[driveFL]);
@@ -148,6 +148,7 @@ task logTicks() {
 		wait1Msec(20);
 	}
 }
+*/
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //

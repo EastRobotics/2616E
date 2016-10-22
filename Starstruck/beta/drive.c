@@ -157,7 +157,7 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBL] = 0;
 }
 
-// Variables used for encoder. Should probably be replaced with a struct
+/* Variables used for encoder. Should probably be replaced with a struct
 tMotor motorsToChange[5] = {driveFR,driveFR,driveBR,driveFL,driveBL}; //robotc glitch with value 0 we think
 bool motorToMotorReverse[5] = {false,false, false, false, false};
 int motorsToChangeSpeed[5] = {80,80,80,80,80};
@@ -260,6 +260,7 @@ void driveEncoderStrafe(int ticks, bool right, int speed) {
 	setupMotorTicks(motorsToChange, ticks);
 	driveTilEncoder(motorsToChange, 5);
 }
+*/
 
 // Future control loop example:
 // We want to turn 45 degrees right...
