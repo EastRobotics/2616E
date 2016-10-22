@@ -1,7 +1,7 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 3;
+int maxAutonomous = 4;
 int currentMode = minAutonomous;
 int intakeLoadTime = 800;
 
@@ -87,9 +87,9 @@ void startIntake() {
 
 // Blocking method to wait for the launcher when we're in position
 void waitForLauncherReady() {
-		while (!getCanLaunch()) {
-			wait1Msec(5);
-		}
+	while (!getCanLaunch()) {
+		wait1Msec(5);
+	}
 }
 
 void driveForTime(int powerFL, int powerBL, int powerFR, int powerBR, int time){
@@ -103,7 +103,7 @@ void tempEncoderForward(int speed, int ticks){
 	+ nMotorEncoder[driveFL]) : (ticks + nMotorEncoder[driveFL]);
 	driveRaw(speed,speed,speed,speed);
 	while((speed<0) ? nMotorEncoder[driveFL] > tickTarget : nMotorEncoder[driveFL] < tickTarget){
-			wait1Msec(10);
+		wait1Msec(10);
 	}
 	driveRaw(0,0,0,0);
 }
@@ -174,40 +174,44 @@ void runAuton() {
 		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
 		wait1Msec(500);
 		launch();
-
 	}
-	// Mode 3 [Launch + Push Cube]
+	// Mode 3 [Launch + Sit still]
 	if (currentMode == 3) {
 		motor[intakeL] = 127;
 		motor[intakeR] = -127;
 		wait1Msec(500);
 		launch();
-		driveForTime(-80,-80,-80,-80,500);
-
 	}
 
-	// Mode 4 [Launch in place]
+	// Mode 4 [Robot Skills]
 	if (currentMode == 4) {
+		motor[intakeL] = 127;
+		motor[intakeR] = -127;
+		wait1Msec(500);
+		launch();
+		// Launch gameloads
+		for (int i=0; i<3; i++) {
+			while(!getCanLaunch())
+				wait1Msec(20);
+			wait1Msec(5000);
+			launch();
+			wait1Msec(200);
+		}
 
-	}
-
-	// Mode 5 [Launch + Corner]
-	if (currentMode == 5) {
-
-	}
-
-	// Mode 6 [Launch + Corner + Cube]
-	if (currentMode == 6) {
-
-	}
-
-	// Mode 7 [Unnamed atm]
-	if (currentMode == 7) {
-
-	}
-
-	// Mode 8 [Unnamed atm]
-	if (currentMode == 8) {
-
+		// From here on it's just mode 2
+		//driveForTime(-80,-80,-80,-80,400); //backwards
+		resetMotorEncoder(driveFL);
+		tempEncoderForward(-60,300);
+		wait1Msec(500);
+		driveForTime(80*sideMult,80*sideMult,-80*sideMult,-80*sideMult,500);//turn left towards star
+		wait1Msec(500);
+		driveForTime(80,80,80,80,400);//forwards
+		driveForTime(40,40,40,40,200);//coast slowly to star
+		wait1Msec(500);
+		startIntake(); //pick up star
+		wait1Msec(300);
+		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
+		wait1Msec(500);
+		launch();
 	}
 }
