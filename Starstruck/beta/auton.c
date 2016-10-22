@@ -108,6 +108,19 @@ void tempEncoderForward(int speed, int ticks){
 	driveRaw(0,0,0,0);
 }
 
+// Positive speed for right, negative for left
+void tempEncoderPoint(int speed, int ticks){
+	int tickTarget = (speed < 0) ? ((ticks*-1)
+	+ nMotorEncoder[driveFL]) : (ticks + nMotorEncoder[driveFL]);
+	int speedRight = (speed < 0) ? speed*-1 : speed;
+	int speedLeft = (speed < 0) ? speed : speed*-1;
+	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+	while((speed<0) ? nMotorEncoder[driveFL] > tickTarget : nMotorEncoder[driveFL] < tickTarget){
+		wait1Msec(10);
+	}
+	driveRaw(0,0,0,0);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 Debug methods
