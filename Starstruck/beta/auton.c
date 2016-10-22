@@ -182,18 +182,22 @@ void runAuton() {
 		driveForTime(80,80,80,80,400);//forwards
 		driveForTime(40,40,40,40,200);//coast slowly to star
 		wait1Msec(500);
+		waitForLauncherReady();
 		startIntake(); //pick up star
 		wait1Msec(300);
 		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
 		wait1Msec(500);
 		launch();
+		waitForLauncherReady();
 	}
+
 	// Mode 3 [Launch + Sit still]
 	if (currentMode == 3) {
 		motor[intakeL] = 127;
 		motor[intakeR] = -127;
 		wait1Msec(500);
 		launch();
+		waitForLauncherReady();
 	}
 
 	// Mode 4 [Robot Skills]
@@ -204,8 +208,7 @@ void runAuton() {
 		launch();
 		// Launch gameloads
 		for (int i=0; i<3; i++) {
-			while(!getCanLaunch())
-				wait1Msec(20);
+			waitForLauncherReady();
 			wait1Msec(5000);
 			launch();
 			wait1Msec(200);
@@ -221,10 +224,12 @@ void runAuton() {
 		driveForTime(80,80,80,80,400);//forwards
 		driveForTime(40,40,40,40,200);//coast slowly to star
 		wait1Msec(500);
+		waitForLauncherReady();
 		startIntake(); //pick up star
 		wait1Msec(300);
 		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
 		wait1Msec(500);
 		launch();
+		waitForLauncherReady();
 	}
 }
