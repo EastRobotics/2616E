@@ -1,7 +1,7 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 4;
+int maxAutonomous = 5;
 int currentMode = minAutonomous;
 int intakeLoadTime = 800;
 
@@ -112,8 +112,15 @@ void tempEncoderForward(int speed, int ticks){
 void tempEncoderPoint(int speed, int ticks){
 	int tickTarget = (speed < 0) ? ((ticks*-1)
 	+ nMotorEncoder[driveFL]) : (ticks + nMotorEncoder[driveFL]);
-	int speedRight = (speed < 0) ? speed*-1 : speed;
-	int speedLeft = (speed < 0) ? speed : speed*-1;
+	int speedLeft = 0;
+	int speedRight = 0;
+	if(speed>0){
+		speedRight = (speed < 0) ? speed : speed*-1;
+		speedLeft = (speed < 0) ? speed*-1 : speed;
+		} else {
+		speedRight = (speed < 0) ? speed*-1 : speed;
+		speedLeft = (speed < 0) ? speed : speed*-1;
+	}
 	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
 	while((speed<0) ? nMotorEncoder[driveFL] > tickTarget : nMotorEncoder[driveFL] < tickTarget){
 		wait1Msec(10);
@@ -137,16 +144,16 @@ void breakpoint() {
 }
 
 /*task logTicks() {
-	while (true) {
-		datalogDataGroupStart();
-		datalogAddValue(0,nMotorEncoder[driveFL]);
-		datalogAddValue(1,nMotorEncoder[driveBL]);
-		datalogAddValue(2,nMotorEncoder[driveFR]);
-		datalogAddValue(3,nMotorEncoder[driveBR]);
-		datalogAddValue(4,2500);
-		datalogDataGroupEnd();
-		wait1Msec(20);
-	}
+while (true) {
+datalogDataGroupStart();
+datalogAddValue(0,nMotorEncoder[driveFL]);
+datalogAddValue(1,nMotorEncoder[driveBL]);
+datalogAddValue(2,nMotorEncoder[driveFR]);
+datalogAddValue(3,nMotorEncoder[driveBR]);
+datalogAddValue(4,2500);
+datalogDataGroupEnd();
+wait1Msec(20);
+}
 }
 */
 
@@ -174,19 +181,18 @@ void runAuton() {
 		motor[intakeR] = -127;
 		wait1Msec(500);
 		launch();
-		//driveForTime(-80,-80,-80,-80,400); //backwards
 		resetMotorEncoder(driveFL);
-		tempEncoderForward(-60,300);
+		tempEncoderForward(-60,275); //backwards with encoders
 		wait1Msec(500);
-		driveForTime(80*sideMult,80*sideMult,-80*sideMult,-80*sideMult,500);//turn left towards star
+		tempEncoderPoint(80*sideMult,300); //turn left towards star (on right side)
 		wait1Msec(500);
 		driveForTime(80,80,80,80,400);//forwards
-		driveForTime(40,40,40,40,200);//coast slowly to star
+		driveForTime(40,40,40,40,250);//coast slowly to star
 		wait1Msec(500);
 		waitForLauncherReady();
 		startIntake(); //pick up star
 		wait1Msec(300);
-		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
+		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
 		wait1Msec(500);
 		launch();
 		waitForLauncherReady();
@@ -210,27 +216,33 @@ void runAuton() {
 		// Launch gameloads
 		for (int i=0; i<3; i++) {
 			waitForLauncherReady();
-			wait1Msec(5000);
+			wait1Msec(3000);
 			launch();
 			wait1Msec(200);
 		}
 
 		// From here on it's just mode 2
-		//driveForTime(-80,-80,-80,-80,400); //backwards
 		resetMotorEncoder(driveFL);
-		tempEncoderForward(-60,300);
+		tempEncoderForward(-60,275); //backwards with encoders
 		wait1Msec(500);
-		driveForTime(80*sideMult,80*sideMult,-80*sideMult,-80*sideMult,500);//turn left towards star
+		tempEncoderPoint(80*sideMult,300); //turn left towards star (on right side)
 		wait1Msec(500);
 		driveForTime(80,80,80,80,400);//forwards
-		driveForTime(40,40,40,40,200);//coast slowly to star
+		driveForTime(40,40,40,40,250);//coast slowly to star
 		wait1Msec(500);
 		waitForLauncherReady();
 		startIntake(); //pick up star
 		wait1Msec(300);
-		driveForTime(-80*sideMult,-80*sideMult,80*sideMult,80*sideMult,500);//turn right towards fence
+		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
 		wait1Msec(500);
 		launch();
 		waitForLauncherReady();
+	}
+
+	if (currentMode == 5) {
+		pidRequestedValue = 1000;
+
+		// start the PID task
+		startTask( drivePID );
 	}
 }

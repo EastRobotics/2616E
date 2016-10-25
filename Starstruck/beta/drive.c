@@ -6,6 +6,16 @@
 #define DRIVE_THRESHOLD_STRAFE 15 // Joystick strafe threshold
 #define INITIAL_DRIVE_POWER 25 //The power that drive with logic will start it's linear function at for drive power
 #define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
+#define PID_SENSOR_INDEX    myEncoder
+#define PID_SENSOR_SCALE    1
+
+#define PID_MOTOR_INDEX     myMotor
+#define PID_MOTOR_SCALE     -1
+
+#define PID_DRIVE_MAX       60
+#define PID_DRIVE_MIN     (-40)
+
+#define PID_INTEGRAL_LIMIT  50
 
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -129,23 +139,23 @@ float RPMReadRate = 20.0;
 
 /*
 task getRPMValues() {
-	while(true){
-		long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
-		for(int i = 0; i < 10; i++){
-			RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
-			lastTickCount[i] = tickCount[i];
-		}
-		Logging RPM
-	  // datalogDataGroupStart();
-	  // datalogAddValue(0,RPMValues[1]);
-	  // datalogAddValue(1,RPMValues[2]);
-	  // datalogAddValue(2,RPMValues[7]);
-		// datalogAddValue(3,RPMValues[8]);
-		// datalogAddValue(4,50);
-		// datalogDataGroupEnd();
+while(true){
+long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
+for(int i = 0; i < 10; i++){
+RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
+lastTickCount[i] = tickCount[i];
+}
+Logging RPM
+// datalogDataGroupStart();
+// datalogAddValue(0,RPMValues[1]);
+// datalogAddValue(1,RPMValues[2]);
+// datalogAddValue(2,RPMValues[7]);
+// datalogAddValue(3,RPMValues[8]);
+// datalogAddValue(4,50);
+// datalogDataGroupEnd();
 
-		wait1Msec((int)RPMReadRate);
-	}
+wait1Msec((int)RPMReadRate);
+}
 }
 */
 
@@ -173,11 +183,11 @@ long tickTarget[5];
 //    at 1000, you should still only put in 300.
 //  - Negative = backwards wheel movement.
 void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
-	motorsToChange = (tMotor) _motorsToChange;
-	for(int i = 1; i < 5; i++){
-		tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1)
-		+ nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
-	}
+motorsToChange = (tMotor) _motorsToChange;
+for(int i = 1; i < 5; i++){
+tickTarget[i] = (motorToMotorReverse[i]) ? ((ticks*-1)
++ nMotorEncoder[motorsToChange[i]]) : (ticks + nMotorEncoder[motorsToChange[i]]);
+}
 }
 
 // Logic driving method to check against ticks. Base method for other encoder methods
@@ -185,80 +195,80 @@ void setupMotorTicks(tMotor *_motorsToChange, long ticks) {
 // PARAMETERS:
 //  motor array: The motors to change
 void driveTilEncoder(tMotor *_motorsToChange, int arrayLength) {
-	writeDebugStreamLine("------------------------------------");
-	writeDebugStreamLine("--       DRIVING TIL ENCODER      --");
-	writeDebugStreamLine("------------------------------------");
-	string debug = "";
-	writeDebugStreamLine("Driving til Encoder");
-	sprintf(debug,"FR: %i AR: %i",driveFR,motorsToChange[0]);
-	writeDebugStreamLine(debug);
-	motorsToChange = (tMotor) _motorsToChange;
-	bool continueRunning = true;
-	while (continueRunning) {
-		continueRunning = false;
-		for (int i=1; i<arrayLength; i++) {
-			tMotor _motor = motorsToChange[i];
-			// If we're not at the target yet
-			sprintf(debug, "at %i : goal: %i",nMotorEncoder[_motor],tickTarget[i]);
-			writeDebugStreamLine(debug);
-			if (motorToMotorReverse[i] ? nMotorEncoder[_motor] > tickTarget[i]
-				: nMotorEncoder[_motor] < tickTarget[i]) {
-				// Make sure we keep running and are at the right speed
-				continueRunning = true;
-				motor[_motor] = (motorToMotorReverse[i]) ? motorsToChangeSpeed[i]*-1 : motorsToChangeSpeed[i];
-				sprintf(debug,"set m %i to %i",i,motorsToChangeSpeed[i]);
-				writeDebugStreamLine(debug);
-				sprintf(debug,"mtmr: %d m:%i",motorToMotorReverse[i],_motor);
-				writeDebugStreamLine(debug);
-				sprintf(debug,"FR:%i,BR:%i,FL:%i,BL:%i",driveFR,driveBR,driveFL,driveBL);
-				writeDebugStreamLine(debug);
-				sprintf(debug,"FR:%i,BR:%i,FL:%i,BL:%i",motorsToChange[0],motorsToChange[1],motorsToChange[2],motorsToChange[3]);
-				writeDebugStreamLine(debug);
-				} else {
-				// Stop the motor
-				motor[_motor] = 0;
-			}
-		}
-	}
+writeDebugStreamLine("------------------------------------");
+writeDebugStreamLine("--       DRIVING TIL ENCODER      --");
+writeDebugStreamLine("------------------------------------");
+string debug = "";
+writeDebugStreamLine("Driving til Encoder");
+sprintf(debug,"FR: %i AR: %i",driveFR,motorsToChange[0]);
+writeDebugStreamLine(debug);
+motorsToChange = (tMotor) _motorsToChange;
+bool continueRunning = true;
+while (continueRunning) {
+continueRunning = false;
+for (int i=1; i<arrayLength; i++) {
+tMotor _motor = motorsToChange[i];
+// If we're not at the target yet
+sprintf(debug, "at %i : goal: %i",nMotorEncoder[_motor],tickTarget[i]);
+writeDebugStreamLine(debug);
+if (motorToMotorReverse[i] ? nMotorEncoder[_motor] > tickTarget[i]
+: nMotorEncoder[_motor] < tickTarget[i]) {
+// Make sure we keep running and are at the right speed
+continueRunning = true;
+motor[_motor] = (motorToMotorReverse[i]) ? motorsToChangeSpeed[i]*-1 : motorsToChangeSpeed[i];
+sprintf(debug,"set m %i to %i",i,motorsToChangeSpeed[i]);
+writeDebugStreamLine(debug);
+sprintf(debug,"mtmr: %d m:%i",motorToMotorReverse[i],_motor);
+writeDebugStreamLine(debug);
+sprintf(debug,"FR:%i,BR:%i,FL:%i,BL:%i",driveFR,driveBR,driveFL,driveBL);
+writeDebugStreamLine(debug);
+sprintf(debug,"FR:%i,BR:%i,FL:%i,BL:%i",motorsToChange[0],motorsToChange[1],motorsToChange[2],motorsToChange[3]);
+writeDebugStreamLine(debug);
+} else {
+// Stop the motor
+motor[_motor] = 0;
+}
+}
+}
 }
 
 void setEncoderDriveSpeed(int speed) {
-	for(int i = 1; i < 5; i ++){
-		motorsToChangeSpeed[i] = speed;
-	}
+for(int i = 1; i < 5; i ++){
+motorsToChangeSpeed[i] = speed;
+}
 }
 
 // Point turn
 void driveEncoderPointTurn(int ticks, bool right, int speed) {
-	setEncoderDriveSpeed(speed);
-	motorToMotorReverse[1] = right ? true : false;
-	motorToMotorReverse[2] = right ? true : false;
-	motorToMotorReverse[3] = right ? false : true;
-	motorToMotorReverse[4] = right ? false : true;
-	setupMotorTicks(motorsToChange, ticks);
-	driveTilEncoder(motorsToChange, 5);
+setEncoderDriveSpeed(speed);
+motorToMotorReverse[1] = right ? true : false;
+motorToMotorReverse[2] = right ? true : false;
+motorToMotorReverse[3] = right ? false : true;
+motorToMotorReverse[4] = right ? false : true;
+setupMotorTicks(motorsToChange, ticks);
+driveTilEncoder(motorsToChange, 5);
 }
 
 // Straight
 void driveEncoderNormal(int ticks, bool forward, int speed) {
-	setEncoderDriveSpeed(speed);
-	motorToMotorReverse[1] = forward ? false : true;
-	motorToMotorReverse[2] = forward ? false : true;
-	motorToMotorReverse[3] = forward ? false : true;
-	motorToMotorReverse[4] = forward ? false : true;
-	setupMotorTicks(motorsToChange, ticks);
-	driveTilEncoder(motorsToChange, 5);
+setEncoderDriveSpeed(speed);
+motorToMotorReverse[1] = forward ? false : true;
+motorToMotorReverse[2] = forward ? false : true;
+motorToMotorReverse[3] = forward ? false : true;
+motorToMotorReverse[4] = forward ? false : true;
+setupMotorTicks(motorsToChange, ticks);
+driveTilEncoder(motorsToChange, 5);
 }
 
 // Strafe
 void driveEncoderStrafe(int ticks, bool right, int speed) {
-	setEncoderDriveSpeed(speed);
-	motorToMotorReverse[1] = right ? true : false;
-	motorToMotorReverse[2] = right ? false : true;
-	motorToMotorReverse[3] = right ? false : true;
-	motorToMotorReverse[4] = right ? true : false;
-	setupMotorTicks(motorsToChange, ticks);
-	driveTilEncoder(motorsToChange, 5);
+setEncoderDriveSpeed(speed);
+motorToMotorReverse[1] = right ? true : false;
+motorToMotorReverse[2] = right ? false : true;
+motorToMotorReverse[3] = right ? false : true;
+motorToMotorReverse[4] = right ? true : false;
+setupMotorTicks(motorsToChange, ticks);
+driveTilEncoder(motorsToChange, 5);
 }
 */
 
@@ -297,67 +307,100 @@ speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-/*
 tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
 long tickTarget[4];
 //Setup the weights for the various stages of pid
-float kP = 0.01; //Proportional Gain
-float kI = 0.0; //Integral Gain
-float kD = 0.0; //Derivitive Gain
+float kP = 0.07; //Proportional Gain
+float kI = 0.01; //Integral Gain
+float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
+float pidRequestedValue = 0;
+
 task drivePID() {
-//Initialize the PID variables
-long error[4] = {0, 0, 0, 0};
-long pError[4] = {0, 0, 0, 0};
-long p[4] = {0, 0, 0, 0};
-long i[4] = {0, 0, 0, 0};
-long d[4] = {0, 0, 0, 0};
-string debugString = ""; //FOR DEBUG, REMOVE LATER
-writeDebugStreamLine("STARTING PID");
+	float  pidSensorCurrentValue;
 
-while(true){
-long driveAvg = 0;
-long errorAvg = 0;
-for (int index = 0; index < 4; index ++){
-error[index] = tickTarget[index] - nMotorEncoder[motorsToChange[index]];
-//DEBUG
-debugString = "";
-sprintf(debugString,"Er[%i]:%i",index,error[index]);
-writeDebugStreamLine(debugString);
-//DEBUG
-p[index] = error[index]; //P is simply the error
-i[index] = abs(i[index] + error[index]) < kL ? i[index] + error[index] : sgn(i[index] + error[index])*kL; //I is the sum of errors
-d[index] = error[index] - pError[index]; //D is the change in error or delta error
-driveAvg += abs(p[index]*kP + i[index]*kI + d[index]*kD);
-errorAvg += abs(error[index]);
-}
-//Find the average drive speed and error
-driveAvg = round(driveAvg/4);
-errorAvg = round(errorAvg/4);
-debugString = "";
-sprintf(debugString,"DrAv:%i \nErAv:%i",driveAvg,errorAvg);
-writeDebugStreamLine(debugString);
-//float slope = ((105.0-(float)INITIAL_DRIVE_POWER)/(127.0-(float)JOYSTICK_MOVEMENT_THRESHOLD));
-//float yInt = 105.0-(slope*127.0);
-//int speedForward = RPMToMotor((driveAvg*slope)+yInt);
-for(int index = 0; index < 4; index ++){
-debugString = "";
-sprintf(debugString,"MoSp:%i",(abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0)); //TODO switch back to speedForward
-writeDebugStreamLine(debugString);
-//if the error is low turn off the motor, otherwise set to average, and reverse if this motor is meant to be reversed
-motor[motorsToChange[index]] = (abs(errorAvg) > 5) ? ((motorToMotorReverse[index]) ? (driveAvg*-1) : (driveAvg)) : (0); //TODO switch back to speedForward
-}
-//if the error is low end the PID loop
-if(abs(errorAvg) < 5){
-writeDebugStreamLine("STOPPING PID");
-break;
-}
-wait1Msec(25);
-}
+	float  pidError;
+	float  pidLastError;
+	float  pidIntegral;
+	float  pidDerivative;
+	float  pidDrive;
+
+	clearDriveEncoders();
+
+	// Init the variables - thanks Glenn :)
+	pidLastError  = 0;
+	pidIntegral   = 0;
+
+	while( true )
+	{
+		// Is PID control active ?
+		if( true )
+		{
+			// Read the sensor value and scale
+			pidSensorCurrentValue = nMotorEncoder[driveFR] * PID_SENSOR_SCALE;
+
+			// calculate error
+			pidError = pidSensorCurrentValue - pidRequestedValue;
+
+			// integral - if Ki is not 0
+			if( Ki != 0 )
+			{
+				// If we are inside controlable window then integrate the error
+				if( abs(pidError) < PID_INTEGRAL_LIMIT )
+					pidIntegral = pidIntegral + pidError;
+				else
+					pidIntegral = 0;
+			}
+			else
+				pidIntegral = 0;
+
+			// calculate the derivative
+			pidDerivative = pidError - pidLastError;
+			pidLastError  = pidError;
+
+			// calculate drive
+			pidDrive = (Kp * pidError) + (Ki * pidIntegral) + (Kd * pidDerivative);
+			pidDrive *= PID_MOTOR_SCALE;
+
+			// limit drive
+			if( pidDrive > PID_DRIVE_MAX )
+				pidDrive = PID_DRIVE_MAX;
+			if( pidDrive < PID_DRIVE_MIN )
+				pidDrive = PID_DRIVE_MIN;
+
+			string debug = "";
+			sprintf(debug,"PIDS: %i",pidDrive);
+			writeDebugStreamLine(debug);
+			debug = "";
+			sprintf(debug,"Error: %i",pidError);
+			writeDebugStreamLine(debug);
+			debug = "";
+			sprintf(debug,"Targ: %i",pidRequestedValue);
+			writeDebugStreamLine(debug);
+
+			// send to motor
+			motor[ driveFL ] = pidDrive;
+			motor[ driveFR ] = pidDrive;
+			motor[ driveBL ] = pidDrive;
+			motor[ driveBR ] = pidDrive;
+		}
+		else
+		{
+			// clear all
+			pidError      = 0;
+			pidLastError  = 0;
+			pidIntegral   = 0;
+			pidDerivative = 0;
+			motor[ driveFL ] = 0;
+		}
+
+		wait1Msec( 20 );
+	}
 }
 
+/*
 // Drives the robot forward using PID to keep straight
 // PARAMETERS:
 //  long: How much to move forward (if positive) or backwards (if negative)
