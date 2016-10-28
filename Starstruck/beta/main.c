@@ -43,6 +43,8 @@
 #define COCKED_POT_THRESHOLD 30 // How close we need to be to the target difference value to pass
 #define LAUNCH_ACCURACY_COUNT 2 // How many times we need to see an upward change to count it as a launch
 #define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 milliseconds to count it as stopped launching
+#define LAUNCH_INTAKE_THRESHOLD 100 //Within how much of the COCKED_POT_DIFFERENCE the intake is allowed to move again
+#define LAUNCH_RESET_THRESHOLD 50 //Within how many ticks the launcher must be of the stating value to reset automatically
 
 int song[165][3] = {{1568,192,1764.704},{1568,36,2095.586},{1568,36,2426.468},{1568,24,2647.056},{1568,1,2656.2471666666665},{1568,35,2977.938},{1568,36,3308.82},
 	{2093,24,3529.4080000000004},{2093,36,3860.2900000000004},{2093,36,4191.1720000000005},{1865,24,4411.76},{1865,36,4742.642},{1865,36,5073.523999999999},{1397,24,5294.111999999999},
@@ -190,7 +192,11 @@ task taskLaunch() {
 		wait1Msec(10);
 	}
 
-	startTask(taskLauncherReset);
+	//Don't reset the launcher if it is not up
+	if(abs(startingAngle - SensorValue[potLauncher])<LAUNCH_RESET_THRESHOLD){
+		//reset launcher
+		startTask(taskLauncherReset);
+	}
 }
 
 // Launch if we are currently allowed
@@ -367,13 +373,13 @@ task usercontrol()
 		// Intake
 		*/
 		int intakeSpeed = 127;
-		if (vexRT[Btn5U]) { // Upper right bumper
+		if((SensorValue[potLauncher]>(COCKED_POT_DIFFERENCE-LAUNCH_INTAKE_THRESHOLD))&&vexRT[Btn5U]){ // Upper right bumper
 			motor[intakeL] = -1*intakeSpeed;
 			motor[intakeR] = intakeSpeed;
-			} else if (vexRT[Btn5D]) { // Lower right bumper
+		} else if (vexRT[Btn5D]) { // Lower right bumper
 			motor[intakeL] = intakeSpeed;
 			motor[intakeR] = -1*intakeSpeed;
-			} else { // None
+		} else { // None
 			motor[intakeL] = 0;
 			motor[intakeR] = 0;
 		}
