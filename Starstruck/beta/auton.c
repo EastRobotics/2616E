@@ -200,11 +200,18 @@ void runAuton() {
 
 	// Mode 3 [Launch + Sit still]
 	if (currentMode == 3) {
-		motor[intakeL] = 127;
+		/*motor[intakeL] = 127;
 		motor[intakeR] = -127;
 		wait1Msec(500);
 		launch();
-		waitForLauncherReady();
+		waitForLauncherReady();*/
+		wait1Msec(7000);
+		motor[intakeL] = 127;
+		motor[intakeR] = -127;
+		wait1Msec(750);
+		motor[intakeL] = motor[intakeR] = 0;
+		driveForTime(80,80,80,80,2000);
+		wait1Msec(1000);
 	}
 
 	// Mode 4 [Robot Skills]
@@ -244,5 +251,7 @@ void runAuton() {
 
 		// start the PID task
 		startTask( drivePID );
+
+
 	}
 }
