@@ -6,6 +6,7 @@
 #pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
 #pragma config(Sensor, dgtl2,  limitLauncher,  sensorTouch)
 #pragma config(Sensor, dgtl5,  LED,            sensorLEDtoVCC)
+#pragma config(Sensor, dgtl6,  clawActuator,   sensorDigitalOut)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Sensor, I2C_3,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
@@ -360,22 +361,15 @@ task usercontrol()
 		/*
 		// Drive
 		*/
-		float speedMult = 1.0;
-		if(!vexRT[Btn6D]) { // Normal drive... Not pressing bottom left bumper
-			if(vexRT[Btn6U]){
-				speedMult = 0.5;
-			}
-			int speedForward = round(vexRT[Ch3] *speedMult);
-			int speedTurn = round(vexRT[Ch1] * speedMult);
-			int speedStrafe = round(vexRT[Ch4] * speedMult);
-			driveWithLogic(speedForward, speedTurn, speedStrafe, false);
-			} else { // Drive with tank controls
-			driveTank(vexRT[Ch3],vexRT[Ch2]);
-		}
+		int speedForward = round(vexRT[Ch3]);
+		int speedTurn = round(vexRT[Ch1]);
+		int speedStrafe = round(vexRT[Ch4]);
+		driveWithLogic(speedForward, speedTurn, speedStrafe, false);
 
 		/*
 		// Intake
 		*/
+		/*
 		int intakeSpeed = 127;
 		if(((SensorValue[potLauncher]>(COCKED_POT_DIFFERENCE-LAUNCH_INTAKE_THRESHOLD))||(vexRT[Btn7D]))&&vexRT[Btn5U]){ // Upper right bumper
 			motor[intakeL] = -1*intakeSpeed;
@@ -386,6 +380,13 @@ task usercontrol()
 		} else { // None
 			motor[intakeL] = 0;
 			motor[intakeR] = 0;
+		}
+		*/
+
+		if(vexRT[Btn6U]){
+			SensorValue[clawActuator] = 1;
+		} else if(vexRT[Btn6D]){
+			SensorValue[clawActuator] = 0;
 		}
 
 		/*
