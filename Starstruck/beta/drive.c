@@ -6,6 +6,7 @@
 #define DRIVE_THRESHOLD_STRAFE 15 // Joystick strafe threshold
 #define INITIAL_DRIVE_POWER 25 //The power that drive with logic will start it's linear function at for drive power
 #define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
+#define GYROSCOPE_THRESHOLD 5 //Within how many (degrees*10) the gyroscope must be in to be considered correct
 #define PID_SENSOR_INDEX    myEncoder
 #define PID_SENSOR_SCALE    1
 
@@ -300,6 +301,28 @@ speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
 speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
 }
 */
+
+void turnToAngle(int desiredAngle, int speed){
+	while(desiredAngle>3600){
+		desiredAngle -= 3600;
+	}
+	int currentAngle = SensorValue[gyroMain];
+	int largerAngle = desiredAngle>currentAngle ? desiredAngle : currentAngle;
+	int smallerAngle = desiredAngle>currentAngle ? currentAngle : desiredAngle;
+	int dir0 = (3600 - largerAngle) + smallerAngle;
+	int dir1 = largerAngle - smallerAngle;
+	bool right = largerAngle == currentAngle ? true : false; //true is dir0 false is dir1
+	int direction = (dir0 < dir1) ? ((right) ? 1 : -1) : ((!right) ? 1 : -1);
+	driveTank(speed*direction,speed*direction*-1);
+
+	string debug = "";
+	while(direction > 0 ? SensorValue[gyroMain] < desiredAngle : desiredAngle < SensorValue[gyroMain]){
+		sprintf(debug, "d:%i c:%i de:%i",direction, SensorValue[gyroMain], desiredAngle);
+		writeDebugStreamLine(debug);
+		wait1Msec(10);
+	}
+	driveRaw(0,0,0,0);
+}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //

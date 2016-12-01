@@ -358,6 +358,9 @@ task usercontrol()
 		// Controller handling start
 		//////////////////////////////
 
+		turnToAngle(SensorValue[gyroMain]+900, 80);
+		while(true){}
+
 		/*
 		// Drive
 		*/

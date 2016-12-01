@@ -171,7 +171,7 @@ float sidesToAngle(float sideOne, float sideTwo){
 		}
 	}
 
-	// CD sstands for Cardinal Direction
+	// CD stands for Cardinal Direction
 	float nearbyCD = (90.0*(quadrant-1.0));
 	float finalAngle = nearbyCD;
 	// Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
@@ -189,6 +189,8 @@ float sidesToAngle(float sideOne, float sideTwo){
 	}
 	return finalAngle;
 }
+
+
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
