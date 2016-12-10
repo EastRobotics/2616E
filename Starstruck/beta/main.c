@@ -40,8 +40,8 @@
 #define VERSION_BUILD 3
 #define VERSION_TYPE "ALPHA"
 
-#define COCKED_POT_DIFFERENCE 520  // How far from the starting value the arm should pull down
-#define COCKED_POT_THRESHOLD 30 // How close we need to be to the target difference value to pass
+#define COCKED_POT_DIFFERENCE 1300  // How far from the starting value the arm should pull down
+#define COCKED_POT_THRESHOLD 95 // How close we need to be to the target difference value to pass
 #define LAUNCH_ACCURACY_COUNT 2 // How many times we need to see an upward change to count it as a launch
 #define LAUNCH_STOP_COUNT 5 // How many times we need to see a minimal change over 15 milliseconds to count it as stopped launching
 #define LAUNCH_INTAKE_THRESHOLD 100 //Within how much of the COCKED_POT_DIFFERENCE the intake is allowed to move again
@@ -148,17 +148,13 @@ task taskLauncherReset() {
 		int currentAngle = SensorValue[potLauncher];
 		// If we are close enough to target or seem to have launched, stop resetting
 		// || (COCKED_POT_DIFFERENCE-SensorValue[potLauncher]) < lastDifference-15
-		//if (abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD||SensorValue[limitLauncher]) // If the new difference is 100 in the back direction from the last
-		//	break;
-		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
-		if((abs(currentAngle-lastValue)<LAUNCH_STOP_THRESHOLD)&&(abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD||SensorValue[limitLauncher]))
-			stoppedCount++;
-		if(stoppedCount>10)
+		if (abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= COCKED_POT_THRESHOLD||SensorValue[limitLauncher]) // If the new difference is 100 in the back direction from the last
 			break;
-		lastValue = SensorValue[potLauncher];
-		wait1Msec(15);
+		if (abs((COCKED_POT_DIFFERENCE+startingAngle)-currentAngle) <= (COCKED_POT_THRESHOLD*3)) // If we're nearing the endpoint slow down
+			motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = -90;
+		lastDifference = COCKED_POT_DIFFERENCE-SensorValue[potLauncher]+startingAngle;
+		//wait1Msec(15);
 	}
-	wait1Msec(250);
 	// Stop motors now that we have cocked the launcher arm
 	motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = 0;
 	canLaunch = true;
@@ -367,9 +363,6 @@ task usercontrol()
 		// Controller handling start
 		//////////////////////////////
 
-		turnToAngle(SensorValue[gyroMain]+900, 80);
-		while(true){}
-
 		/*
 		// Drive
 		*/
@@ -384,20 +377,20 @@ task usercontrol()
 		/*
 		int intakeSpeed = 127;
 		if(((SensorValue[potLauncher]>(COCKED_POT_DIFFERENCE-LAUNCH_INTAKE_THRESHOLD))||(vexRT[Btn7D]))&&vexRT[Btn5U]){ // Upper right bumper
-			motor[intakeL] = -1*intakeSpeed;
-			motor[intakeR] = intakeSpeed;
+		motor[intakeL] = -1*intakeSpeed;
+		motor[intakeR] = intakeSpeed;
 		} else if (vexRT[Btn5D]) { // Lower right bumper
-			motor[intakeL] = intakeSpeed;
-			motor[intakeR] = -1*intakeSpeed;
+		motor[intakeL] = intakeSpeed;
+		motor[intakeR] = -1*intakeSpeed;
 		} else { // None
-			motor[intakeL] = 0;
-			motor[intakeR] = 0;
+		motor[intakeL] = 0;
+		motor[intakeR] = 0;
 		}
 		*/
 
 		if(vexRT[Btn6U]){
 			SensorValue[clawActuator] = 1;
-		} else if(vexRT[Btn6D]){
+			} else if(vexRT[Btn6D]){
 			SensorValue[clawActuator] = 0;
 		}
 
@@ -407,11 +400,11 @@ task usercontrol()
 		// Normal handling (right pad)
 		if(vexRT[Btn7D]){ // If override is pressed
 			if(vexRT[Btn8R]) { // Backdrive launcher
-					motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = 127;
+				motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = 127;
 				} else if(vexRT[Btn8U]){ // Pull launcher down
-					motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = -127;
+				motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = -127;
 				} else { // Stop launcher
-					motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = 0;
+				motor[chooR1] = motor[chooR2] = motor[chooR3] = motor[chooL1] = motor[chooL2] = motor[chooL3] = 0;
 			}
 		}
 		// Launch using our automated tasks
