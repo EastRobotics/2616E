@@ -62,28 +62,8 @@ bool getAutonColor() {
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void launch(); // Forward from main
+//void launch(); // Forward from main
 bool getCanLaunch(); // Forward from main
-
-//Run the intake for one second and reset
-task intake() {
-	motor[intakeL] = -127;
-	motor[intakeR] = 127;
-	wait1Msec(intakeLoadTime);
-	motor[intakeL] = motor[intakeR] = 0;
-	wait1Msec(300);
-	//reset the intake
-	motor[intakeL] = 127;
-	motor[intakeR] = -127;
-	wait1Msec(intakeLoadTime);
-	motor[intakeL] = motor[intakeR] = 0;
-}
-
-//synchronous version of startTask(intake);
-void startIntake() {
-	startTask( intake );
-	wait1Msec(intakeLoadTime+300);
-}
 
 // Blocking method to wait for the launcher when we're in position
 void waitForLauncherReady() {
@@ -177,10 +157,10 @@ void runAuton() {
 
 	// Mode 2 [Default mode/Max Points]
 	if (currentMode == 2) {
-		motor[intakeL] = 127;
-		motor[intakeR] = -127;
+		//motor[intakeL] = 127;
+		//motor[intakeR] = -127;
 		wait1Msec(500);
-		launch();
+		//launch();
 		resetMotorEncoder(driveFL);
 		tempEncoderForward(-60,275); //backwards with encoders
 		wait1Msec(500);
@@ -190,11 +170,10 @@ void runAuton() {
 		driveForTime(40,40,40,40,250);//coast slowly to star
 		wait1Msec(500);
 		waitForLauncherReady();
-		startIntake(); //pick up star
 		wait1Msec(300);
 		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
 		wait1Msec(500);
-		launch();
+		//launch();
 		waitForLauncherReady();
 	}
 
@@ -206,25 +185,24 @@ void runAuton() {
 		launch();
 		waitForLauncherReady();*/
 		wait1Msec(7000);
-		motor[intakeL] = 127;
-		motor[intakeR] = -127;
+		//motor[intakeL] = 127;
+		//motor[intakeR] = -127;
 		wait1Msec(750);
-		motor[intakeL] = motor[intakeR] = 0;
 		driveForTime(80,80,80,80,2000);
 		wait1Msec(1000);
 	}
 
 	// Mode 4 [Robot Skills]
 	if (currentMode == 4) {
-		motor[intakeL] = 127;
-		motor[intakeR] = -127;
+		//motor[intakeL] = 127;
+		//motor[intakeR] = -127;
 		wait1Msec(500);
-		launch();
+		//launch();
 		// Launch gameloads
 		for (int i=0; i<3; i++) {
 			waitForLauncherReady();
 			wait1Msec(3000);
-			launch();
+			//launch();
 			wait1Msec(200);
 		}
 
@@ -238,11 +216,10 @@ void runAuton() {
 		driveForTime(40,40,40,40,250);//coast slowly to star
 		wait1Msec(500);
 		waitForLauncherReady();
-		startIntake(); //pick up star
 		wait1Msec(300);
 		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
 		wait1Msec(500);
-		launch();
+		//launch();
 		waitForLauncherReady();
 	}
 

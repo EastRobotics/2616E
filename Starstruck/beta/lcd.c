@@ -146,7 +146,6 @@ void lcdUpdatePage( bool userInteraction )
 	return;
 	}
 	*/
-
 	// Page 6 [Game Time]
 	else if (currentPage == 6){
 		string title = "";

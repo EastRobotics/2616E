@@ -2,7 +2,7 @@
 int homePage = 1; // The page to go to when we hit the 'home' button
 int currentPage = homePage; // Can be whatever page you want within your set
 int minPage = 1; // Should be the first page number in your set
-int maxPage = 4; // Should be the last page number in your set
+int maxPage = 3; // Should be the last page number in your set
 bool cycles = true; // Make pages a continuous loop (loops to start when at the end)
 
 // Data vars (Millis to 1milli accuracy)
