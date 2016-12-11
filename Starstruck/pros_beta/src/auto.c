@@ -1,18 +1,51 @@
 #include "main.h"
+#define MIN_AUTON_MODE 1
+#define MAX_AUTON_MODE 5
+
+int autonMode = MIN_AUTON_MODE;
 
 /*
- * Runs the user autonomous code. This function will be started in its own task with the default
- * priority and stack size whenever the robot is enabled via the Field Management System or the
- * VEX Competition Switch in the autonomous mode. If the robot is disabled or communications is
- * lost,  the autonomous task will be stopped by the kernel. Re-enabling the robot will restart
- * the task, not re-start it from where it left off.
- *
- * Code running in the autonomous task cannot access information from the VEX Joystick. However,
- * the autonomous function can be invoked from another task if a VEX Competition Switch is not
- * available, and it can access joystick information if called in this way.
- *
- * The autonomous task may exit, unlike operatorControl() which should never exit. If it does
- * so, the robot will await a switch to another mode or disable/enable cycle.
- */
+** Returns a string representation of the current autonomous mode.
+**
+** RETURNS:
+**   const char*: The string representation of the mode
+*/
+const char * getAutonName() {
+  switch (autonMode) {
+    case 1:
+      return "Mode 1";
+    case 2:
+      return "Mode 2";
+    case 3:
+      return "Mode 3";
+    case 4:
+      return "Mode 4";
+    case 5:
+      return "Mode 5";
+    default:
+      return "Unknown";
+  }
+}
+
+bool setAutonMode(int _autonMode) {
+  if ((_autonMode < MIN_AUTON_MODE) || (_autonMode > MAX_AUTON_MODE)) { // If valid input
+    autonMode = _autonMode;
+  }
+  return false;
+}
+
+int getAutonMode() {
+	return autonMode;
+}
+
+int getAutonModeMin() {
+	return MIN_AUTON_MODE;
+}
+
+int getAutonModeMax() {
+	return MAX_AUTON_MODE;
+}
+
 void autonomous() {
+
 }

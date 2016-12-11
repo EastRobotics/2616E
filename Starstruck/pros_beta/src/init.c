@@ -25,4 +25,6 @@ void initializeIO() {
  * can be implemented in this task if desired.
  */
 void initialize() {
+  // Set up our drive
+  driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
 }
