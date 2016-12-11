@@ -1,3 +1,8 @@
+#ifndef PORTS_H_
+
+// This prevents multiple inclusion, which isn't bad for this file but is good practice
+#define PORTS_H_
+
 /*
 ** Motors
 ** (1-10)
@@ -34,3 +39,5 @@
 ** (uart(1 & 2), I2C)
 */
   #define EXTRA_LCD uart1;
+
+#endif
