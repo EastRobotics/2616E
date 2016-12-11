@@ -24,6 +24,30 @@ extern "C" {
 
   void driveHolonomic(int, int, int);
 
+/*
+** Methods from autonswitch.c
+*/
+
+  void autonInit(const char**);
+
+  const char * getAutonName();
+
+  bool setAutonMode(int);
+
+  int getAutonMode();
+
+  int getAutonModeMin();
+
+  int getAutonModeMax();
+
+  void setAutonPosition(bool);
+
+  bool getAutonPosition();
+
+  void setAutonColor(bool);
+
+  bool getAutonColor();
+
 #ifdef __cplusplus // end method if
 }
 #endif

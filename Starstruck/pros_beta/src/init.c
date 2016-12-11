@@ -27,4 +27,7 @@ void initializeIO() {
 void initialize() {
   // Set up our drive
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
+  // Set up our autonomous to these modes
+  const char* modes[3] = {"Mode one","Mode two","Mode three"};
+  autonInit(modes);
 }
