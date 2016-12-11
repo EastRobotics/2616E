@@ -6,10 +6,25 @@
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif // Start method list
 
-// End C++ export structure
-#ifdef __cplusplus
+/*
+** Methods from drive.c
+*/
+
+  void driveInit(unsigned char, unsigned char, unsigned char, unsigned char);
+
+  // driveIfValid should be local
+
+  void driveRaw(int, int, int, int);
+
+  void drive(int, int);
+
+  void driveTank(int, int);
+
+  void driveHolonomic(int, int, int);
+
+#ifdef __cplusplus // end method if
 }
 #endif
 
