@@ -35,7 +35,7 @@ void driveInit(unsigned char _driveFL, unsigned char _driveBL,
 **   Calls to printf can be taxing, so try to not have any erroneous calls
 */
 void driveIfValid(unsigned char motor, int speed,
-  const char * string = "Unknown") {
+  const char* string) { // Eventually want default for this, but causing errors
   if (motor != NULL)
     motorSet(motor, speed);
   else

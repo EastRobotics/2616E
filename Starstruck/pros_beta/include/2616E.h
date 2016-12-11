@@ -14,7 +14,7 @@ extern "C" {
 
   void driveInit(unsigned char, unsigned char, unsigned char, unsigned char);
 
-  // driveIfValid should be local
+  void driveIfValid(unsigned char, int, const char*);
 
   void driveRaw(int, int, int, int);
 
