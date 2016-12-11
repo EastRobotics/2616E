@@ -8,14 +8,6 @@
 extern "C" {
 #endif
 
-  /*
-  ** Drive
-  */
-  extern unsigned char motorDriveFL;
-  extern unsigned char motorDriveBL;
-  extern unsigned char motorDriveFR;
-  extern unsigned char motorDriveBR;
-
 // End C++ export structure
 #ifdef __cplusplus
 }
