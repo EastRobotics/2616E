@@ -62,8 +62,9 @@ bool getAutonColor() {
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-//void launch(); // Forward from main
+void launch(); // Forward from main
 bool getCanLaunch(); // Forward from main
+task taskLauncherReset(); //Forward from main+
 
 // Blocking method to wait for the launcher when we're in position
 void waitForLauncherReady() {
@@ -157,52 +158,61 @@ void runAuton() {
 
 	// Mode 2 [Default mode/Max Points]
 	if (currentMode == 2) {
-		//motor[intakeL] = 127;
-		//motor[intakeR] = -127;
-		wait1Msec(500);
-		//launch();
+		driveForTime(-80,-80,-80,-80,500); //backwards with... time :(
+		wait1Msec(1000);
+		SensorValue[clawActuator] = 0; //open claw
+		wait1Msec(1000);
+		SensorValue[clawActuator] = 1; //close claw
+		wait1Msec(1000);
+		launch();
+		wait1Msec(1500);
+		startTask( taskLauncherReset );
+		waitForLauncherReady();
 		resetMotorEncoder(driveFL);
-		tempEncoderForward(-60,275); //backwards with encoders
-		wait1Msec(500);
+		//tempEncoderForward(-60,275); //backwards with encoders
+		//driveForTime(-80,-80,-80,-80,500); //backwards with... time :(
 		tempEncoderPoint(80*sideMult,300); //turn left towards star (on right side)
-		wait1Msec(500);
-		driveForTime(80,80,80,80,400);//forwards
-		driveForTime(40,40,40,40,250);//coast slowly to star
+		//turnToAngle(SensorValue[gyroMain]+(getAutonPosition() ? 3150 : 450),80, !getAutonPosition()); //turn 45* left (if right)
 		wait1Msec(500);
 		waitForLauncherReady();
-		wait1Msec(300);
-		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
+		driveForTime(80,80,80,80,200);//forwards
+		driveForTime(40,40,40,40,250);//coast slowly to star
 		wait1Msec(500);
-		//launch();
+		SensorValue[clawActuator] = 1; //close claw
+		wait1Msec(500);
+		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
+		//turnToAngle(SensorValue[gyroMain]+(getAutonPosition() ? 450 : 3150), 80, getAutonPosition()); //turn 45* right (if right)
+		wait1Msec(500);
+		launch();
 		waitForLauncherReady();
 	}
 
 	// Mode 3 [Launch + Sit still]
 	if (currentMode == 3) {
-		/*motor[intakeL] = 127;
-		motor[intakeR] = -127;
-		wait1Msec(500);
-		launch();
-		waitForLauncherReady();*/
-		wait1Msec(7000);
-		//motor[intakeL] = 127;
-		//motor[intakeR] = -127;
-		wait1Msec(750);
-		driveForTime(80,80,80,80,2000);
+		driveForTime(-80,-80,-80,-80,500);
 		wait1Msec(1000);
+		SensorValue[clawActuator] = 0; //open claw
+		wait1Msec(3000);
+		SensorValue[clawActuator] = 1; //close claw
+		wait1Msec(2000);
+		launch();
+		waitForLauncherReady();
 	}
 
 	// Mode 4 [Robot Skills]
 	if (currentMode == 4) {
-		//motor[intakeL] = 127;
-		//motor[intakeR] = -127;
+		tempEncoderForward(-60,275);
 		wait1Msec(500);
-		//launch();
+		SensorValue[clawActuator] = 0; //open claw
+		wait1Msec(1000);
+		launch();
 		// Launch gameloads
 		for (int i=0; i<3; i++) {
 			waitForLauncherReady();
 			wait1Msec(3000);
-			//launch();
+			SensorValue[clawActuator] = 1; //close claw
+			wait1Msec(2000);
+			launch();
 			wait1Msec(200);
 		}
 
@@ -212,14 +222,16 @@ void runAuton() {
 		wait1Msec(500);
 		tempEncoderPoint(80*sideMult,300); //turn left towards star (on right side)
 		wait1Msec(500);
-		driveForTime(80,80,80,80,400);//forwards
+		driveForTime(80,80,80,80,200);//forwards
 		driveForTime(40,40,40,40,250);//coast slowly to star
+		wait1Msec(500);
+		SensorValue[clawActuator] = 1; //close claw
 		wait1Msec(500);
 		waitForLauncherReady();
 		wait1Msec(300);
 		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
 		wait1Msec(500);
-		//launch();
+		launch();
 		waitForLauncherReady();
 	}
 
