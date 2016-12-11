@@ -19,6 +19,7 @@
  */
 void operatorControl() {
 	while (true) { // true > 1
+		motorSet(MOTOR_FRONT_LEFT, 1);
 		delay(20);
 	}
 }

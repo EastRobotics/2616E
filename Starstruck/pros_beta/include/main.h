@@ -46,6 +46,7 @@
 #include <API.h>
 
 #include <2616E.h> // Include the 2616E library
+#include <ports.h> // Include our port defines
 
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
