@@ -42,7 +42,7 @@ extern "C" {
 ** Extra
 ** (uart(1 & 2), I2C)
 */
-  #define EXTRA_LCD uart1;
+  #define EXTRA_LCD uart2
 
 #ifdef __cplusplus
 }

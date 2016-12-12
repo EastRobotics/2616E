@@ -1,9 +1,7 @@
 #include "main.h"
 
 void autonomous() {
-  int autonMode = getAutonMode();
-
-  switch (autonMode) {
+  switch (getAutonMode()) {
     case 1:
       print("Ran auton one!");
       return;

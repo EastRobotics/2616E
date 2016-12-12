@@ -11,6 +11,20 @@
 void initializeIO() {
 }
 
+void updateLCD(bool userCaused, int page) {
+  lcdClear(EXTRA_LCD);
+  lcdPrintTitle("Test page");
+  lcdPrint(EXTRA_LCD, 2, "This is page %i", page);
+}
+
+void menuNext(int page) {
+  // TODO Implement submenus
+}
+
+void menuBack(int page) {
+  // TODO Implement submenus
+}
+
 /*
  * Runs user initialization code. This function will be started in its own task with the default
  * priority and stack size once when the robot is starting up. It is possible that the VEXnet
@@ -27,7 +41,14 @@ void initializeIO() {
 void initialize() {
   // Set up our drive
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
+
   // Set up our autonomous to these modes
   const char* modes[3] = {"Mode one","Mode two","Mode three"};
   autonInit(modes);
+
+  // Set up the LCD and start it
+  lcdInitMenu(1,5,1);
+  lcdSetUpdater(updateLCD);
+  lcdSetMenuBack(menuBack);
+  lcdSetMenuNext(menuNext);
 }

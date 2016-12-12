@@ -48,6 +48,46 @@ extern "C" {
 
   bool getAutonColor();
 
+  /*
+  ** Methods from lcd.c
+  */
+
+  typedef void (*updateLCDFunction)(bool, int);
+
+  typedef void (*menuPressMethod)(int);
+
+  void setCycles(bool _cycles);
+
+  void setRefreshTime(unsigned long);
+
+  void lcdPrintTitle(const char *);
+
+  void lcdHome();
+
+  void lcdSetPage(int);
+
+  void lcdNextPage();
+
+  void lcdLastPage();
+
+  void lcdResetAutoRefresh();
+
+  void lcdAutoRefresh(void *);
+
+  void lcdManager(void *);
+
+  // Messy, really translates to:
+  // TaskHandle startLCDMenu(void (*manager)(void *))
+  void lcdStartMenu();
+
+  void lcdInitMenu(int, int, int);
+
+  void lcdSetMenuNext(menuPressMethod);
+
+  void lcdSetMenuBack(menuPressMethod);
+
+  void lcdSetUpdater(updateLCDFunction);
+
 #ifdef __cplusplus // end method if
 }
 #endif
