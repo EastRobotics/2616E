@@ -1,5 +1,11 @@
 #include "main.h"
 
+#define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
+#define DRIVE_THRESHOLD_TURN 15 // Joystick turn threshold
+#define DRIVE_THRESHOLD_STRAFE 15 // Joystick strafe threshold
+#define INITIAL_DRIVE_POWER 25 //The power that drive with logic will start it's linear function at for drive power
+#define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
+
 unsigned char driveFL, driveBL, driveFR, driveBR;
 
 /*
@@ -103,4 +109,60 @@ void driveHolonomic(int speedForward, int speedTurn, int speedStrafe) {
 	int speedFR = speedForward - speedTurn - speedStrafe;
 	int speedBR = speedForward - speedTurn + speedStrafe;
   driveRaw(speedFL, speedBL, speedFR, speedBR);
+}
+
+// Drive with checks to rule out errors with joystick controls
+// NOTE:
+// 	Multipliers should always be (0 <= x <= 1.0). This avoids going too fast or slow and going out of proportion
+// PARAMETERS:
+//	int: -127 to 127, speed to drive forward or backward respectively
+//	int: -127 to 127, speed to turn left or right respectively
+//	int: -127 to 127, speed to strafe left or right respectively
+//	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
+//	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
+//	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
+	int multipliedSpeedForward = speedForward; // ((float) speedForward)*forwardMultiplier;
+	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
+	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
+
+	char forwardMult = (multipliedSpeedForward < 0) ? -1 : 1;
+	char turnMult = (multipliedSpeedTurn < 0) ? -1 : 1;
+	char strafeMult = (multipliedSpeedStrafe < 0) ? -1 : 1;
+
+	multipliedSpeedForward = abs(multipliedSpeedForward);
+	multipliedSpeedTurn = abs(multipliedSpeedTurn);
+	multipliedSpeedStrafe = abs(multipliedSpeedStrafe);
+
+	if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD) multipliedSpeedForward = 0;
+	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN) multipliedSpeedTurn = 0;
+	if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE) multipliedSpeedStrafe = 0;
+
+	if(abs(multipliedSpeedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
+	if(abs(multipliedSpeedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
+	if(abs(multipliedSpeedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
+
+	// TODO Cooler stuff than just thresholds :P
+	// Consider it TODONE
+
+	//uses linear interpolation or lerp to fix the logarithmic nature of a motor's RPM to motor speed ratio into linear growth
+	multipliedSpeedForward = getLerpedSpeed(multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
+	multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
+	multipliedSpeedStrafe = getLerpedSpeed(multipliedSpeedStrafe, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
+
+	if (abs(speedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
+	if (abs(speedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
+	if (abs(speedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
+
+	multipliedSpeedForward *= forwardMult;
+	multipliedSpeedTurn *= turnMult;
+	multipliedSpeedStrafe *= strafeMult;
+	//Double strafe speeds
+	multipliedSpeedStrafe *= 2;
+	multipliedSpeedStrafe = (multipliedSpeedStrafe > 127) ? 127 : multipliedSpeedStrafe;
+
+	if (!reverse)
+		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
+	else
+		driveBackwards(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
 }
