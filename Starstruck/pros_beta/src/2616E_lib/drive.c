@@ -142,9 +142,6 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	if(abs(multipliedSpeedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
 	if(abs(multipliedSpeedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
 
-	// TODO Cooler stuff than just thresholds :P
-	// Consider it TODONE
-
 	//uses linear interpolation or lerp to fix the logarithmic nature of a motor's RPM to motor speed ratio into linear growth
 	multipliedSpeedForward = getLerpedSpeed(multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
 	multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
@@ -161,8 +158,5 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 	multipliedSpeedStrafe *= 2;
 	multipliedSpeedStrafe = (multipliedSpeedStrafe > 127) ? 127 : multipliedSpeedStrafe;
 
-	if (!reverse)
-		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
-	else
-		driveBackwards(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
+	driveHolonomic(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
 }

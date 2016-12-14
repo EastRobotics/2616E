@@ -17,7 +17,7 @@ int currentPage; // Can be whatever page you want within your set
 int minPage; // Should be the first page number in your set
 int maxPage; // Should be the last page number in your set
 bool cycles = true; // Make pages a continuous loop (loops to start when at the end)
-unsigned long refreshTimeMillis = 200;
+unsigned long refreshTimeMillis = 250;
 
 void setCycles(bool _cycles) {
   cycles = _cycles;
@@ -83,9 +83,11 @@ void lcdAutoRefresh(void * param) {
 	while (true)
 	{
 			//lastHoldTime = -1.0;
-      taskDelay(10);
-      if (millis() - lastRefresh >= refreshTimeMillis)
-			lcdUpdatePage(false, currentPage);
+      taskDelay(20);
+      if (millis() - lastRefresh >= refreshTimeMillis) {
+			     lcdUpdatePage(false, currentPage);
+        lcdResetAutoRefresh();
+      }
 	}
 }
 
@@ -140,11 +142,11 @@ void lcdManager(void * param) {
 }
 
 void lcdStartMenu() {
-  print("Starting the LCD menu");
+  print("Starting the LCD menu\n");
   taskCreate(lcdAutoRefresh, TASK_DEFAULT_STACK_SIZE,
      NULL, TASK_PRIORITY_DEFAULT); // Start auto refresher
-   taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
-     NULL, TASK_PRIORITY_DEFAULT); // Start the given manager
+   //taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
+     //NULL, TASK_PRIORITY_DEFAULT); // Start the given manager
 }
 
 void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
@@ -152,7 +154,7 @@ void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
   lcdInit(uart2);
   lcdSetBacklight(uart2, true);
 
-  lcdSetText(uart2,1,"LCD Init Working");
+  lcdSetText(uart2,1,"LCD Init Done");
   // Set all of the local variables to their respective values
   homePage = _homePage;
   currentPage = homePage;

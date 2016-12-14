@@ -88,6 +88,30 @@ extern "C" {
 
   void lcdSetUpdater(updateLCDFunction);
 
+  /*
+  ** Methods from sensors.c
+  */
+
+  unsigned int powerLevelExpander(unsigned char channel, bool newVersion);
+
+  float voltLevelExpander(unsigned char channel, bool newVersion);
+
+  float voltLevelMain();
+
+  float voltLevelBackup();
+
+  int RPMToMotor(float);
+
+  float motorToRPM(int);
+
+  float getSlope(float x1, float y1, float x2, float y2);
+
+  float getYInt(float slope, float x, float y);
+
+  float lerp(float, float, float, float, float);
+
+  int getLerpedSpeed(int power, int minSpeed, int minPower);
+
 #ifdef __cplusplus // end method if
 }
 #endif

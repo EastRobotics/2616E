@@ -38,12 +38,6 @@ extern "C" {
 ** (1-12) - Although not sure with PROS
 */
 
-/*
-** Extra
-** (uart(1 & 2), I2C)
-*/
-  #define EXTRA_LCD uart2
-
 #ifdef __cplusplus
 }
 #endif

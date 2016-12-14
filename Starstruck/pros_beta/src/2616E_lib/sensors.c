@@ -1,12 +1,12 @@
 #include "main.h"
 #include "math.h"
 
-unsigned int powerLevelExpander(unsigned char channel, bool newVersion = true){
+unsigned int powerLevelExpander(unsigned char channel, bool newVersion){
   int returned = analogRead(channel);
   return newVersion ? returned/70 : returned/45.6;
 }
 
-float voltLevelExpander(unsigned char channel, bool newVersion = true){
+float voltLevelExpander(unsigned char channel, bool newVersion){
   return powerLevelExpander(channel, newVersion)/1000;
 }
 
@@ -48,7 +48,7 @@ float motorToRPM(int motorSpeed){
 // float: the second y value
 //RETURNS
 // float: the slope of the line with the given points
-float getSlope(float x1 = 15.0, float y1 = 25.0, float x2 = 127.0, float y2 = 105.0){
+float getSlope(float x1, float y1, float x2, float y2){
 	return ((y2-y1)/(x2-x1));
 }
 
@@ -60,7 +60,7 @@ float getSlope(float x1 = 15.0, float y1 = 25.0, float x2 = 127.0, float y2 = 10
 // float: the y coordinate of a given point
 //RETURNS:
 // float: the y-intercept of the line with the given point and slope
-float getYInt(float slope = 0.714, float x = 127.0, float y = 105.0){
+float getYInt(float slope, float x, float y){
 	return  (y - (slope * x));
 }
 
@@ -89,7 +89,7 @@ float lerp(float x1, float y1, float x2, float y2, float progress){
 //				(sort of like a joystick threshold)
 //RETURNS:
 // int: the motor speed with the linear interpolation performed on it
-int getLerpedSpeed(int power = 0, int minSpeed = 25, int minPower = 15){
+int getLerpedSpeed(int power, int minSpeed, int minPower){
 	if(power < minPower)
 		return 0;
 	int speed = RPMToMotor(lerp((float) minPower, (float) minSpeed, 127.0, 105.0, (float) power/127.0));
