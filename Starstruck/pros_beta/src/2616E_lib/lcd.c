@@ -17,7 +17,6 @@ int currentPage; // Can be whatever page you want within your set
 int minPage; // Should be the first page number in your set
 int maxPage; // Should be the last page number in your set
 bool cycles = true; // Make pages a continuous loop (loops to start when at the end)
-FILE * lcdPort = uart2;
 unsigned long refreshTimeMillis = 200;
 
 void setCycles(bool _cycles) {
@@ -29,7 +28,7 @@ void setRefreshTime(unsigned long _refreshTimeMillis) {
 }
 
 void lcdPrintTitle(const char * title) {
-  lcdPrint(lcdPort, 1, "%s%c",title, 0xF6);
+  lcdPrint(uart2, 1, "%s%c",title, 0xF6);
 }
 
 // Returns the lcd to it's first page and redraws
@@ -94,7 +93,7 @@ void lcdManager(void * param) {
 	bool buttonReleased = true;
 	uint8_t highestCombination = 0;
 	while (true) {
-		if (lcdReadButtons(lcdPort) == 0) { // A button wasn't pressed
+		if (lcdReadButtons(uart2) == 0) { // A button wasn't pressed
 			if (buttonReleased == false) { // Button was pressed then released. Let's handle presses
 				//lcdEndHold(); // Update our last held count
 				if (highestCombination == 1) { // Left button pressed
@@ -133,14 +132,15 @@ void lcdManager(void * param) {
 				//lcdStartHold(); // Start a button hold down
 			}
 
-			if (lcdReadButtons(lcdPort) > highestCombination) {
-				highestCombination = lcdReadButtons(lcdPort);
+			if (lcdReadButtons(uart2) > highestCombination) {
+				highestCombination = lcdReadButtons(uart2);
 			}
 		}
 	}
 }
 
 void lcdStartMenu() {
+  print("Starting the LCD menu");
   taskCreate(lcdAutoRefresh, TASK_DEFAULT_STACK_SIZE,
      NULL, TASK_PRIORITY_DEFAULT); // Start auto refresher
    taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
@@ -148,9 +148,11 @@ void lcdStartMenu() {
 }
 
 void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
-  lcdInit(lcdPort); // Make sure the LCD is initialized
-  lcdClear(lcdPort);
+  lcdClear(uart2); // Make sure the LCD is initialized
+  lcdInit(uart2);
+  lcdSetBacklight(uart2, true);
 
+  lcdSetText(uart2,1,"LCD Init Working");
   // Set all of the local variables to their respective values
   homePage = _homePage;
   currentPage = homePage;

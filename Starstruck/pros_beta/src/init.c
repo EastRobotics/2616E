@@ -12,6 +12,7 @@ void initializeIO() {
 }
 
 void updateLCD(bool userCaused, int page) {
+  print("LCD update called");
   lcdClear(EXTRA_LCD);
   lcdPrintTitle("Test page");
   lcdPrint(EXTRA_LCD, 2, "This is page %i", page);
@@ -43,12 +44,16 @@ void initialize() {
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
 
   // Set up our autonomous to these modes
-  const char* modes[3] = {"Mode one","Mode two","Mode three"};
-  autonInit(modes);
+  //const char* modes[3] = {"Mode one","Mode two","Mode three"};
+  //autonInit(modes);
 
+  print("Starting LCD");
   // Set up the LCD and start it
   lcdInitMenu(1,5,1);
-  lcdSetUpdater(updateLCD);
-  lcdSetMenuBack(menuBack);
-  lcdSetMenuNext(menuNext);
+  //lcdSetUpdater(updateLCD);
+  //print("Before");
+  //lcdSetMenuBack(menuBack);
+  //print("After");
+  //lcdSetMenuNext(menuNext);
+  //lcdStartMenu();
 }
