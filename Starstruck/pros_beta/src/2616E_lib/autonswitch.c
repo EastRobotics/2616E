@@ -1,25 +1,13 @@
 #include "main.h"
 #define MIN_AUTON_MODE 1
 
-int maxAutonMode;
-int autonMode = MIN_AUTON_MODE;
+unsigned char maxAutonMode;
+unsigned char autonMode = MIN_AUTON_MODE;
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
-const char** modes;
 
-void autonInit(const char** _modes) {
-  maxAutonMode = sizeof(_modes);
-  modes = _modes;
-}
-
-/*
-** Returns a string representation of the current autonomous mode.
-**
-** RETURNS:
-**   const char*: The string representation of the mode
-*/
-const char * getAutonName() {
-  return modes[autonMode];
+void autonInit(unsigned char _maxAutonMode) {
+  maxAutonMode = _maxAutonMode;
 }
 
 /*
@@ -31,8 +19,8 @@ const char * getAutonName() {
 ** RETURNS:
 **   bool: Whether or not the set number was a valid number
 */
-bool setAutonMode(int _autonMode) {
-  if ((_autonMode < MIN_AUTON_MODE) || (_autonMode > maxAutonMode)) { // If valid input
+bool setAutonMode(unsigned char _autonMode) {
+  if ((_autonMode >= MIN_AUTON_MODE) || (_autonMode <= maxAutonMode)) { // If valid input
     autonMode = _autonMode;
   }
   return false;
@@ -44,7 +32,7 @@ bool setAutonMode(int _autonMode) {
 ** RETURNS:
 **   int: The current autonomous mode
 */
-int getAutonMode() {
+unsigned char getAutonMode() {
 	return autonMode;
 }
 
@@ -54,7 +42,7 @@ int getAutonMode() {
 ** RETURNS:
 **   int: The minimum autonomous mode (Always 1)
 */
-int getAutonModeMin() {
+unsigned char getAutonModeMin() {
 	return MIN_AUTON_MODE;
 }
 
@@ -64,7 +52,7 @@ int getAutonModeMin() {
 ** RETURNS:
 **   int: The current autonomous mode
 */
-int getAutonModeMax() {
+unsigned char getAutonModeMax() {
 	return maxAutonMode;
 }
 

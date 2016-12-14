@@ -5,7 +5,6 @@ void operatorControl() {
 		// and 4 (Srafe).
 		driveHolonomic(joystickGetAnalog (1,3), joystickGetAnalog (1,1),
 			joystickGetAnalog (1,4));
-		print("Ran main\n");
-		delay(2000);
+		delay(20); // Give other tasks time to run
 	}
 }

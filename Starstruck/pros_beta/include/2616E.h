@@ -28,17 +28,17 @@ extern "C" {
 ** Methods from autonswitch.c
 */
 
-  void autonInit(const char**);
+  void autonInit(unsigned char);
 
   const char * getAutonName();
 
-  bool setAutonMode(int);
+  bool setAutonMode(unsigned char);
 
-  int getAutonMode();
+  unsigned char getAutonMode();
 
-  int getAutonModeMin();
+  unsigned char getAutonModeMin();
 
-  int getAutonModeMax();
+  unsigned char getAutonModeMax();
 
   void setAutonPosition(bool);
 
@@ -53,8 +53,6 @@ extern "C" {
   */
 
   typedef void (*updateLCDFunction)(bool, int);
-
-  typedef void (*menuPressMethod)(int);
 
   void setCycles(bool _cycles);
 
@@ -82,9 +80,9 @@ extern "C" {
 
   void lcdInitMenu(int, int, int);
 
-  void lcdSetMenuNext(menuPressMethod);
+  void lcdSetMenuNext(void (*)(int));
 
-  void lcdSetMenuBack(menuPressMethod);
+  void lcdSetMenuBack(void (*)(int));
 
   void lcdSetUpdater(updateLCDFunction);
 

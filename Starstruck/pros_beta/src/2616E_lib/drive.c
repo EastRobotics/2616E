@@ -20,6 +20,7 @@ unsigned char driveFL, driveBL, driveFR, driveBR;
 */
 void driveInit(unsigned char _driveFL, unsigned char _driveBL,
   unsigned char _driveFR, unsigned char _driveBR) {
+    print("[ELib] Initialized drive motors\n");
     driveFL = _driveFL; // Set our front left motor
     driveBL = _driveBL; // Set our back  left motor
     driveFR = _driveFR; // Set our front right motor
@@ -45,7 +46,8 @@ void driveIfValid(unsigned char motor, int speed,
   if (motor != NULL)
     motorSet(motor, speed);
   else
-    printf("Tried to set motor speed, but it wasn't initialized! [%s]", string);
+    printf("[ELib] Tried to set motor speed, but it wasn't initialized! [%s]\n",
+      string);
 }
 
 /*

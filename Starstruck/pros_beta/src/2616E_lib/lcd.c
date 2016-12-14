@@ -1,15 +1,14 @@
 #include "main.h"
 
 typedef void (*updateLCDFunction)(bool, int);
-typedef void (*menuPressMethod)(int);
+void (*menuNextPointer)(int);
+void (*menuBackPointer)(int);
 
 // TODO: Add back in hold time detection
 // TODO: Rewrite to be much cleaner and easier to use
 
 // Custom LCD methods
 updateLCDFunction lcdUpdatePage;
-menuPressMethod menuNext;
-menuPressMethod menuBack;
 
 // Page vars
 int homePage; // The page to go to when we hit the 'home' button
@@ -93,7 +92,7 @@ void lcdAutoRefresh(void * param) {
 
 void lcdManager(void * param) {
 	bool buttonReleased = true;
-	uint8_t highestCombination = 0;
+	unsigned char highestCombination = 0;
 	while (true) {
 		if (lcdReadButtons(uart2) == 0) { // A button wasn't pressed
 			if (buttonReleased == false) { // Button was pressed then released. Let's handle presses
@@ -102,26 +101,31 @@ void lcdManager(void * param) {
 					lcdLastPage();
 					buttonReleased = false;
 				}
+
 				else
 					if (highestCombination == 2) { // Center button pressed
-					lcdHome();
-					buttonReleased = false;
+					  lcdHome();
+					  buttonReleased = false;
 				}
+
 				else
 					if (highestCombination == 4) { // Right button pressed
-					lcdNextPage();
-					buttonReleased = false;
+					  lcdNextPage();
+					  buttonReleased = false;
 				}
+
 				else
 					if (highestCombination == 3) { // Left & center pressed
-            if (menuNext != NULL)
-					menuNext(currentPage);
+            if (menuBackPointer != NULL)
+					    menuBackPointer(currentPage);
 				}
+
 				else
 					if (highestCombination == 6) { // Right & center pressed
-            if (menuBack != NULL)
-          menuBack(currentPage);
+            if (menuNextPointer != NULL)
+              menuNextPointer(currentPage);
 				}
+
 				buttonReleased = true;
 				highestCombination = 0;
 			} // Else: Nothing was pressed yet
@@ -138,38 +142,43 @@ void lcdManager(void * param) {
 				highestCombination = lcdReadButtons(uart2);
 			}
 		}
+    delay(20); // Give other tasks time to run
 	}
 }
 
 void lcdStartMenu() {
-  print("Starting the LCD menu\n");
+  print("[ELib] Starting the LCD menu\n");
+  lcdSetText(uart2,1,"LCD Starting");
   taskCreate(lcdAutoRefresh, TASK_DEFAULT_STACK_SIZE,
      NULL, TASK_PRIORITY_DEFAULT); // Start auto refresher
-   //taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
-     //NULL, TASK_PRIORITY_DEFAULT); // Start the given manager
+   taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
+     NULL, TASK_PRIORITY_DEFAULT); // Start the given manager
 }
 
 void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
+  print("[ELib] Initializing an LCD on Uart2\n");
   lcdClear(uart2); // Make sure the LCD is initialized
   lcdInit(uart2);
   lcdSetBacklight(uart2, true);
 
-  lcdSetText(uart2,1,"LCD Init Done");
   // Set all of the local variables to their respective values
   homePage = _homePage;
   currentPage = homePage;
   minPage = _minPage;
   maxPage = _maxPage;
+
+  // Put filler text til done
+  lcdSetText(uart2,1,"LCD Init Done");
 }
 
 void lcdSetUpdater(updateLCDFunction _lcdUpdatePage) {
   lcdUpdatePage = _lcdUpdatePage;
 }
 
-void lcdSetMenuNext(menuPressMethod _menuNext) {
-  menuNext = _menuNext;
+void lcdSetMenuNext(void (*_menuNext)(int)) {
+  menuNextPointer = _menuNext;
 }
 
-void lcdSetMenuBack(menuPressMethod _menuBack) {
-  menuBack = _menuBack;
+void lcdSetMenuBack(void (*_menuBack)(int)) {
+  menuBackPointer = _menuBack;
 }
