@@ -42,8 +42,10 @@ void updateLCD(bool userCaused, int page) {
       case 2:
         {
           lcdPrintTitle("AutonPos");
-          lcdPrint(uart2, 2, "%c %s %c", 0xBC, getAutonPosition() ? "Right"
+          char temp[16];
+          sprintf(temp,"%c %s %c",0xBC, getAutonPosition() ? "Right"
           : "Left", 0xBB);
+          lcdPrintCentered(temp,2);
         }
         break;
 
@@ -51,8 +53,17 @@ void updateLCD(bool userCaused, int page) {
       case 3:
         {
           lcdPrintTitle("AutonColor");
-          lcdPrint(uart2, 2, "%c %s %c", 0xBC, getAutonColor() ? "Red"
+          char temp[16];
+          sprintf(temp,"%c %s %c",0xBC, getAutonColor() ? "Red"
           : "Blue", 0xBB);
+          lcdPrintCentered(temp,2);
+        }
+        break;
+
+      // [Page 4] Home page ----------------------------------------------------
+      case 4:
+        {
+          lcdPrint(uart2, 1, "%cEssential Evil%c",0xCD,0xCD);
         }
         break;
 
@@ -90,6 +101,8 @@ void menuNext(int page) {
       break;
     // -------------------------------------------------------------------------
   }
+  updateLCD(true, page);
+  lcdResetAutoRefresh();
 }
 
 void menuBack(int page) {
@@ -118,6 +131,8 @@ void menuBack(int page) {
       break;
     // -------------------------------------------------------------------------
   }
+  updateLCD(true, page);
+  lcdResetAutoRefresh();
 }
 
 /*

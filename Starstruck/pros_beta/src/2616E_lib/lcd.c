@@ -122,7 +122,8 @@ void lcdManager(void * param) {
           if (paused) {
             taskSuspend(autoRefresh);
             lcdClear(uart2);
-            lcdPrintCentered("- Paused -", 1);
+            lcdPrint(uart2, 1, "%cEssential Evil%c",0xCD,0xCD);
+            lcdPrintCentered("- Paused -", 2);
           } else {
             taskResume(autoRefresh);
           }
@@ -166,7 +167,10 @@ void lcdManager(void * param) {
         highestCombination = lcdReadButtons(uart2);
       }
     }
-    delay(20); // Give other tasks time to run
+    if (!paused)
+      delay(20); // Give other tasks time to run
+    else
+      delay(1000); // Slow down more when we aren't expecting presses
   }
 }
 
