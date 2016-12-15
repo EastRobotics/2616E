@@ -60,7 +60,7 @@ extern "C" {
 
   void lcdPrintTitle(const char *);
 
-  void lcdPrintCentered(char *, unsigned char);
+  void lcdPrintCentered(const char *, unsigned char);
 
   void lcdHome();
 

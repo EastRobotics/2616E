@@ -1,12 +1,14 @@
 #include "main.h"
-#include <string.h>
+#include "string.h"
 
-typedef void (*updateLCDFunction)(bool, int);
-void (*menuNextPointer)(int);
-void (*menuBackPointer)(int);
+  // TODO: Add back in hold time detection
+  // TODO: Rewrite to be much cleaner and easier to use
 
-// TODO: Add back in hold time detection
-// TODO: Rewrite to be much cleaner and easier to use
+typedef void( * updateLCDFunction)(bool, int);
+void( * menuNextPointer)(int);
+void( * menuBackPointer)(int);
+bool paused = false;
+TaskHandle autoRefresh;
 
 // Custom LCD methods
 updateLCDFunction lcdUpdatePage;
@@ -28,22 +30,23 @@ void setRefreshTime(unsigned long _refreshTimeMillis) {
 }
 
 void lcdPrintTitle(const char * title) {
-  lcdPrint(uart2, 1, "%s%c",title, 0xF6);
+  lcdPrint(uart2, 1, "%s%c", title, 0xF6);
 }
 
-void lcdPrintCentered(char centered[16], unsigned char line) {
+// **VERY** intensive. Try not to use too much.
+void lcdPrintCentered(const char * centered, unsigned char line) {
   // We don't have %*s... this is gonna get messy
-  unsigned char len = 16-strlen(centered); // Spaces we need to add
+  unsigned char len = 16 - strlen(centered); // Spaces we need to add
   char output[16]; // We should never go over 16, max chars on lcd
-  strncpy(output,centered,16);
-  int lenLeft = len/2; // How much needs to be added
+  strncpy(output, centered, 16);
+  int lenLeft = len / 2; // How much needs to be added
   int lenRight = lenLeft;
   if (len % 2 == 1)
     lenRight += 1; // Since 3/2=1 with ints, add remainder to right if needed
   for (int i = 0; i < lenRight; i++) { // Add spaces
     char temp[16];
-    strncpy(temp,output,16);
-    sprintf(output,"%s%s%s",  (i+1 > lenLeft) ? "" : " ", temp, " ");
+    strncpy(temp, output, 16);
+    sprintf(output, "%s%s%s", (i + 1 > lenLeft) ? "" : " ", temp, " ");
   }
   lcdPrint(uart2, line, output);
 }
@@ -51,13 +54,13 @@ void lcdPrintCentered(char centered[16], unsigned char line) {
 // Returns the lcd to it's first page and redraws
 // Triggered by middle button
 void lcdHome() {
-	currentPage = homePage;
-	lcdUpdatePage(true, currentPage);
+  currentPage = homePage;
+  lcdUpdatePage(true, currentPage);
 }
 
 void lcdSetPage(int page) {
-	// TODO Checks and stuff
-	currentPage = page;
+  // TODO Checks and stuff
+  currentPage = page;
 }
 
 // Handles a request to go to the next page.
@@ -65,12 +68,12 @@ void lcdSetPage(int page) {
 //  -> If there isn't one and cycle is enable, it goes to first page
 // Triggered by right button
 void lcdNextPage() {
-	if (currentPage < maxPage) { // Theres another page to go to
-		currentPage += 1;
-		} else if (cycles) { // Go to the start of the loop if we cycle
-		currentPage = minPage;
-	}
-	lcdUpdatePage(true, currentPage);
+  if (currentPage < maxPage) { // Theres another page to go to
+    currentPage += 1;
+  } else if (cycles) { // Go to the start of the loop if we cycle
+    currentPage = minPage;
+  }
+  lcdUpdatePage(true, currentPage);
 }
 
 // Handles a request to go to the previous page.
@@ -78,99 +81,102 @@ void lcdNextPage() {
 //  -> If there isn't one and cycle is enable, it goes to last page
 // Triggered by left button
 void lcdLastPage() {
-	if (currentPage > minPage) { // Theres another page to go back to
-		currentPage -= 1;
-		} else if (cycles) { // Go to the end of the loop if we cycle
-		currentPage = maxPage;
-	}
-	lcdUpdatePage(true, currentPage);
+  if (currentPage > minPage) { // Theres another page to go back to
+    currentPage -= 1;
+  } else if (cycles) { // Go to the end of the loop if we cycle
+    currentPage = maxPage;
+  }
+  lcdUpdatePage(true, currentPage);
 }
 
 int lastRefresh;
 
 // Reset the last time we've refreshed to the current time
 void lcdResetAutoRefresh() {
-	lastRefresh = millis();
+  lastRefresh = millis();
 }
 
 // Task to update the page if we have had no activity in refreshTime milliseconds
 void lcdAutoRefresh(void * param) {
-	//lastHoldTime = -1.0;
-	lcdUpdatePage(false, currentPage); // Ensure a page is already drawn
-	while (true)
-	{
-			//lastHoldTime = -1.0;
-      taskDelay(20);
-      if (millis() - lastRefresh >= refreshTimeMillis) {
-			     lcdUpdatePage(false, currentPage);
-        lcdResetAutoRefresh();
-      }
-	}
+  //lastHoldTime = -1.0;
+  lcdUpdatePage(false, currentPage); // Ensure a page is already drawn
+  while (true) {
+    //lastHoldTime = -1.0;
+    taskDelay(20);
+    if (millis() - lastRefresh >= refreshTimeMillis) {
+      lcdUpdatePage(false, currentPage);
+      lcdResetAutoRefresh();
+    }
+  }
 }
 
 void lcdManager(void * param) {
-	bool buttonReleased = true;
-	unsigned char highestCombination = 0;
-	while (true) {
-		if (lcdReadButtons(uart2) == 0) { // A button wasn't pressed
-			if (buttonReleased == false) { // Button was pressed then released. Let's handle presses
-				//lcdEndHold(); // Update our last held count
-				if (highestCombination == 1) { // Left button pressed
-					lcdLastPage();
-					buttonReleased = false;
-				}
+  bool buttonReleased = true;
+  unsigned char highestCombination = 0;
+  while (true) {
+    if (lcdReadButtons(uart2) == 0) { // A button wasn't pressed
+      if (buttonReleased == false) { // Button was pressed then released. Let's handle presses
+        //lcdEndHold(); // Update our last held count
+        if (highestCombination == 7) { // All buttons pressed
+          paused = !paused;
+          if (paused) {
+            taskSuspend(autoRefresh);
+            lcdClear(uart2);
+            lcdPrintCentered("- Paused -", 1);
+          } else {
+            taskResume(autoRefresh);
+          }
+        }
 
-				else
-					if (highestCombination == 2) { // Center button pressed
-					  lcdHome();
-					  buttonReleased = false;
-				}
-
-				else
-					if (highestCombination == 4) { // Right button pressed
-					  lcdNextPage();
-					  buttonReleased = false;
-				}
-
-				else
-					if (highestCombination == 3) { // Left & center pressed
+        if (!paused) {
+          if (highestCombination == 1) { // Left button pressed
+            lcdLastPage();
+            buttonReleased = false;
+          } else
+          if (highestCombination == 2) { // Center button pressed
+            lcdHome();
+            buttonReleased = false;
+          } else
+          if (highestCombination == 4) { // Right button pressed
+            lcdNextPage();
+            buttonReleased = false;
+          } else
+          if (highestCombination == 3) { // Left & center pressed
             if (menuBackPointer != NULL)
-					    menuBackPointer(currentPage);
-				}
-
-				else
-					if (highestCombination == 6) { // Right & center pressed
+              menuBackPointer(currentPage);
+          } else
+          if (highestCombination == 6) { // Right & center pressed
             if (menuNextPointer != NULL)
               menuNextPointer(currentPage);
-				}
+          }
+        }
 
-				buttonReleased = true;
-				highestCombination = 0;
-			} // Else: Nothing was pressed yet
-		}
-		else // A button was pressed but we haven't released
-		{
-			lcdResetAutoRefresh(); // Reset our countdown for resfreshing
-			if (buttonReleased) { // If this is our first button pressed
-				buttonReleased = false; // Tell us we have a button pushed down
-				//lcdStartHold(); // Start a button hold down
-			}
+        buttonReleased = true;
+        highestCombination = 0;
+      } // Else: Nothing was pressed yet
+    } else // A button was pressed but we haven't released
+    {
+      lcdResetAutoRefresh(); // Reset our countdown for resfreshing
+      if (buttonReleased) { // If this is our first button pressed
+        buttonReleased = false; // Tell us we have a button pushed down
+        //lcdStartHold(); // Start a button hold down
+      }
 
-			if (lcdReadButtons(uart2) > highestCombination) {
-				highestCombination = lcdReadButtons(uart2);
-			}
-		}
+      if (lcdReadButtons(uart2) > highestCombination) {
+        highestCombination = lcdReadButtons(uart2);
+      }
+    }
     delay(20); // Give other tasks time to run
-	}
+  }
 }
 
 void lcdStartMenu() {
   print("[ELib] Starting the LCD menu\n");
-  lcdSetText(uart2,1,"LCD Starting");
-  taskCreate(lcdAutoRefresh, TASK_DEFAULT_STACK_SIZE,
-     NULL, TASK_PRIORITY_DEFAULT); // Start auto refresher
-   taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
-     NULL, TASK_PRIORITY_DEFAULT); // Start the given manager
+  lcdSetText(uart2, 1, "LCD Starting");
+  autoRefresh = taskCreate(lcdAutoRefresh, TASK_DEFAULT_STACK_SIZE,
+    NULL, TASK_PRIORITY_DEFAULT); // Start auto refresher
+  taskCreate(lcdManager, TASK_DEFAULT_STACK_SIZE,
+    NULL, TASK_PRIORITY_DEFAULT); // Start the given manager
 }
 
 void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
@@ -186,17 +192,17 @@ void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
   maxPage = _maxPage;
 
   // Put filler text til done
-  lcdSetText(uart2,1,"LCD Init Done");
+  lcdSetText(uart2, 1, "LCD Init Done");
 }
 
 void lcdSetUpdater(updateLCDFunction _lcdUpdatePage) {
   lcdUpdatePage = _lcdUpdatePage;
 }
 
-void lcdSetMenuNext(void (*_menuNext)(int)) {
+void lcdSetMenuNext(void( * _menuNext)(int)) {
   menuNextPointer = _menuNext;
 }
 
-void lcdSetMenuBack(void (*_menuBack)(int)) {
+void lcdSetMenuBack(void( * _menuBack)(int)) {
   menuBackPointer = _menuBack;
 }
