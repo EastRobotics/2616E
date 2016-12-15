@@ -19,8 +19,7 @@ void updateLCD(bool userCaused, int page) {
     // [Page 1] Auton mode selector --------------------------------------------
     case 1:
       {
-        lcdPrintTitle("Auton Mode");
-        printf("Auton mode: %d\n",getAutonMode());
+        lcdPrintTitle("AutonMode");
         const char* autonName;
         switch (getAutonMode()) {
           case 1:
@@ -32,16 +31,28 @@ void updateLCD(bool userCaused, int page) {
           default: // Unknown mode
             autonName = "Unknown";
         }
-        lcdPrint(uart2, 2, "%c %s %c",0xBC, autonName, 0xBB);
+        char temp[16];
+        sprintf(temp,"%c %s %c",0xBC, autonName, 0xBB);
+        //lcdPrint(uart2, 2, "%c %s %c",0xBC, autonName, 0xBB);
+        lcdPrintCentered(temp,2);
       }
       break;
 
-      // [Page 1] Auton mode selector --------------------------------------------
+      // [Page 2] Auton position selector --------------------------------------
       case 2:
         {
-          lcdPrintTitle("Gyro");
-          printf("Gyro: %d\n",gyroGet(gyro));
-          lcdPrint(uart2, 2, "Gyro: %d\n",gyroGet(gyro));
+          lcdPrintTitle("AutonPos");
+          lcdPrint(uart2, 2, "%c %s %c", 0xBC, getAutonPosition() ? "Right"
+          : "Left", 0xBB);
+        }
+        break;
+
+      // [Page 3] Auton color selector -----------------------------------------
+      case 3:
+        {
+          lcdPrintTitle("AutonColor");
+          lcdPrint(uart2, 2, "%c %s %c", 0xBC, getAutonColor() ? "Red"
+          : "Blue", 0xBB);
         }
         break;
 
@@ -65,6 +76,18 @@ void menuNext(int page) {
           setAutonMode(nextMode);
       }
       break;
+    // [Page 2] Auton position selector --------------------------------------
+    case 2:
+      {
+        setAutonPosition(!getAutonPosition());
+      }
+      break;
+    // [Page 3] Auton color selector -------------------------------------------
+    case 3:
+      {
+        setAutonColor(!getAutonColor());
+      }
+      break;
     // -------------------------------------------------------------------------
   }
 }
@@ -79,6 +102,18 @@ void menuBack(int page) {
           setAutonMode(getAutonModeMax());
         else
           setAutonMode(nextMode);
+      }
+      break;
+    // [Page 2] Auton position selector --------------------------------------
+    case 2:
+      {
+        setAutonPosition(!getAutonPosition());
+      }
+      break;
+    // [Page 3] Auton color selector -------------------------------------------
+    case 3:
+      {
+        setAutonColor(!getAutonColor());
       }
       break;
     // -------------------------------------------------------------------------
@@ -126,5 +161,6 @@ void initialize() {
   // Done init
   print("[Init] Finished, starting LCD menu\n");
   lcdSetText(uart2, 1, "Init menu...");
+  lcdSetCycles(false);
   lcdStartMenu();
 }

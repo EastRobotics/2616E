@@ -54,11 +54,13 @@ extern "C" {
 
   typedef void (*updateLCDFunction)(bool, int);
 
-  void setCycles(bool _cycles);
+  void lcdSetCycles(bool _cycles);
 
   void setRefreshTime(unsigned long);
 
   void lcdPrintTitle(const char *);
+
+  void lcdPrintCentered(char *, unsigned char);
 
   void lcdHome();
 

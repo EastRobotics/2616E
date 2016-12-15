@@ -1,4 +1,5 @@
 #include "main.h"
+#include <string.h>
 
 typedef void (*updateLCDFunction)(bool, int);
 void (*menuNextPointer)(int);
@@ -18,7 +19,7 @@ int maxPage; // Should be the last page number in your set
 bool cycles = true; // Make pages a continuous loop (loops to start when at the end)
 unsigned long refreshTimeMillis = 250;
 
-void setCycles(bool _cycles) {
+void lcdSetCycles(bool _cycles) {
   cycles = _cycles;
 }
 
@@ -28,6 +29,23 @@ void setRefreshTime(unsigned long _refreshTimeMillis) {
 
 void lcdPrintTitle(const char * title) {
   lcdPrint(uart2, 1, "%s%c",title, 0xF6);
+}
+
+void lcdPrintCentered(char centered[16], unsigned char line) {
+  // We don't have %*s... this is gonna get messy
+  unsigned char len = 16-strlen(centered); // Spaces we need to add
+  char output[16]; // We should never go over 16, max chars on lcd
+  strncpy(output,centered,16);
+  int lenLeft = len/2; // How much needs to be added
+  int lenRight = lenLeft;
+  if (len % 2 == 1)
+    lenRight += 1; // Since 3/2=1 with ints, add remainder to right if needed
+  for (int i = 0; i < lenRight; i++) { // Add spaces
+    char temp[16];
+    strncpy(temp,output,16);
+    sprintf(output,"%s%s%s",  (i+1 > lenLeft) ? "" : " ", temp, " ");
+  }
+  lcdPrint(uart2, line, output);
 }
 
 // Returns the lcd to it's first page and redraws
