@@ -64,9 +64,29 @@ void updateLCD(bool userCaused, int page) {
       case 4:
         {
           lcdPrint(uart2, 1, "%cEssential Evil%c",0xCD,0xCD);
+          char batWarning = ' ';
+          // If really bad
+          if (batteryStatus(voltLevelExpander(ANALOG_POW_EXPAND, true)) >= 2 ||
+            batteryStatus(voltLevelMain()) >= 2) {
+            batWarning = 0xF5; // Noticeable down arrow thing
+          // If pretty bad
+          }
+          else if (batteryStatus(voltLevelExpander(ANALOG_POW_EXPAND, true))
+            >= 1 || batteryStatus(voltLevelMain()) >= 1) {
+            batWarning = 0x21;
+          }
+          lcdPrint(uart2, 2,"%cbat | aut%d",batWarning,getAutonMode());
         }
         break;
 
+      // [Page 5] Battery Stat -------------------------------------------------
+      case 5:
+        {
+          lcdPrint(uart2, 1, "%s%c B:%.2fv", "BatStat", 0xF6, voltLevelBackup());
+          lcdPrint(uart2, 2, " M:%.2fv E:%.2fv", voltLevelMain(),
+            voltLevelExpander(ANALOG_POW_EXPAND, true));
+        }
+        break;
     // [Page ?] Unknown page ---------------------------------------------------
     default:
       lcdPrint(uart2, 1, "Page? %d",page);

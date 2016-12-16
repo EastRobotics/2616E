@@ -2,20 +2,33 @@
 #include "math.h"
 
 unsigned int powerLevelExpander(unsigned char channel, bool newVersion){
-  int returned = analogRead(channel);
-  return newVersion ? returned/70 : returned/45.6;
+  return voltLevelExpander(channel, newVersion)*1000;
 }
 
 float voltLevelExpander(unsigned char channel, bool newVersion){
-  return powerLevelExpander(channel, newVersion)/1000;
+  int returned = analogRead(channel);
+  // Divisors 70.0 for A2 (new) and 45.6 on A1 (old) at 10 bit
+  // we have 12 bit resolution, so multiply by four
+  return newVersion ? returned/280.0 : returned/182.4;
 }
 
 float voltLevelMain(){
-  return powerLevelMain()/1000;
+  return powerLevelMain()/1000.0;
 }
 
 float voltLevelBackup(){
-  return powerLevelBackup()/1000;
+  return powerLevelBackup()/1000.0;
+}
+
+// 0: Good, no action needed
+// 1: Consider changing
+// 2: Really need to change
+unsigned char batteryStatus(float volts) {
+  if (volts >= 8.2)
+    return 0;
+  if (volts >= 7.8)
+    return 1;
+  return 2;
 }
 
 //Converts an RPM value to a motor speed using the function f(x) = 11.431e^(0.0217x)

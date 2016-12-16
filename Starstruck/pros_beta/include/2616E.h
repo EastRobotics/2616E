@@ -102,6 +102,8 @@ extern "C" {
 
   float voltLevelBackup();
 
+  unsigned char batteryStatus(float);
+
   int RPMToMotor(float);
 
   float motorToRPM(int);
