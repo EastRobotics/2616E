@@ -24,6 +24,8 @@ extern "C" {
 
   void driveHolonomic(int, int, int);
 
+  void driveWithLogicHolonomic(int, int, int, bool);
+
 /*
 ** Methods from autonswitch.c
 */

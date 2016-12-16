@@ -123,7 +123,7 @@ void driveHolonomic(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
+void driveWithLogicHolonomic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
 	int multipliedSpeedForward = speedForward; // ((float) speedForward)*forwardMultiplier;
 	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
 	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
