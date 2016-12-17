@@ -116,6 +116,30 @@ extern "C" {
 
   int getLerpedSpeed(int power, int minSpeed, int minPower);
 
+  /*
+  ** Methods from pid.c
+  */
+
+  typedef double( * getCurrentValFunction)();
+
+  typedef void( * setCurrentValFunction)(double);
+
+  typedef void( * PIDIteratorCallbackFunction)();
+
+  bool runPID(int);
+
+  void pidLoop(void *);
+
+  void startPIDLoop(unsigned int, double);
+
+  void stopPIDLoop(unsigned int, double);
+
+  int setPIDLoop(unsigned int, getCurrentValFunction, setCurrentValFunction, PIDIteratorCallbackFunction, double, double, double, double, double);
+
+  int addPIDLoop(getCurrentValFunction, setCurrentValFunction, PIDIteratorCallbackFunction, double, double, double, double, double);
+
+  void initPID();
+
 #ifdef __cplusplus // end method if
 }
 #endif
