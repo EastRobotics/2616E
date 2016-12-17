@@ -7,6 +7,7 @@
 #define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
 
 unsigned char driveFL, driveBL, driveFR, driveBR;
+bool driveFLReverse, driveBLReverse, driveFRReverse, driveBRReverse;
 
 /*
 ** Sets the drive motors we're using. This makes it so we don't need to provide
@@ -26,6 +27,23 @@ void driveInit(unsigned char _driveFL, unsigned char _driveBL,
     driveFR = _driveFR; // Set our front right motor
     driveBR = _driveBR; // Set our back  right motor
 }
+
+/*
+** Sets whether each drive motor should be reverse or not
+**
+** PARAMETERS:
+**   bool: Front left  drive motor reverse
+**   bool: Back  left  drive motor reverse
+**   bool: Front right drive motor reverse
+**   bool: Back  right drive motor reverse
+*/
+void driveSetReverse(bool _driveFLReverse, bool _driveBLReverse,
+  bool _driveFRReverse, bool _driveBRReverse) {
+    driveFLReverse = _driveFLReverse;
+    driveBLReverse = _driveBLReverse;
+    driveFRReverse = _driveFRReverse;
+    driveBRReverse = _driveBRReverse;
+  }
 
 /*
 ** Sets the given motor's speed, assuming the motor is valid. Otherwise, an
@@ -61,10 +79,14 @@ void driveIfValid(unsigned char motor, int speed,
 **   int: The speed of the back  right motor, -127 to 127
 */
 void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
-  driveIfValid(driveFL, speedFL, "driveFL"); // Set drive front left
-  driveIfValid(driveBL, speedBL, "driveBL"); // Set drive back  left
-  driveIfValid(driveFR, speedFR, "driveFR"); // Set drive front right
-  driveIfValid(driveBR, speedBR, "driveBR"); // Set drive back  right
+  // Set drive front left
+  driveIfValid(driveFL, speedFL * (driveFLReverse ? -1 : 1), "driveFL");
+  // Set drive back  left
+  driveIfValid(driveBL, speedBL * (driveBLReverse ? -1 : 1), "driveBL");
+  // Set drive front right
+  driveIfValid(driveFR, speedFR * (driveFRReverse ? -1 : 1), "driveFR");
+  // Set drive back  right
+  driveIfValid(driveBR, speedBR * (driveBRReverse ? -1 : 1), "driveBR");
 }
 
 
@@ -114,7 +136,7 @@ void driveHolonomic(int speedForward, int speedTurn, int speedStrafe) {
 }
 
 // Drive with checks to rule out errors with joystick controls
-// NOTE:
+// NOTES:
 // 	Multipliers should always be (0 <= x <= 1.0). This avoids going too fast or slow and going out of proportion
 // PARAMETERS:
 //	int: -127 to 127, speed to drive forward or backward respectively
@@ -123,7 +145,7 @@ void driveHolonomic(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-void driveWithLogicHolonomic(int speedForward, int speedTurn, int speedStrafe, bool reverse) {
+void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
 	int multipliedSpeedForward = speedForward; // ((float) speedForward)*forwardMultiplier;
 	int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
 	int multipliedSpeedStrafe = speedStrafe; //((float) speedStrafe)*strafeMultiplier;
@@ -136,29 +158,44 @@ void driveWithLogicHolonomic(int speedForward, int speedTurn, int speedStrafe, b
 	multipliedSpeedTurn = abs(multipliedSpeedTurn);
 	multipliedSpeedStrafe = abs(multipliedSpeedStrafe);
 
-	if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD) multipliedSpeedForward = 0;
-	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN) multipliedSpeedTurn = 0;
-	if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE) multipliedSpeedStrafe = 0;
+	if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD)
+    multipliedSpeedForward = 0;
+	if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN)
+    multipliedSpeedTurn = 0;
+	if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE)
+    multipliedSpeedStrafe = 0;
 
-	if(abs(multipliedSpeedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
-	if(abs(multipliedSpeedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
-	if(abs(multipliedSpeedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
+	if(abs(multipliedSpeedForward) <= JOYSTICK_MOVEMENT_THRESHOLD)
+    multipliedSpeedForward = 0;
+	if(abs(multipliedSpeedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD)
+    multipliedSpeedTurn = 0;
+	if(abs(multipliedSpeedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD)
+    multipliedSpeedStrafe = 0;
 
-	//uses linear interpolation or lerp to fix the logarithmic nature of a motor's RPM to motor speed ratio into linear growth
-	multipliedSpeedForward = getLerpedSpeed(multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
-	multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
-	multipliedSpeedStrafe = getLerpedSpeed(multipliedSpeedStrafe, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
+	// Uses linear interpolation/lerp to fix the logarithmic nature of a motor's
+  //  RPM to motor speed ratio into linear growth
+	multipliedSpeedForward = getLerpedSpeed(multipliedSpeedForward,
+    INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
+	multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn,
+    INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
+	multipliedSpeedStrafe = getLerpedSpeed(multipliedSpeedStrafe,
+    INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
 
-	if (abs(speedForward) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedForward = 0;
-	if (abs(speedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedTurn = 0;
-	if (abs(speedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedStrafe = 0;
+	if (abs(speedForward) <= JOYSTICK_MOVEMENT_THRESHOLD)
+    multipliedSpeedForward = 0;
+	if (abs(speedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD)
+    multipliedSpeedTurn = 0;
+	if (abs(speedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD)
+    multipliedSpeedStrafe = 0;
 
 	multipliedSpeedForward *= forwardMult;
 	multipliedSpeedTurn *= turnMult;
 	multipliedSpeedStrafe *= strafeMult;
 	//Double strafe speeds
 	multipliedSpeedStrafe *= 2;
-	multipliedSpeedStrafe = (multipliedSpeedStrafe > 127) ? 127 : multipliedSpeedStrafe;
+	multipliedSpeedStrafe = (multipliedSpeedStrafe > 127) ?
+   127 : multipliedSpeedStrafe;
 
-	driveHolonomic(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
+	driveHolonomic(multipliedSpeedForward, multipliedSpeedTurn,
+    multipliedSpeedStrafe); // Pass off the checked values to drive
 }

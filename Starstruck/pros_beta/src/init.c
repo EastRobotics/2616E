@@ -2,6 +2,10 @@
 
 Gyro gyro;
 
+Gyro getGyro() {
+    return gyro;
+}
+
 /*
  * Runs pre-initialization code. This function will be started in kernel mode one time while the
  * VEX Cortex is starting up. As the scheduler is still paused, most API functions will fail.
@@ -85,6 +89,29 @@ void updateLCD(bool userCaused, int page) {
           lcdPrint(uart2, 1, "%s%c B:%.2fv", "BatStat", 0xF6, voltLevelBackup());
           lcdPrint(uart2, 2, " M:%.2fv E:%.2fv", voltLevelMain(),
             voltLevelExpander(ANALOG_POW_EXPAND, true));
+        }
+        break;
+      // [Page 6] Claw pots ----------------------------------------------------
+      case 6:
+        {
+          lcdPrintTitle("ClawPots");
+          lcdPrint(uart2, 2, "L:%.4d R:%.4d", analogRead(ANALOG_POT_CLAW_L),
+            analogRead(ANALOG_POT_CLAW_R));
+        }
+        break;
+      // [Page 7] Line sensors -------------------------------------------------
+      case 7:
+        {
+          lcdPrintTitle("LineSensors");
+          lcdPrint(uart2, 2, "L: %.4d R: %.4d", analogRead(ANALOG_LINE_LEFT),
+          analogRead(ANALOG_LINE_RIGHT));
+        }
+        break;
+      // [Page 8] Arm pot ------------------------------------------------------
+      case 8:
+        {
+          lcdPrintTitle("ArmPot");
+          lcdPrint(uart2, 2, "Arm: %.4d", analogRead(ANALOG_POT_LAUNCH));
         }
         break;
     // [Page ?] Unknown page ---------------------------------------------------
@@ -182,6 +209,8 @@ void initialize() {
   print("[Init] Setting up drive motors\n");
   lcdSetText(uart2, 1, "Init drive...");
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
+  driveSetReverse(MOTOR_DRIVE_FL_REV, MOTOR_DRIVE_BL_REV, MOTOR_DRIVE_FR_REV,
+    MOTOR_DRIVE_BR_REV);
 
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
@@ -192,6 +221,8 @@ void initialize() {
   print("[Init] Setting gyroscope\n");
   lcdSetText(uart2, 1, "Init gyro...");
   gyro = gyroInit(ANALOG_GYRO, 0); // 0 multiplier = default, not * 0
+
+  imeInitializeAll(); // Initialize our IMEs;
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");

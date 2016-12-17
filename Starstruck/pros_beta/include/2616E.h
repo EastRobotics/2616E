@@ -14,6 +14,8 @@ extern "C" {
 
   void driveInit(unsigned char, unsigned char, unsigned char, unsigned char);
 
+  void driveSetReverse(bool, bool, bool, bool);
+
   void driveIfValid(unsigned char, int, const char*);
 
   void driveRaw(int, int, int, int);
@@ -24,7 +26,7 @@ extern "C" {
 
   void driveHolonomic(int, int, int);
 
-  void driveWithLogicHolonomic(int, int, int, bool);
+  void driveHolonomicWithLogic(int, int, int);
 
 /*
 ** Methods from autonswitch.c

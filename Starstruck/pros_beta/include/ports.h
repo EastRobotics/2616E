@@ -17,6 +17,12 @@ extern "C" {
   #define MOTOR_DRIVE_FL 8 // Front left  drive motor, motor 8
   #define MOTOR_DRIVE_BL 9 // Back  right drive motor, motor 9
 
+  // Drive
+  #define MOTOR_DRIVE_FR_REV true  // Front right drive motor, motor 2
+  #define MOTOR_DRIVE_BR_REV true // Back  right drive motor, motor 3
+  #define MOTOR_DRIVE_FL_REV false // Front left  drive motor, motor 8
+  #define MOTOR_DRIVE_BL_REV false // Back  right drive motor, motor 9
+
   // Choo-choo launcher
   #define MOTOR_CHOO_R1    4  // Right choo-choo 1,   motor 4
   #define MOTOR_Y_CHOO_R23 5  // Right choo-choo 2+3, motor 5
@@ -31,16 +37,27 @@ extern "C" {
 ** Analog
 ** (1-8)
 */
-  #define ANALOG_POW_EXPAND 1 // Power expander,     analog 1
-  #define ANALOG_GYRO 2       // Gyroscope,          analog 2
-  #define ANALOG_POT_LAUNCH 3 // Arm potentiometer,  analog 3
-  #define ANALOG_POT_CLAW_L 4 // Claw pot Left,      analog 4
-  #define ANALOG_POT_CLAW_R 5 // Claw pot Right,     analog 5
+  #define ANALOG_POW_EXPAND 1 // Power expander,    analog 1
+  #define ANALOG_GYRO 2       // Gyroscope,         analog 2
+  #define ANALOG_POT_LAUNCH 3 // Arm potentiometer, analog 3
+  #define ANALOG_POT_CLAW_L 4 // Claw pot Left,     analog 4
+  #define ANALOG_POT_CLAW_R 5 // Claw pot Right,    analog 5
+  #define ANALOG_LINE_LEFT  6 // Line Sensor Left,  analog 6
+  #define ANALOG_LINE_RIGHT 7 // Line Sensor Right, analog 6
 
 /*
 ** Digital
 ** (1-12) - Although not sure with PROS
 */
+
+/*
+** I2C
+** (0-IME_ADDR_MAX, AKA 0x1F)
+*/
+#define IME_DRIVE_FR 0 // Encoder front right, i2c 0
+#define IME_DRIVE_BR 1 // Encoder back  right, i2c 1
+#define IME_DRIVE_FL 3 // Encoder front left,  i2c 3
+#define IME_DRIVE_BL 2 // Encoder back  left,  i2c 2
 
 #ifdef __cplusplus
 }

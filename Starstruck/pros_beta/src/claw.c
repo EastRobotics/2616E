@@ -10,7 +10,7 @@
 // float: The RPM to be converted to a motor speed
 //RETURNS:
 // int: The motor speed that would get the RPM given
-int RPMToMotor(float RPM){
+int RPMToMotorClaw(float RPM){
 	RPM = 11.431 * ((float)pow(2.71828,(RPM*0.0217)));
 	RPM = (RPM > 127.0) ? 127.0 : ((RPM < -127.0) ? -127.0 : RPM);
 	return ((int)round(RPM));
@@ -22,7 +22,7 @@ int RPMToMotor(float RPM){
 // int: The motor speed to be converted to an RPM value
 //RETURNS:
 // float: The RPM that a motor at the given speed should spin at
-float motorToRPM(int motorSpeed){
+float motorToRPMClaw(int motorSpeed){
 	return (motorSpeed<0) ? ((log(((abs(motorSpeed))))*44.486) - 105.47) : -1*((log(((abs(motorSpeed))))*44.486) - 105.47);
 }
 
@@ -79,7 +79,7 @@ void manageClaw(void * ignored){
       clawPosRight; // Set slave position to the approriate position
 
     // Set the master speed to the slave's
-    int masterSpeed = RPMToMotor(rpmPlaceholder); // TODO Replace with slave RPM
+    int masterSpeed = RPMToMotorClaw(rpmPlaceholder); // TODO Replace with slave RPM
      // If they're considered misaligned let the slave catch up
     if (abs(clawPosMaster-clawPosSlave) > CLAW_MISALIGN_THRESHOLD) {
       masterSpeed -= CLAW_CATCHUP_SPEED; // TODO Account for direction, should slow down
