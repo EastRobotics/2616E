@@ -18,12 +18,14 @@ extern "C" {
   #define MOTOR_DRIVE_BL 9 // Back  right drive motor, motor 9
 
   // Choo-choo launcher
-  #define MOTOR_CHOO_R1 1  // Right choo-choo 1, motor 1
-  #define MOTOR_CHOO_R2 4  // Right choo-choo 2, motor 4
-  #define MOTOR_CHOO_R3 5  // Right choo-choo 3, motor 5
-  #define MOTOR_CHOO_L1 6  // Left  choo-choo 1, motor 6
-  #define MOTOR_CHOO_L2 7  // Left  choo-choo 2, motor 7
-  #define MOTOR_CHOO_L3 10 // Left  choo-choo 1, motor 10
+  #define MOTOR_CHOO_R1    4  // Right choo-choo 1,   motor 4
+  #define MOTOR_Y_CHOO_R23 5  // Right choo-choo 2+3, motor 5
+  #define MOTOR_Y_CHOO_L23 6  // Left  choo-choo 2+3, motor 6
+  #define MOTOR_CHOO_L1    7  // Left  choo-choo 1,   motor 7
+
+  // Claw
+  #define MOTOR_CLAW_R     1  // Right claw, motor 1
+  #define MOTOR_CLAW_L     10 // Left  claw, motor 10
 
 /*
 ** Analog
@@ -32,6 +34,8 @@ extern "C" {
   #define ANALOG_POW_EXPAND 1 // Power expander,     analog 1
   #define ANALOG_GYRO 2       // Gyroscope,          analog 2
   #define ANALOG_POT_LAUNCH 3 // Arm potentiometer,  analog 3
+  #define ANALOG_POT_CLAW_L 4 // Claw pot Left,      analog 4
+  #define ANALOG_POT_CLAW_R 5 // Claw pot Right,     analog 5
 
 /*
 ** Digital
