@@ -59,7 +59,7 @@ float motorToRPM(int motorSpeed){
 // float: the first y value
 // float: the second x value
 // float: the second y value
-//RETURNS: 
+//RETURNS:
 // float: the slope of the line with the given points
 float getSlope(float x1, float y1, float x2, float y2){
 	return ((y2-y1)/(x2-x1));

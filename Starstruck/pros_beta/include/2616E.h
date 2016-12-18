@@ -134,7 +134,7 @@ extern "C" {
 
   void startPIDLoop(unsigned int, double);
 
-  void stopPIDLoop(unsigned int, double);
+  void stopPIDLoop(unsigned int, bool);
 
   int setPIDLoop(unsigned int, getCurrentValFunction, setCurrentValFunction, PIDIteratorCallbackFunction, double, double, double, double, double);
 
