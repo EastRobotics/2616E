@@ -122,7 +122,7 @@ extern "C" {
   ** Methods from pid.c
   */
 
-  typedef double( * getCurrentValFunction)();
+  /*typedef double( * getCurrentValFunction)();
 
   typedef void( * setCurrentValFunction)(double);
 
@@ -140,7 +140,7 @@ extern "C" {
 
   int addPIDLoop(getCurrentValFunction, setCurrentValFunction, PIDIteratorCallbackFunction, double, double, double, double, double);
 
-  void initPID();
+  void initPID();*/
 
 #ifdef __cplusplus // end method if
 }
