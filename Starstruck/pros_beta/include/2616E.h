@@ -3,6 +3,12 @@
 // This prevents multiple inclusion, which isn't bad for this file but is good practice
 #define LIB2616E_H_
 
+// Setup the auton constants to define the starting position
+#define DIR_RIGHT true
+#define DIR_LEFT false
+#define COLOR_RED true
+#define COLOR_BLUE false
+
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
 extern "C" {
