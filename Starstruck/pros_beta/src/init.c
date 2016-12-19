@@ -95,8 +95,11 @@ void updateLCD(bool userCaused, int page) {
       case 6:
         {
           lcdPrintTitle("ClawPots");
-          lcdPrint(uart2, 2, "L:%.4d R:%.4d", analogRead(ANALOG_POT_CLAW_L),
-            analogRead(ANALOG_POT_CLAW_R));
+          int clawPosLeft;
+      		imeGet (IME_CLAW_L, &clawPosLeft);
+      		int clawPosRight;
+      		imeGet (IME_CLAW_R, &clawPosRight);
+          lcdPrint(uart2, 2, "L:%.4d R:%.4d", clawPosLeft, clawPosRight);
         }
         break;
       // [Page 7] Line sensors -------------------------------------------------

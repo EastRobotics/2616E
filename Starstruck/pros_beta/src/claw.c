@@ -40,9 +40,10 @@ void manageClaw(void * ignored){
     // Find the ROC of each claw side
     float rpmPlaceholder = 0.0;
 
-    // TODO Calibrate these in init                                   <--
-    int clawPosLeft = analogReadCalibrated(ANALOG_POT_CLAW_L);  // TODO ^
-    int clawPosRight = analogReadCalibrated(ANALOG_POT_CLAW_R); // TODO ^
+		int clawPosLeft;
+		imeGet (IME_CLAW_L, &clawPosLeft);
+		int clawPosRight;
+		imeGet (IME_CLAW_R, &clawPosRight);
 
     int targetSpeed;
     // Figure out which direction we're going
@@ -61,21 +62,21 @@ void manageClaw(void * ignored){
 
     // Set master and slave based on direction and position
     if (lastDirection) { // If we were last opening
-      master = (clawPosLeft > clawPosRight) ? ANALOG_POT_CLAW_L :
-        ANALOG_POT_CLAW_R; // Set master to the most open
-      slave = (clawPosLeft > clawPosRight) ? ANALOG_POT_CLAW_R :
-        ANALOG_POT_CLAW_L; // Set slave to the most closed
+      master = (clawPosLeft > clawPosRight) ? IME_CLAW_L :
+        IME_CLAW_R; // Set master to the most open
+      slave = (clawPosLeft > clawPosRight) ? IME_CLAW_R :
+        IME_CLAW_L; // Set slave to the most closed
     } else { // If we were last closing
-      master = (clawPosLeft < clawPosRight) ? ANALOG_POT_CLAW_L :
-        ANALOG_POT_CLAW_R; // Set master to the most closed
-      slave = (clawPosLeft < clawPosRight) ? ANALOG_POT_CLAW_R :
-        ANALOG_POT_CLAW_L; // Set slave to the most open
+      master = (clawPosLeft < clawPosRight) ? IME_CLAW_L :
+        IME_CLAW_R; // Set master to the most closed
+      slave = (clawPosLeft < clawPosRight) ? IME_CLAW_R :
+        IME_CLAW_L; // Set slave to the most open
     }
 
     // Rename left and right positions to master and slave
-    int clawPosMaster = (master == ANALOG_POT_CLAW_L) ? clawPosLeft :
+    int clawPosMaster = (master == IME_CLAW_L) ? clawPosLeft :
       clawPosRight; // Set master position to the approriate position
-    int clawPosSlave = (slave == ANALOG_POT_CLAW_L) ? clawPosLeft :
+    int clawPosSlave = (slave == IME_CLAW_L) ? clawPosLeft :
       clawPosRight; // Set slave position to the approriate position
 
     // Set the master speed to the slave's
@@ -86,9 +87,9 @@ void manageClaw(void * ignored){
     }
 
     // Set the claws to their appropriate speeds
-    motorSet(MOTOR_CLAW_L, (master == ANALOG_POT_CLAW_L) ?
+    motorSet(MOTOR_CLAW_L, (master == IME_CLAW_L) ?
       masterSpeed : targetSpeed);
-    motorSet(MOTOR_CLAW_R, (master == ANALOG_POT_CLAW_R) ?
+    motorSet(MOTOR_CLAW_R, (master == IME_CLAW_L) ?
       masterSpeed : targetSpeed);
 
     //hold claw at certain position
