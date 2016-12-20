@@ -68,6 +68,8 @@ void operatorControl();
 // Holds gyro from the init.c file
 Gyro getGyro();
 
+void manageClaw(void *); // claw.c
+
 // End C++ export structure
 #ifdef __cplusplus
 }
