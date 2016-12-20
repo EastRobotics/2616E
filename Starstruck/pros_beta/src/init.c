@@ -225,6 +225,9 @@ void initialize() {
   lcdSetText(uart2, 1, "Init gyro...");
   gyro = gyroInit(ANALOG_GYRO, 0); // 0 multiplier = default, not * 0
 
+  // Set up our integrated incoders
+  print("[Init] Setting up IMEs\n");
+  lcdSetText(uart2, 1, "Init IMEs...");
   imeInitializeAll(); // Initialize our IMEs;
 
   // Done init
