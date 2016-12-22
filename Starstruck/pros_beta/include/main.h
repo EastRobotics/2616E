@@ -68,7 +68,18 @@ void operatorControl();
 // Holds gyro from the init.c file
 Gyro getGyro();
 
-void manageClaw(void *); // claw.c
+////////////////////////////////////////////////////////////////////////////////
+//
+//  Claw.c Task Management files
+//
+////////////////////////////////////////////////////////////////////////////////
+void manageClaw(void *);
+
+void initClawControl();
+
+void suspendClawControl();
+
+void resumeClawControl();
 
 // End C++ export structure
 #ifdef __cplusplus

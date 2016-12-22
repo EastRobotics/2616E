@@ -48,6 +48,8 @@ extern "C" {
 ** (1-12) - Although not sure with PROS
 */
 
+#define DIGITAL_LED 6 // LED, digital 1
+
 /*
 ** I2C
 ** (0-IME_ADDR_MAX, AKA 0x1F)

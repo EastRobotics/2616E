@@ -4,6 +4,8 @@
 #define CLAW_CATCHUP_SPEED 30
 #define CLAW_SPEED 127
 
+TaskHandle claw;
+
 //Converts an RPM value to a motor speed using the function f(x) = 11.431e^(0.0217x)
 //For use with a torque geared motor
 //PARAMETERS:
@@ -31,6 +33,19 @@ unsigned char getButtonDirection() {
   // 1 = close
   // 2 = open
   return 0;
+}
+
+void initClawControl(){
+	claw = taskCreate(manageClaw, TASK_DEFAULT_STACK_SIZE,
+    NULL, TASK_PRIORITY_DEFAULT);
+}
+
+void suspendClawControl(){
+	taskSuspend(claw);
+}
+
+void resumeClawControl(){
+	taskResume(claw);
 }
 
 /*void manageClaw(void * ignored){
