@@ -95,7 +95,7 @@ void lockLift();
 
 void unlockLift();
 
-void moveLiftWithLogic(int,bool);
+void moveLiftWithLogic(int,bool,bool);
 
 void initLift();
 
