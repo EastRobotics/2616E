@@ -3,6 +3,7 @@
 void operatorControl() {
 
 	initClawControl();
+	initLift();
 
 	while (true) { // true cooler than 1
 		// Drive holonomicly, using the joystick channels 3 (Forward), 1 (Turn),

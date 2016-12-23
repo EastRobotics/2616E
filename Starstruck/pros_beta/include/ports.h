@@ -39,7 +39,7 @@ extern "C" {
 */
   #define ANALOG_POW_EXPAND 1 // Power expander,    analog 1
   #define ANALOG_GYRO 2       // Gyroscope,         analog 2
-  #define ANALOG_POT_LAUNCH 3 // Arm potentiometer, analog 3
+  #define ANALOG_POT_LIFT 3   // Arm potentiometer, analog 3
   #define ANALOG_LINE_LEFT  6 // Line Sensor Left,  analog 6
   #define ANALOG_LINE_RIGHT 7 // Line Sensor Right, analog 6
 

@@ -114,7 +114,7 @@ void updateLCD(bool userCaused, int page) {
       case 8:
         {
           lcdPrintTitle("ArmPot");
-          lcdPrint(uart2, 2, "Arm: %.4d", analogRead(ANALOG_POT_LAUNCH));
+          lcdPrint(uart2, 2, "Arm: %.4d", analogRead(ANALOG_POT_LIFT));
         }
         break;
     // [Page ?] Unknown page ---------------------------------------------------
