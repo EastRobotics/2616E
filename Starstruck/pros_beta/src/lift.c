@@ -17,7 +17,11 @@ int desiredHeight = 0;   // desired height for the hold task to hold at
 // PARAMS:
 //  int: the speed of the motors
 void setLiftMotors(int speed){
-  //TODO: put in lift motors set to the inputted speed
+  motorSet(MOTOR_LIFT_R1, speed);
+  motorSet(MOTOR_Y_LIFT_R23, speed);
+  motorSet(MOTOR_LIFT_L1, speed*-1);
+  motorSet(MOTOR_Y_LIFT_L23, speed*-1);
+
 }
 
 //Task that holds the lift in it's current position

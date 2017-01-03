@@ -24,10 +24,10 @@ extern "C" {
   #define MOTOR_DRIVE_BL_REV false // Back  right drive motor, motor 9
 
   // Choo-choo launcher
-  #define MOTOR_CHOO_R1    4  // Right choo-choo 1,   motor 4
-  #define MOTOR_Y_CHOO_R23 5  // Right choo-choo 2+3, motor 5
-  #define MOTOR_Y_CHOO_L23 6  // Left  choo-choo 2+3, motor 6
-  #define MOTOR_CHOO_L1    7  // Left  choo-choo 1,   motor 7
+  #define MOTOR_LIFT_R1    4  // Right choo-choo 1,   motor 4
+  #define MOTOR_Y_LIFT_R23 5  // Right choo-choo 2+3, motor 5
+  #define MOTOR_Y_LIFT_L23 6  // Left  choo-choo 2+3, motor 6
+  #define MOTOR_LIFT_L1    7  // Left  choo-choo 1,   motor 7
 
   // Claw
   #define MOTOR_CLAW_R     1  // Right claw, motor 1
