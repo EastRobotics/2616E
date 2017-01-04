@@ -17,6 +17,12 @@ Gyro getGyro() {
 void initializeIO() {
 }
 
+void reinitialize() {
+  gyroReset(getGyro());
+  imeReset(IME_DRIVE_FR);
+  imeReset(IME_DRIVE_FL);
+}
+
 void updateLCD(bool userCaused, int page) {
   lcdClear(uart2);
   switch (page) {
