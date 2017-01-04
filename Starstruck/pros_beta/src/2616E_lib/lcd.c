@@ -7,6 +7,7 @@
 typedef void( * updateLCDFunction)(bool, int);
 void( * menuNextPointer)(int);
 void( * menuBackPointer)(int);
+void( * onLCDPausePointer)();
 bool paused = false;
 TaskHandle autoRefresh;
 
@@ -120,6 +121,9 @@ void lcdManager(void * param) {
         if (highestCombination == 7) { // All buttons pressed
           paused = !paused;
           if (paused) {
+            if(onLCDPausePointer != NULL) {
+              onLCDPausePointer();
+            }
             taskSuspend(autoRefresh);
             lcdClear(uart2);
             lcdPrint(uart2, 1, "%cEssential Evil%c",0xCD,0xCD);
@@ -209,4 +213,8 @@ void lcdSetMenuNext(void( * _menuNext)(int)) {
 
 void lcdSetMenuBack(void( * _menuBack)(int)) {
   menuBackPointer = _menuBack;
+}
+
+void lcdSetPause(void(* _lcd)()) {
+  onLCDPausePointer = _lcd;
 }
