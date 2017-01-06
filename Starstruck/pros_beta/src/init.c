@@ -235,6 +235,7 @@ void initialize() {
   print("[Init] Setting up IMEs\n");
   lcdSetText(uart2, 1, "Init IMEs...");
   imeInitializeAll(); // Initialize our IMEs;
+  
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");

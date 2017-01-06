@@ -4,6 +4,8 @@
 #define CLAW_CATCHUP_SPEED 30
 #define CLAW_SPEED 127
 
+char* currentPlan;
+
 TaskHandle claw;
 
 //Converts an RPM value to a motor speed using the function f(x) = 11.431e^(0.0217x)
@@ -115,17 +117,18 @@ void resumeClawControl(){
 }*/
 
 void manageClaw(void * ignored){
-	// Temporary bang bang until we have claw.c done
+	// Temporary bang bang until we have claw.c
+
 	while(true){
-		const int misal = 30;
 		int clawLastPosLeft;
 		int clawLastPosRight;
+		const int misal = 30;
 		int clawPosLeft;
 		imeGet (IME_CLAW_L, &clawPosLeft);
 		int clawPosRight;
 		imeGet (IME_CLAW_R, &clawPosRight);
 		clawPosRight *= -1; // so they both count up as they go out
-		if (joystickGetDigital(1, 6, JOY_UP)) { // Opening, bigger is more open
+		if (joystickGetDigital(1, 6, JOY_UP)/* || joystickGetDigital(2, 6, JOY_UP)*/) { // Opening, bigger is more open
 			if (abs(clawPosLeft-clawPosRight) > misal) { // Misaligned
 				motorSet(MOTOR_CLAW_L,(clawPosRight < clawPosLeft) ? 90 : 127);
 				motorSet(MOTOR_CLAW_R,(clawPosRight > clawPosLeft) ? -90 : -127);
@@ -135,7 +138,7 @@ void manageClaw(void * ignored){
 			}
 			clawLastPosLeft = 0;
 			clawLastPosRight = 0;
-		} else if (joystickGetDigital(1, 6, JOY_DOWN)) { // Closing, smaller more closed
+		} else if (joystickGetDigital(1, 6, JOY_DOWN)/* || joystickGetDigital(2, 6, JOY_DOWN)*/) { // Closing, smaller more closed
 			if (abs(clawPosLeft-clawPosRight) > misal) { // Misaligned
 				motorSet(MOTOR_CLAW_L,(clawPosRight > clawPosLeft) ? -90 : -127);
 				motorSet(MOTOR_CLAW_R,(clawPosRight < clawPosLeft) ? 90 : 127);
@@ -166,4 +169,8 @@ void manageClaw(void * ignored){
 		}
 		delay(20);
 	}
+}
+
+char* getOuput(){
+	return currentPlan;
 }

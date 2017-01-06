@@ -12,11 +12,11 @@ void operatorControl() {
 			joystickGetAnalog (1,4));
 
 		// Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Lock)
-		if (joystickGetDigital(1, 5, JOY_UP)) {
+		if (joystickGetDigital(1, 5, JOY_UP) || joystickGetDigital(2, 5, JOY_UP)) {
 			moveLiftWithLogic(127, true, true);
-		} else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+		} else if (joystickGetDigital(1, 5, JOY_DOWN) || joystickGetDigital(2, 5, JOY_DOWN)) {
 			moveLiftWithLogic(-127, true, true);
-		} else if (joystickGetDigital(1, 7, JOY_DOWN)) {
+		} else if (joystickGetDigital(1, 7, JOY_DOWN) || joystickGetDigital(2, 7, JOY_DOWN)) {
 			lockLift();
 		} else {
 			unlockLift(); // If no buttons are pressed, simply unlock the lift
