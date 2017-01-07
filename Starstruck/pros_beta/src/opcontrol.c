@@ -8,15 +8,16 @@ void operatorControl() {
 	while (true) { // true cooler than 1
 		// Drive holonomicly, using the joystick channels 3 (Forward), 1 (Turn),
 		// and 4 (Srafe).
+
 		driveHolonomicWithLogic(joystickGetAnalog (1,3), joystickGetAnalog (1,1),
 			joystickGetAnalog (1,4));
 
 		// Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Lock)
-		if (joystickGetDigital(1, 5, JOY_UP)) {
+		if (joystickGetDigital(1, 5, JOY_UP) || joystickGetDigital(2, 5, JOY_UP)) {
 			moveLiftWithLogic(127, true, true);
-		} else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+		} else if (joystickGetDigital(1, 5, JOY_DOWN) || joystickGetDigital(2, 5, JOY_DOWN)) {
 			moveLiftWithLogic(-127, true, true);
-		} else if (joystickGetDigital(1, 7, JOY_DOWN)) {
+		} else if (joystickGetDigital(1, 7, JOY_DOWN) || joystickGetDigital(2, 7, JOY_DOWN)) {
 			lockLift();
 		} else {
 			unlockLift(); // If no buttons are pressed, simply unlock the lift

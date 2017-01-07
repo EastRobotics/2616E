@@ -125,7 +125,7 @@ void manageClaw(void * ignored){
 		int clawPosRight;
 		imeGet (IME_CLAW_R, &clawPosRight);
 		clawPosRight *= -1; // so they both count up as they go out
-		if (joystickGetDigital(1, 6, JOY_UP)) { // Opening, bigger is more open
+		if (joystickGetDigital(1, 6, JOY_DOWN) || joystickGetDigital(2, 6, JOY_DOWN)) { // Opening, bigger is more open
 			if (abs(clawPosLeft-clawPosRight) > misal) { // Misaligned
 				motorSet(MOTOR_CLAW_L,(clawPosRight < clawPosLeft) ? 90 : 127);
 				motorSet(MOTOR_CLAW_R,(clawPosRight > clawPosLeft) ? -90 : -127);
@@ -135,7 +135,7 @@ void manageClaw(void * ignored){
 			}
 			clawLastPosLeft = 0;
 			clawLastPosRight = 0;
-		} else if (joystickGetDigital(1, 6, JOY_DOWN)) { // Closing, smaller more closed
+		} else if (joystickGetDigital(1, 6, JOY_UP) || joystickGetDigital(2, 6, JOY_UP)) { // Closing, smaller more closed
 			if (abs(clawPosLeft-clawPosRight) > misal) { // Misaligned
 				motorSet(MOTOR_CLAW_L,(clawPosRight > clawPosLeft) ? -90 : -127);
 				motorSet(MOTOR_CLAW_R,(clawPosRight < clawPosLeft) ? 90 : 127);
