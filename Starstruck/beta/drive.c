@@ -354,8 +354,8 @@ tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
 long tickTarget[4];
 //Setup the weights for the various stages of pid
-float kP = 0.07; //Proportional Gain
-float kI = 0.01; //Integral Gain
+float kP = 0.35; //Proportional Gain
+float kI = 0.10; //Integral Gain
 float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
@@ -382,11 +382,19 @@ task drivePID() {
 		if( true )
 		{
 			// Read the sensor value and scale
-			pidSensorCurrentValue = nMotorEncoder[driveFR] * PID_SENSOR_SCALE;
+			pidSensorCurrentValue = nMotorEncoder[driveBR] * PID_SENSOR_SCALE;
 
 			// calculate error
 			pidError = pidSensorCurrentValue - pidRequestedValue;
 
+			if (abs(pidError) < 13) {
+				motor[ driveFL ] = 0;
+				motor[ driveFR ] = 0;
+				motor[ driveBL ] = 0;
+				motor[ driveBR ] = 0;
+				writeDebugStream("I finished brah");
+				break;
+			}
 			// integral - if Ki is not 0
 			if( Ki != 0 )
 			{

@@ -2,7 +2,7 @@
 int homePage = 4; // The page to go to when we hit the 'home' button
 int currentPage = homePage; // Can be whatever page you want within your set
 int minPage = 1; // Should be the first page number in your set
-int maxPage = 8; // Should be the last page number in your set
+int maxPage = 9; // Should be the last page number in your set
 bool cycles = false; // Make pages a continuous loop (loops to start when at the end)
 
 // Data vars (Millis to 1milli accuracy)
@@ -163,12 +163,20 @@ void lcdUpdatePage( bool userInteraction )
 		displayLCDNumber(1,0,SensorValue[potLauncher]);
 	}
 
-	// Page 8 [FR Encoder position]
+	// Page 8 [BR Encoder position]
 	else if (currentPage == 8) {
 		string title = "";
 		sprintf(title,"DriveEnc%c",0xF6);
 		displayLCDString(0,0,title);
-		displayLCDNumber(1,0,nMotorEncoder[driveFR]);
+		displayLCDNumber(1,0,nMotorEncoder[driveBR]);
+	}
+
+	// Page 9 [Gyroscope value]
+	else if (currentPage == 9) {
+		string title = "";
+		sprintf(title,"Gyro%c", 0xF6);
+		displayLCDString(0,0,title);
+		displayLCDNumber(1,0,SensorValue[gyroMain]);
 	}
 
 	// And pages carry on... make sure to increment maxPage for your page count!
