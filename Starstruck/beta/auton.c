@@ -98,62 +98,6 @@ void tempEncoderPoint(int speed, int ticks){
 	driveRaw(0,0,0,0);
 }
 
-// This probably could be so much better, and it probably doesn't work, but I wrote
-// it at 2:30 AM and I was tired -Michael
-void turnToAngle(int degrees, int speed) {
-	degrees = tempGyroFix(degrees);
-	int currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-	if (speed < 0) {
-		if(degrees > currentGyroVal) {
-			while(degrees > currentGyroVal) {
-				driveRaw(speed, speed, speed*-1, speed*-1);
-				wait1Msec(20);
-				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-			}
-		} else {
-			int lastDegrees = currentGyroVal;
-			while(lastDegrees <= currentGyroVal) {
-				driveRaw(speed, speed, speed*-1, speed*-1);
-				lastDegrees = currentGyroVal;
-				wait1Msec(20);
-				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-			}
-			while(degrees > currentGyroVal) {
-				driveRaw(speed, speed, speed*-1, speed*-1);
-				wait1Msec(20);
-				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-			}
-		}
-		driveRaw(25,25,-25,-25);
-		wait1Msec(250);
-	} else {
-		if(degrees < currentGyroVal) {
-			while(degrees < currentGyroVal) {
-				driveRaw(speed,speed, speed*-1, speed*-1);
-				wait1Msec(20);
-				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-			}
-		} else {
-		int lastDegrees = currentGyroVal;
-				while(lastDegrees >= currentGyroVal) {
-					driveRaw(speed,speed, speed*-1, speed*-1);
-					lastDegrees = currentGyroVal;
-					wait1Msec(20);
-					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				}
-				while(degrees < currentGyroVal) {
-					driveRaw(speed,speed,speed*-1,speed*-1);
-					wait1Msec(20);
-					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				}
-		}
-		driveRaw(-25,-25,25,25);
-		wait1Msec(250);
-	}
-
-	driveRaw(0,0,0,0);
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 Debug methods
@@ -168,20 +112,6 @@ void breakpoint() {
 		wait1Msec(10);
 	}
 }
-
-/*task logTicks() {
-while (true) {
-datalogDataGroupStart();
-datalogAddValue(0,nMotorEncoder[driveFL]);
-datalogAddValue(1,nMotorEncoder[driveBL]);
-datalogAddValue(2,nMotorEncoder[driveFR]);
-datalogAddValue(3,nMotorEncoder[driveBR]);
-datalogAddValue(4,2500);
-datalogDataGroupEnd();
-wait1Msec(20);
-}
-}
-*/
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
