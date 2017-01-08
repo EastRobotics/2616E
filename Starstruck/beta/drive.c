@@ -4,9 +4,9 @@
 #define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 15 // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 15 // Joystick strafe threshold
-#define INITIAL_DRIVE_POWER 25 //The power that drive with logic will start it's linear function at for drive power
-#define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
-#define GYROSCOPE_THRESHOLD 10 //Within how many (degrees*10) the gyroscope must be in to be considered correct
+#define INITIAL_DRIVE_POWER 25 // The power that drive with logic will start it's linear function at for drive power
+#define JOYSTICK_MOVEMENT_THRESHOLD 15 // The amount the joystick has to move for it to be used in the linear function to calculate RPM
+#define GYROSCOPE_THRESHOLD 10 // Within how many tenths of a degree the gyroscope must be in to be considered correct
 #define PID_SENSOR_INDEX    myEncoder
 #define PID_SENSOR_SCALE    1
 
@@ -168,6 +168,26 @@ void clearDriveEncoders() {
 	nMotorEncoder[driveBL] = 0;
 }
 
+void turnToAngle(int desiredAngle, int speed, bool right){
+	//Make sure that the gyro values are within interval [0,3600)
+	while(desiredAngle>=3600){
+		desiredAngle-=3600;
+	}
+	while(desiredAngle<0){
+		desiredAngle+=3600;
+	}
+	speed = right ? speed : speed*-1;
+	driveRaw(speed*-1,speed*-1,speed,speed);
+	/*if(right && desiredAngle < SensorValue[gyroMain]){
+		desiredAngle += 3600;
+	} else if (!right && desiredAngle > SensorValue[gyroMain]){ //This is better, but do later
+		desiredAngle -= 3600;
+	}*/
+	while(abs(SensorValue[gyroMain]-desiredAngle) > GYROSCOPE_THRESHOLD) {
+		wait1Msec(10);
+	}
+}
+
 /* Variables used for encoder. Should probably be replaced with a struct
 tMotor motorsToChange[5] = {driveFR,driveFR,driveBR,driveFL,driveBL}; //robotc glitch with value 0 we think
 bool motorToMotorReverse[5] = {false,false, false, false, false};
@@ -323,26 +343,6 @@ speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
 	}
 	driveRaw(0,0,0,0);
 }*/
-
-void turnToAngle(int desiredAngle, int speed, bool right){
-	//Make sure that the gyro values are within interval [0,3600)
-	while(desiredAngle>=3600){
-		desiredAngle-=3600;
-	}
-	while(desiredAngle<0){
-		desiredAngle+=3600;
-	}
-	speed = right ? speed : speed*-1;
-	driveRaw(speed*-1,speed*-1,speed,speed);
-	/*if(right && desiredAngle < SensorValue[gyroMain]){
-		desiredAngle += 3600;
-	} else if (!right && desiredAngle > SensorValue[gyroMain]){ //This is better, but do later
-		desiredAngle -= 3600;
-	}*/
-	while(abs(SensorValue[gyroMain]-desiredAngle) > GYROSCOPE_THRESHOLD) {
-		wait1Msec(10);
-	}
-}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
