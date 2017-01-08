@@ -358,10 +358,13 @@ float kP = 0.35; //Proportional Gain
 float kI = 0.10; //Integral Gain
 float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
+bool PIDRunning = false;
 
 float pidRequestedValue = 0;
 
 task drivePID() {
+	PIDRunning = true;
+
 	float  pidSensorCurrentValue;
 
 	float  pidError;
@@ -448,6 +451,24 @@ task drivePID() {
 		}
 
 		wait1Msec( 20 );
+	}
+
+	PIDRunning = false;
+}
+
+void driveStraightPID(long ticksToMove, int millisBeforeForceTermination) {
+	pidRequestedValue = ticksToMove;
+	PIDRunning = true;
+	startTask(drivePID);
+	int uhOh = 0; // breaks out if PID taking too long
+	while(PIDRunning) {
+		wait1Msec(10)
+		uhOh+=10;
+		if(uhOh > millisBeforeForceTermination) {
+			stopTask(drivePID);
+			driveRaw(0,0,0,0);
+			break;
+		}
 	}
 }
 

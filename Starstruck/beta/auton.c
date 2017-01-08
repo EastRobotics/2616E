@@ -104,14 +104,11 @@ void turnToAngle(int degrees, int speed) {
 	degrees = tempGyroFix(degrees);
 	int currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 	if (speed < 0) {
-		writeDebugStreamLine("turning right");
-		writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
 		if(degrees > currentGyroVal) {
 			while(degrees > currentGyroVal) {
 				driveRaw(speed, speed, speed*-1, speed*-1);
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
 			}
 		} else {
 			int lastDegrees = currentGyroVal;
@@ -120,28 +117,21 @@ void turnToAngle(int degrees, int speed) {
 				lastDegrees = currentGyroVal;
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
 			}
-			writeDebugStreamLine("TRANSITION");
 			while(degrees > currentGyroVal) {
 				driveRaw(speed, speed, speed*-1, speed*-1);
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
 			}
 		}
 		driveRaw(25,25,-25,-25);
 		wait1Msec(250);
 	} else {
-		writeDebugStreamLine("turning left");
-		writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
 		if(degrees < currentGyroVal) {
 			while(degrees < currentGyroVal) {
 				driveRaw(speed,speed, speed*-1, speed*-1);
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
-				writeDebugStreamLine("Exact:%i",SensorValue[gyroMain]);
 			}
 		} else {
 		int lastDegrees = currentGyroVal;
@@ -150,16 +140,11 @@ void turnToAngle(int degrees, int speed) {
 					lastDegrees = currentGyroVal;
 					wait1Msec(20);
 					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-					writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
-					writeDebugStreamLine("Exact:%i",SensorValue[gyroMain]);
 				}
-				writeDebugStreamLine("TRANSITION");
 				while(degrees < currentGyroVal) {
 					driveRaw(speed,speed,speed*-1,speed*-1);
 					wait1Msec(20);
 					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-					writeDebugStreamLine("Deg:%i CurGy: %i",degrees,currentGyroVal);
-					writeDebugStreamLine("Exact:%i",SensorValue[gyroMain]);
 				}
 		}
 		driveRaw(-25,-25,25,25);
@@ -218,19 +203,51 @@ void runAuton() {
 
 	// Mode 2 [Default mode/Max Points]
 	if (currentMode == 2) {
-		turnToAngle(2700, 60);
-		wait1Msec(500);
-		turnToAngle(450, -60);
+		resetMotorEncoder(driveBR);
+		//driveStraightPID(-600,2000);
+
+		wait1Msec(100);
+		motor[clawL] = -127;
+		motor[clawR] = 127;
+		wait1Msec(1250);
+		motor[clawL] = 127;
+		motor[clawR] = -127;
+		wait1Msec(1500);
+		motor[clawL] = 0;
+		motor[clawR] = 0;
+		//
+		turnToAngle(450 * sideMult, -60 * sideMult);
+		wait1Msec(250);
+		motor[clawL] = -127;
+		motor[clawR] = 127;
+		wait1Msec(1000);
+		motor[clawL] = 0;
+		motor[clawR] = 0;
+		driveStraightPID(600, 2000);
+		motor[clawL] = 127;
+		motor[clawR] = -127;
+		wait1Msec(1000);
+		motor[clawL] = 0;
+		motor[clawR] = 0;
+		//
+		turnToAngle(650 * sideMult, -60 * sideMult);
+		wait1Msec(100);
+		driveStraightPID(-1200,5000);
+		wait1Msec(100);
 	}
 
-	// Mode 3 [Launch + Sit still]
+	// Mode 3 [Cube push]
 	if (currentMode == 3) {
-
+		driveRaw(-80,-80,-80,-80);
+		wait1Msec(3000);
+		driveRaw(0,0,0,0);
 	}
 
-	// Mode 4 [Robot Skills]
+	// Mode 4 [Descore]
 	if (currentMode == 4) {
-
+		driveRaw(-80,-80,-80,-80);
+		wait1Msec(2000);
+		driveRaw(0,0,0,0);
 	}
 
 	if (currentMode == 5) {
