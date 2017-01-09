@@ -4,6 +4,7 @@
 #pragma config(Sensor, in3,    potLauncher,    sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
 #pragma config(Sensor, dgtl2,  limitLauncher,  sensorTouch)
+#pragma config(Sensor, dgtl3,  resetDriveEnc,  sensorTouch)
 #pragma config(Sensor, dgtl5,  LED,            sensorLEDtoVCC)
 #pragma config(Sensor, dgtl6,  clawActuator,   sensorDigitalOut)
 #pragma config(Sensor, I2C_1,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
@@ -419,6 +420,10 @@ task usercontrol()
 				runAuton();
 				startTask(manageClaw);
 			}
+		}
+
+		if (SensorValue[resetDriveEnc]) {
+			clearDriveEncoders();
 		}
 
 		//////////////////////////////

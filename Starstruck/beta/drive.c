@@ -136,7 +136,7 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 
 float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
 long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
-float RPMReadRate = 20.0;
+//float RPMReadRate = 20.0;
 
 // Sets the encoders on all of our drive motors back to 0.
 void clearDriveEncoders() {
@@ -315,18 +315,19 @@ driveTilEncoder(motorsToChange, 5);
 
 tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
-long tickTarget[4];
+//long tickTarget[4];
 //Setup the weights for the various stages of pid
 float kP = 0.35; //Proportional Gain
 float kI = 0.10; //Integral Gain
 float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
-bool PIDRunning = false;
 
+bool pidRunning = false;
 float pidRequestedValue = 0;
+int pidMode = 0;
 
-task drivePID() {
-	PIDRunning = true;
+task taskDrivePid() {
+	pidRunning = true;
 
 	float  pidSensorCurrentValue;
 
@@ -341,6 +342,8 @@ task drivePID() {
 	// Init the variables - thanks Glenn :)
 	pidLastError  = 0;
 	pidIntegral   = 0;
+
+	pidRequestedValue += nMotorEncoder[driveBR]; // Account for existing ticks
 
 	while( true )
 	{
@@ -359,6 +362,7 @@ task drivePID() {
 				motor[ driveBL ] = 0;
 				motor[ driveBR ] = 0;
 				writeDebugStream("I finished brah");
+				pidRunning = false;
 				break;
 			}
 			// integral - if Ki is not 0
@@ -398,10 +402,17 @@ task drivePID() {
 			writeDebugStreamLine(debug);
 
 			// send to motor
-			motor[ driveFL ] = pidDrive;
-			motor[ driveFR ] = pidDrive;
-			motor[ driveBL ] = pidDrive;
-			motor[ driveBR ] = pidDrive;
+			if (pidMode == 0) { // Normal drive
+				motor[ driveFL ] = pidDrive;
+				motor[ driveFR ] = pidDrive;
+				motor[ driveBL ] = pidDrive;
+				motor[ driveBR ] = pidDrive;
+			} else if (pidMode == 1) { // Point turn
+				motor[ driveFL ] = pidDrive;
+				motor[ driveFR ] = pidDrive * -1;
+				motor[ driveBL ] = pidDrive;
+				motor[ driveBR ] = pidDrive * -1;
+			}
 		}
 		else
 		{
@@ -416,25 +427,71 @@ task drivePID() {
 		wait1Msec( 20 );
 	}
 
-	PIDRunning = false;
+	pidRunning = false;
 }
 
-void driveStraightPID(long ticksToMove, int millisBeforeForceTermination) {
+void pidDriveStraight(long ticksToMove) {
 	pidRequestedValue = ticksToMove;
-	PIDRunning = true;
-	startTask(drivePID);
-	int uhOh = 0; // breaks out if PID taking too long
-	while(PIDRunning) {
-		wait1Msec(10)
-		uhOh+=10;
-		if(uhOh > millisBeforeForceTermination) {
-			stopTask(drivePID);
+	pidMode = 0;
+	startTask(taskDrivePid);
+}
+
+void pidDrivePoint(long ticksToMove) {
+	pidRequestedValue = ticksToMove;
+	pidMode = 1;
+	startTask(taskDrivePid);
+}
+
+// breaks out if PID taking too long
+void pidDriveStraightLimit(long ticksToMove, int termLimit) {
+	pidDriveStraight(ticksToMove);
+	int timeRunning = 0;
+	while(pidRunning) {
+		wait1Msec(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			stopTask(taskDrivePid);
+			pidRunning = false;
 			driveRaw(0,0,0,0);
 			break;
 		}
 	}
 }
 
+// breaks out if PID taking too long
+void pidDrivePointLimit(long ticksToMove, int termLimit) {
+	pidDrivePoint(ticksToMove);
+	int timeRunning = 0;
+	while(pidRunning) {
+		wait1Msec(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			stopTask(taskDrivePid);
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+void waitForPid() {
+	while (pidRunning)
+		wait1Msec(10);
+}
+
+void waitForPidLimit(int termLimit) {
+	int timeRunning = 0;
+	while(pidRunning) {
+		wait1Msec(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			stopTask(taskDrivePid);
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
 /*
 // Drives the robot forward using PID to keep straight
 // PARAMETERS:

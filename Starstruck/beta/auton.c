@@ -3,7 +3,6 @@ bool color = false; // False for red, true for blue
 int minAutonomous = 1;
 int maxAutonomous = 5;
 int currentMode = minAutonomous;
-int intakeLoadTime = 800;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -129,63 +128,98 @@ void runAuton() {
 	sprintf(debug,"Running Auton Mode: %i",currentMode);
 	writeDebugStreamLine(debug);
 	int sideMult = getAutonPosition() ? 1 : -1;
-	// Mode 1 [Do nothing]
+	// Mode 1 [Default, Do nothing] ---------------------------------------------
 
-	// Mode 2 [Default mode/Max Points]
+	// Mode 2 [Max Points] ------------------------------------------------------
 	if (currentMode == 2) {
-		resetMotorEncoder(driveBR);
-		//driveStraightPID(-600,2000);
-
-		wait1Msec(100);
-		motor[clawL] = -127;
-		motor[clawR] = 127;
-		wait1Msec(1250);
-		motor[clawL] = 127;
-		motor[clawR] = -127;
-		wait1Msec(1500);
-		motor[clawL] = 0;
-		motor[clawR] = 0;
-		//
-		turnToAngle(450 * sideMult, -60 * sideMult);
-		wait1Msec(250);
-		motor[clawL] = -127;
-		motor[clawR] = 127;
-		wait1Msec(1000);
-		motor[clawL] = 0;
-		motor[clawR] = 0;
-		driveStraightPID(600, 2000);
-		motor[clawL] = 127;
-		motor[clawR] = -127;
-		wait1Msec(1000);
-		motor[clawL] = 0;
-		motor[clawR] = 0;
-		//
-		turnToAngle(650 * sideMult, -60 * sideMult);
-		wait1Msec(100);
-		driveStraightPID(-1200,5000);
-		wait1Msec(100);
+		//turnToAngle(650 * sideMult, -60 * sideMult);
+		//driveStraightPID(-1200,5000);
+		clearDriveEncoders();
 	}
 
-	// Mode 3 [Cube push]
+	// Mode 3 [Compat] ----------------------------------------------------------
 	if (currentMode == 3) {
 		driveRaw(-80,-80,-80,-80);
 		wait1Msec(3000);
 		driveRaw(0,0,0,0);
 	}
 
-	// Mode 4 [Descore]
+	// Mode 4 [C Compat] --------------------------------------------------------
 	if (currentMode == 4) {
 		driveRaw(-80,-80,-80,-80);
 		wait1Msec(2000);
 		driveRaw(0,0,0,0);
 	}
 
+	// Mode 5 [Skills] ----------------------------------------------------------
 	if (currentMode == 5) {
-		pidRequestedValue = 800;
+		int cooldownTime = 200; // Time so motors don't change too quick
+		// TODO Figure out how long it takes to place stuff
+		int placementTimeStars = 3000;
+		int placementTimeCubes = 3000; // Might be 0, since robot goes and comes
 
-		// start the PID task
-		startTask( drivePID );
+		/*
+		** Green: Back up for stars and wait for placement
+		*/
+		pidDriveStraightLimit(-600,3000);
+		// TODO Deploy claw
+		wait1Msec(placementTimeStars); // Wait to place stars
+
+		/*
+		** Red: Go to fence and score stars
+		** (TODO Replace with gyro PID)
+		*/
+		/* TODO Change values */ int fenceDistance = 600;
+		/* TODO Change values */ int fenceTurn = 600;
+		// Drive, dump, repeat
+		for (int i=0; i < 3; i++) { // Stars, then 2 cubes
+			// Drive up to fence
+			pidDriveStraightLimit(-1*fenceDistance,10000);
+			wait1Msec(cooldownTime); // Motor cooldown
+
+			// Turn towards fence
+			pidDrivePointLimit(-1*fenceTurn*sideMult,5000);
+
+			// TODO Lift and then drop stars
+			// TODO start lowering lift
+
+			if(i < 2) { // If we want to go back to starting tile
+				// Turn away from fence
+				pidDrivePointLimit(fenceTurn*sideMult,5000);
+				wait1Msec(cooldownTime); // Motor cooldown
+				pidDriveStraight(fenceDistance); // Drive back to tile
+				// TODO Check and adjust claw values
+				waitForPidLimit(8000); // Make sure we wait for PID
+			}
+		}
+
+		/*
+		** Yellow: Get 3 fence stars and dump
+		** (TODO Replace with gyro PID)
+		*/
+		// TODO Check and adjust claw values
+		// After dumping, turn towards yellow stars
+		/* TODO Change values */ pidDrivePointLimit(90*sideMult,5000);
+
+		// Drive into the stars
+		/* TODO Change values */ pidDriveStraightLimit(-1*600,10000);
+
+		// TODO Close claw
+
+		// Turn to fence to dump
+		/* TODO Change values */ pidDrivePointLimit(-90*sideMult,5000);
+
+		// TODO Lift
+
+		// TODO Release and dump
+
+		// TODO Lower lift
 
 
+		/*
+		** Orange: Grab center cube
+		*/
+
+		// TODO Finish auton
 	}
 }

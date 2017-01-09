@@ -55,10 +55,13 @@ void lcdUpdatePage( bool userInteraction )
 			sprintf(toDisplay, "%c Max Points %c", 0xBC, 0xBB);
 			break;
 		case 3 :
-			sprintf(toDisplay, "%c Push Cube %c", 0xBC, 0xBB);
+			sprintf(toDisplay, "%c All Compat %c", 0xBC, 0xBB);
 			break;
 		case 4 :
-			sprintf(toDisplay, "%c Descore %c", 0xBC, 0xBB);
+			sprintf(toDisplay, "%c Cube Compat %c", 0xBC, 0xBB);
+			break;
+		case 5 :
+			sprintf(toDisplay, "%c Prog. Skill %c", 0xBC, 0xBB);
 			break;
 		default :
 			sprintf(toDisplay, "%c Mode ?: %i %c", 0xBC, autonMode, 0xBB);
