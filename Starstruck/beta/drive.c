@@ -519,8 +519,8 @@ void turnToAnglePID(int degrees, int initSpeed){
 			pidSensorOffset = 3600;
 		}
 	}
-	pidRequestedValue = degrees;
 	startTask(taskDrivePid);
+	pidRequestedValue = degrees;
 }
 
 /*
