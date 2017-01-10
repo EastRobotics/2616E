@@ -132,7 +132,16 @@ task adjustClawPosition() {
 
 
 void stopClaw() {
+	clawTargetRight = getMotorEncoder(clawL);
+	clawTargetLeft = getMotorEncoder(clawR);
+}
+
+void stopClawTask(){
 	stopTask(	adjustClawPosition );
+}
+
+void startClawTask() {
+	startTask( adjustClawPosition );
 }
 
 // Should really only be used for opening, see clawClose(int ms)
@@ -144,7 +153,7 @@ void setClaw(int target, int speed) {
 
 // Used for when we want to clamp an unknown orientation, and can't guarentee a certain close value
 void clawClose(int ms, int speed) {
-	setClaw(0, speed); // Try and close the claw
+	setClaw(-100, speed); // Try and close the claw
 	int timeGone = 0;
 	while (timeGone < ms || pidRunning) { // While we still have time or haven't reached 0ms
 		wait1Msec(10);
@@ -220,6 +229,9 @@ void runAuton() {
 		int placementTimeStars = 3000;
 		int placementTimeCubes = 3000; // Might be 0, since robot goes and comes
 		int dumpValue = 300;
+
+		stopClaw();
+		startClawTask();
 
 		/*
 		** Green: Back up for stars and wait for placement
@@ -305,5 +317,6 @@ void runAuton() {
 		*/
 
 		// TODO Finish auton
+		stopClawTask();
 	}
 }
