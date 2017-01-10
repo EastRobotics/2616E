@@ -98,6 +98,10 @@ int simplifyGyro(int degree, bool simplifyTo360) {
 	return simplified;
 }
 
+int tempGyroFix(int degree){
+	return degree < 0 ? degree + 3600 : degree;
+}
+
 // Simplifies raw gyro input (-3599 to 3599) to 0.0-359.99999...
 // PARAMETERS:
 // 	int: The raw data from the gyro, retrieved like SensorValue[sensor]
@@ -176,7 +180,7 @@ float sidesToAngle(float sideOne, float sideTwo){
 	float finalAngle = nearbyCD;
 	// Place the angle in the proper place, besides just in atans range of quadrants 1 and 2
 	if(fabs(sideOne)>=fabs(sideTwo)){
-		finalAngle += abs(angle);
+		finalAngle += fabs(angle);
 		} else {
 		if(quadrant==1.0||quadrant==4.0){
 			if(quadrant==4.0){

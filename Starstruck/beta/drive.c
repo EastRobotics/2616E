@@ -4,11 +4,10 @@
 #define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 15 // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 15 // Joystick strafe threshold
-#define INITIAL_DRIVE_POWER 25 //The power that drive with logic will start it's linear function at for drive power
-#define JOYSTICK_MOVEMENT_THRESHOLD 15 //The amount the joystick has to move for it to be used in the linear function to calculate RPM
-#define GYROSCOPE_THRESHOLD 10 //Within how many (degrees*10) the gyroscope must be in to be considered correct
+#define INITIAL_DRIVE_POWER 25 // The power that drive with logic will start it's linear function at for drive power
+#define JOYSTICK_MOVEMENT_THRESHOLD 15 // The amount the joystick has to move for it to be used in the linear function to calculate RPM
+#define GYROSCOPE_THRESHOLD 10 // Within how many tenths of a degree the gyroscope must be in to be considered correct
 #define PID_SENSOR_INDEX    myEncoder
-#define PID_SENSOR_SCALE    1
 
 #define PID_MOTOR_INDEX     myMotor
 #define PID_MOTOR_SCALE     -1
@@ -122,11 +121,11 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 // PARAMETERS:
 //  int: How fast to move the left side (-127 to 127)
 //  int: How fast to move the right side (-127 to 127)
-void driveTank(int speedLeft, int speedRight){
-	if(abs(speedLeft) <= DRIVE_THRESHOLD_FORWARD) speedLeft = 0;
-	if(abs(speedRight) <= DRIVE_THRESHOLD_FORWARD) speedRight = 0;
-	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
-}
+//void driveTank(int speedLeft, int speedRight){
+//	if(abs(speedLeft) <= DRIVE_THRESHOLD_FORWARD) speedLeft = 0;
+//	if(abs(speedRight) <= DRIVE_THRESHOLD_FORWARD) speedRight = 0;
+//	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+//}
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -136,29 +135,7 @@ void driveTank(int speedLeft, int speedRight){
 
 float RPMValues[10] = {0,0,0,0,0,0,0,0,0,0};
 long lastTickCount[10] = {0,0,0,0,0,0,0,0,0,0};
-float RPMReadRate = 20.0;
-
-/*
-task getRPMValues() {
-while(true){
-long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
-for(int i = 0; i < 10; i++){
-RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
-lastTickCount[i] = tickCount[i];
-}
-Logging RPM
-// datalogDataGroupStart();
-// datalogAddValue(0,RPMValues[1]);
-// datalogAddValue(1,RPMValues[2]);
-// datalogAddValue(2,RPMValues[7]);
-// datalogAddValue(3,RPMValues[8]);
-// datalogAddValue(4,50);
-// datalogDataGroupEnd();
-
-wait1Msec((int)RPMReadRate);
-}
-}
-*/
+//float RPMReadRate = 20.0;
 
 // Sets the encoders on all of our drive motors back to 0.
 void clearDriveEncoders() {
@@ -273,77 +250,6 @@ driveTilEncoder(motorsToChange, 5);
 }
 */
 
-// Future control loop example:
-// We want to turn 45 degrees right...
-// -> PID loop gets speed based on degree from angle
-// --> Loop supplies speed to PID loop which keeps 1 wheel at that speed
-// ---> 3rd loop keeps other wheels at their speeds respective to the first
-
-/////////////////////////////////////////////////////////////////////////////////////////
-//
-//                        CRS (Currently on the backburner)
-//
-/////////////////////////////////////////////////////////////////////////////////////////
-
-// Considers the input as if the front of the robot was at a different angle (For example, considering
-// -> the right side of the robot to be the front, or the front right corner to be the front) all while
-// -> facing the same direction so you can move towards a scoring object and launch stuff over the fence
-// CRS: Correction of Rotation Stick (or crazy rotational stuff)
-// Beta, will add documentation when complete
-/*
-void driveWithCRS(int speedForward, int speedStrafe, float startDegree, float currentDegree) {
-if (speedForward <= DRIVE_THRESHOLD_FORWARD) speedForward = 0;
-if (speedStrafe <= DRIVE_THRESHOLD_STRAFE) speedStrafe = 0;
-float degree = degreeToRad(currentDegree-startDegree);
-// Considering speed as x, x' = y*sin(a) + x*cos(a)
-speedForward = speedStrafe*sin(degree) + speedForward*cos(degree);
-// Considering strafe as y, y' = y*cos(a) - x*sin(a)
-speedStrafe = speedStrafe*cos(degree) - speedForward*sin(degree);
-}
-*/
-
-/*void turnToAngle(int desiredAngle, int speed){
-	while(desiredAngle>3600){
-		desiredAngle -= 3600;
-	}
-	int currentAngle = SensorValue[gyroMain];
-	int largerAngle = desiredAngle>currentAngle ? desiredAngle : currentAngle;
-	int smallerAngle = desiredAngle>currentAngle ? currentAngle : desiredAngle;
-	int dir0 = (3600 - largerAngle) + smallerAngle;
-	int dir1 = largerAngle - smallerAngle;
-	bool right = largerAngle == currentAngle ? true : false; //true is dir0 false is dir1
-	int direction = (dir0 < dir1) ? ((right) ? 1 : -1) : ((!right) ? 1 : -1);
-	driveTank(speed*direction,speed*direction*-1);
-
-	string debug = "";
-	while(direction > 0 ? SensorValue[gyroMain] < desiredAngle : desiredAngle < SensorValue[gyroMain]){
-		sprintf(debug, "d:%i c:%i de:%i",direction, SensorValue[gyroMain], desiredAngle);
-		writeDebugStreamLine(debug);
-		wait1Msec(10);
-	}
-	driveRaw(0,0,0,0);
-}*/
-
-void turnToAngle(int desiredAngle, int speed, bool right){
-	//Make sure that the gyro values are within interval [0,3600)
-	while(desiredAngle>=3600){
-		desiredAngle-=3600;
-	}
-	while(desiredAngle<0){
-		desiredAngle+=3600;
-	}
-	speed = right ? speed : speed*-1;
-	driveRaw(speed*-1,speed*-1,speed,speed);
-	/*if(right && desiredAngle < SensorValue[gyroMain]){
-		desiredAngle += 3600;
-	} else if (!right && desiredAngle > SensorValue[gyroMain]){ //This is better, but do later
-		desiredAngle -= 3600;
-	}*/
-	while(abs(SensorValue[gyroMain]-desiredAngle) > GYROSCOPE_THRESHOLD) {
-		wait1Msec(10);
-	}
-}
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                        PID (Currently on the backburner)
@@ -352,16 +258,23 @@ void turnToAngle(int desiredAngle, int speed, bool right){
 
 tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
-long tickTarget[4];
+//long tickTarget[4];
 //Setup the weights for the various stages of pid
-float kP = 0.07; //Proportional Gain
-float kI = 0.01; //Integral Gain
+float kP = 0.35; //Proportional Gain
+float kI = 0.10; //Integral Gain
 float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
+bool pidRunning = false;
 float pidRequestedValue = 0;
+int pidMode = 0;
+int pidSensor = -1; // -1 for encoders, port of the sensor to use a sensor
+int pidSensorOffset = 0;  // amount to offset the sensor by (used for gyro turns)
+float pidSensorScale = 1.0;
 
-task drivePID() {
+task taskDrivePid() {
+	pidRunning = true;
+
 	float  pidSensorCurrentValue;
 
 	float  pidError;
@@ -376,19 +289,30 @@ task drivePID() {
 	pidLastError  = 0;
 	pidIntegral   = 0;
 
+	pidRequestedValue += ((pidSensor==-1) ? nMotorEncoder[driveBR] : 0); // Account for existing ticks
+
 	while( true )
 	{
 		// Is PID control active ?
 		if( true )
 		{
 			// Read the sensor value and scale
-			pidSensorCurrentValue = nMotorEncoder[driveFR] * PID_SENSOR_SCALE;
+			pidSensorCurrentValue = ((pidSensor==-1) ? nMotorEncoder[driveBR] : SensorValue[pidSensor]) * pidSensorScale + pidSensorOffset;
 
 			// calculate error
 			pidError = pidSensorCurrentValue - pidRequestedValue;
 
+			if (abs(pidError) < 13) {
+				motor[ driveFL ] = 0;
+				motor[ driveFR ] = 0;
+				motor[ driveBL ] = 0;
+				motor[ driveBR ] = 0;
+				writeDebugStream("I finished brah");
+				pidRunning = false;
+				break;
+			}
 			// integral - if Ki is not 0
-			if( Ki != 0 )
+			if( kI != 0 )
 			{
 				// If we are inside controlable window then integrate the error
 				if( abs(pidError) < PID_INTEGRAL_LIMIT )
@@ -404,7 +328,7 @@ task drivePID() {
 			pidLastError  = pidError;
 
 			// calculate drive
-			pidDrive = (Kp * pidError) + (Ki * pidIntegral) + (Kd * pidDerivative);
+			pidDrive = (kP * pidError) + (kI * pidIntegral) + (kD * pidDerivative);
 			pidDrive *= PID_MOTOR_SCALE;
 
 			// limit drive
@@ -424,10 +348,17 @@ task drivePID() {
 			writeDebugStreamLine(debug);
 
 			// send to motor
-			motor[ driveFL ] = pidDrive;
-			motor[ driveFR ] = pidDrive;
-			motor[ driveBL ] = pidDrive;
-			motor[ driveBR ] = pidDrive;
+			if (pidMode == 0) { // Normal drive
+				motor[ driveFL ] = pidDrive;
+				motor[ driveFR ] = pidDrive;
+				motor[ driveBL ] = pidDrive;
+				motor[ driveBR ] = pidDrive;
+			} else if (pidMode == 1) { // Point turn
+				motor[ driveFL ] = pidDrive;
+				motor[ driveFR ] = pidDrive * -1;
+				motor[ driveBL ] = pidDrive;
+				motor[ driveBR ] = pidDrive * -1;
+			}
 		}
 		else
 		{
@@ -441,6 +372,155 @@ task drivePID() {
 
 		wait1Msec( 20 );
 	}
+
+	pidRunning = false;
+}
+
+void pidDriveStraight(long ticksToMove) {
+	pidRequestedValue = ticksToMove;
+	pidMode = 0;
+	pidSensor = quadBR;
+	pidSensorOffset = 0;
+	pidSensorScale = 1.09;
+	startTask(taskDrivePid);
+}
+
+void pidDrivePoint(long ticksToMove) {
+	pidRequestedValue = ticksToMove;
+	pidMode = 1;
+	pidSensor = quadBL;
+	pidSensorOffset = 0;
+	pidSensorScale = 1.09;
+	startTask(taskDrivePid);
+}
+
+// breaks out if PID taking too long
+void pidDriveStraightLimit(long ticksToMove, int termLimit) {
+	pidDriveStraight(ticksToMove);
+	int timeRunning = 0;
+	while(pidRunning) {
+		wait1Msec(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			stopTask(taskDrivePid);
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+// breaks out if PID taking too long
+void pidDrivePointLimit(long ticksToMove, int termLimit) {
+	pidDrivePoint(ticksToMove);
+	int timeRunning = 0;
+	while(pidRunning) {
+		wait1Msec(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			stopTask(taskDrivePid);
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+void waitForPid() {
+	while (pidRunning)
+		wait1Msec(10);
+}
+
+void waitForPidLimit(int termLimit) {
+	int timeRunning = 0;
+	while(pidRunning) {
+		wait1Msec(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			stopTask(taskDrivePid);
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+// Michaels 3:30AM, day of competition, last minute gyro turn.
+// Works, but might need some cleanup (and comments xD)
+void turnToAngle(int degrees, int speed, bool stopMotors = true) {
+	degrees = tempGyroFix(degrees);
+	int currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+	if (speed < 0) {
+		if(degrees > currentGyroVal) {
+			while(degrees > currentGyroVal) {
+				driveRaw(speed, speed, speed*-1, speed*-1);
+				wait1Msec(20);
+				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+			}
+		} else {
+			int lastDegrees = currentGyroVal;
+			while(lastDegrees <= currentGyroVal) {
+				driveRaw(speed, speed, speed*-1, speed*-1);
+				lastDegrees = currentGyroVal;
+				wait1Msec(20);
+				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+			}
+			while(degrees > currentGyroVal) {
+				driveRaw(speed, speed, speed*-1, speed*-1);
+				wait1Msec(20);
+				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+			}
+		}
+		driveRaw(25,25,-25,-25);
+		wait1Msec(250);
+	} else {
+		if(degrees < currentGyroVal) {
+			while(degrees < currentGyroVal) {
+				driveRaw(speed,speed, speed*-1, speed*-1);
+				wait1Msec(20);
+				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+			}
+		} else {
+		int lastDegrees = currentGyroVal;
+				while(lastDegrees >= currentGyroVal) {
+					driveRaw(speed,speed, speed*-1, speed*-1);
+					lastDegrees = currentGyroVal;
+					wait1Msec(20);
+					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+				}
+				while(degrees < currentGyroVal) {
+					driveRaw(speed,speed,speed*-1,speed*-1);
+					wait1Msec(20);
+					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+				}
+		}
+		driveRaw(-25,-25,25,25);
+		wait1Msec(250);
+	}
+	if(stopMotors)
+		driveRaw(0,0,0,0);
+}
+
+// Michael's 3:30 PM PID version of the turn to angle
+// What a coincidence
+void turnToAnglePID(int degrees, int initSpeed){
+	degrees = tempGyroFix(degrees);
+	int currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+	pidSensor = gyroMain;
+	pidMode = 1;
+	pidSensorOffset = 0;
+	pidSensorScale = 1.0;
+	if(initSpeed < 0) {
+		if(degrees < currentGyroVal) {
+			pidSensorOffset = -3600;
+		}
+	} else {
+		if(degrees > currentGyroVal) {
+			pidSensorOffset = 3600;
+		}
+	}
+	pidRequestedValue = degrees;
+	startTask(taskDrivePid);
 }
 
 /*
@@ -464,5 +544,27 @@ motorToMotorReverse = _motorToMotorReverse;
 tMotor _motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 setupMotorTicks(_motorsToChange, ticksToMove);
 startTask( drivePID );
+}
+*/
+
+/*
+task getRPMValues() {
+while(true){
+long tickCount[10] = {0,nMotorEncoder[driveFR],nMotorEncoder[driveBR],0,0,0,0,nMotorEncoder[driveFL],nMotorEncoder[driveBL],0};
+for(int i = 0; i < 10; i++){
+RPMValues[i] = (((((float)tickCount[i])-((float)lastTickCount[i]))*(60000.0/RPMReadRate))/627.2); // Made for torque geared motors
+lastTickCount[i] = tickCount[i];
+}
+Logging RPM
+// datalogDataGroupStart();
+// datalogAddValue(0,RPMValues[1]);
+// datalogAddValue(1,RPMValues[2]);
+// datalogAddValue(2,RPMValues[7]);
+// datalogAddValue(3,RPMValues[8]);
+// datalogAddValue(4,50);
+// datalogDataGroupEnd();
+
+wait1Msec((int)RPMReadRate);
+}
 }
 */

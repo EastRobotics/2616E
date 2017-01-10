@@ -3,7 +3,6 @@ bool color = false; // False for red, true for blue
 int minAutonomous = 1;
 int maxAutonomous = 5;
 int currentMode = minAutonomous;
-int intakeLoadTime = 800;
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -62,28 +61,18 @@ bool getAutonColor() {
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
-void launch(); // Forward from main
-bool getCanLaunch(); // Forward from main
-task taskLauncherReset(); //Forward from main+
-
-// Blocking method to wait for the launcher when we're in position
-void waitForLauncherReady() {
-	while (!getCanLaunch()) {
-		wait1Msec(5);
-	}
-}
-
 void driveForTime(int powerFL, int powerBL, int powerFR, int powerBR, int time){
 	driveRaw(powerFL,powerBL,powerFR,powerBR);
 	wait1Msec(time);
 	driveRaw(0,0,0,0);
 }
 
+// Now with Quadrature encoders
 void tempEncoderForward(int speed, int ticks){
 	int tickTarget = (speed < 0) ? ((ticks*-1)
-	+ nMotorEncoder[driveFL]) : (ticks + nMotorEncoder[driveFL]);
+	+ SensorValue[quadBL]) : (ticks + SensorValue[quadBL]);
 	driveRaw(speed,speed,speed,speed);
-	while((speed<0) ? nMotorEncoder[driveFL] > tickTarget : nMotorEncoder[driveFL] < tickTarget){
+	while((speed<0) ? SensorValue[quadBL] > tickTarget : SensorValue[quadBL] < tickTarget){
 		wait1Msec(10);
 	}
 	driveRaw(0,0,0,0);
@@ -92,7 +81,7 @@ void tempEncoderForward(int speed, int ticks){
 // Positive speed for right, negative for left
 void tempEncoderPoint(int speed, int ticks){
 	int tickTarget = (speed < 0) ? ((ticks*-1)
-	+ nMotorEncoder[driveFL]) : (ticks + nMotorEncoder[driveFL]);
+	+ SensorValue[quadBL]) : (ticks + SensorValue[quadBL]);
 	int speedLeft = 0;
 	int speedRight = 0;
 	if(speed>0){
@@ -103,10 +92,81 @@ void tempEncoderPoint(int speed, int ticks){
 		speedLeft = (speed < 0) ? speed : speed*-1;
 	}
 	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
-	while((speed<0) ? nMotorEncoder[driveFL] > tickTarget : nMotorEncoder[driveFL] < tickTarget){
+	while((speed<0) ? SensorValue[quadBL] > tickTarget : SensorValue[quadBL] < tickTarget){
 		wait1Msec(10);
 	}
 	driveRaw(0,0,0,0);
+}
+int clawTargetLeft;
+int clawTargetRight;
+bool clawRunning = false;
+int clawSpeed;
+
+task adjustClawPosition() {
+	clawRunning = true;
+	int clawPosRight;
+	int clawPosLeft;
+	const int misal = 30;
+	do { // Align the claws
+		clawPosLeft = getMotorEncoder(clawL);
+		clawPosRight = getMotorEncoder(clawR);
+		clawPosRight *= -1; // so they both count up as they go out
+		// If we're misaligning, counteract
+		// Left claw
+		if (abs(clawPosLeft-clawTargetLeft) > misal) {
+			motor[clawL] = clawPosLeft-clawTargetLeft > 0 ? -1 * clawSpeed : clawSpeed;
+			} else {
+			motor[clawL] = 0;
+		}
+		// Right claw
+		if (abs(clawPosRight-clawTargetRight) > misal) {
+			motor[clawR] = clawPosRight-clawTargetRight > 0 ? clawSpeed : -1 * clawSpeed;
+			} else {
+			motor[clawR] = 0;
+		}
+		wait1Msec(20);
+	} while // They aren't aliged
+		(!(abs(clawPosRight-clawTargetRight) > misal) // Right claw not aligned
+	&& !(abs(clawPosLeft-clawTargetLeft) > misal)); // Left claw not aligned
+	clawRunning = false;
+}
+
+
+void stopClaw() {
+	clawTargetRight = getMotorEncoder(clawL);
+	clawTargetLeft = getMotorEncoder(clawR);
+}
+
+void stopClawTask(){
+	stopTask(	adjustClawPosition );
+}
+
+void startClawTask() {
+	startTask( adjustClawPosition );
+}
+
+// Should really only be used for opening, see clawClose(int ms)
+void setClaw(int target, int speed) {
+	clawSpeed = speed;
+	clawTargetLeft = target;
+	clawTargetRight = target;
+}
+
+// Used for when we want to clamp an unknown orientation, and can't guarentee a certain close value
+void clawClose(int ms, int speed) {
+	setClaw(-100, speed); // Try and close the claw
+	int timeGone = 0;
+	while (timeGone < ms || pidRunning) { // While we still have time or haven't reached 0ms
+		wait1Msec(10);
+		timeGone += 10;
+	}
+	stopClaw();
+}
+
+// Wait for the claw to reach it's target
+void waitForClaw() {
+	while (clawRunning)
+		wait1Msec(20);
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -124,20 +184,6 @@ void breakpoint() {
 	}
 }
 
-/*task logTicks() {
-while (true) {
-datalogDataGroupStart();
-datalogAddValue(0,nMotorEncoder[driveFL]);
-datalogAddValue(1,nMotorEncoder[driveBL]);
-datalogAddValue(2,nMotorEncoder[driveFR]);
-datalogAddValue(3,nMotorEncoder[driveBR]);
-datalogAddValue(4,2500);
-datalogDataGroupEnd();
-wait1Msec(20);
-}
-}
-*/
-
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 Auton Modes
@@ -154,93 +200,132 @@ void runAuton() {
 	sprintf(debug,"Running Auton Mode: %i",currentMode);
 	writeDebugStreamLine(debug);
 	int sideMult = getAutonPosition() ? 1 : -1;
-	// Mode 1 [Do nothing]
+	// Mode 1 [Default, Do nothing] ---------------------------------------------
 
-	// Mode 2 [Default mode/Max Points]
+	// Mode 2 [Max Points] ------------------------------------------------------
 	if (currentMode == 2) {
-		driveForTime(-80,-80,-80,-80,500); //backwards with... time :(
-		wait1Msec(1000);
-		SensorValue[clawActuator] = 0; //open claw
-		wait1Msec(1000);
-		SensorValue[clawActuator] = 1; //close claw
-		wait1Msec(1000);
-		launch();
-		wait1Msec(1500);
-		startTask( taskLauncherReset );
-		waitForLauncherReady();
-		resetMotorEncoder(driveFL);
-		//tempEncoderForward(-60,275); //backwards with encoders
-		//driveForTime(-80,-80,-80,-80,500); //backwards with... time :(
-		tempEncoderPoint(80*sideMult,300); //turn left towards star (on right side)
-		//turnToAngle(SensorValue[gyroMain]+(getAutonPosition() ? 3150 : 450),80, !getAutonPosition()); //turn 45* left (if right)
-		wait1Msec(500);
-		waitForLauncherReady();
-		driveForTime(80,80,80,80,200);//forwards
-		driveForTime(40,40,40,40,250);//coast slowly to star
-		wait1Msec(500);
-		SensorValue[clawActuator] = 1; //close claw
-		wait1Msec(500);
-		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
-		//turnToAngle(SensorValue[gyroMain]+(getAutonPosition() ? 450 : 3150), 80, getAutonPosition()); //turn 45* right (if right)
-		wait1Msec(500);
-		launch();
-		waitForLauncherReady();
+		//turnToAngle(650 * sideMult, -60 * sideMult);
+		//driveStraightPID(-1200,5000);
+		clearDriveEncoders();
+		stopClaw();
+		startClawTask();
+		setClaw(500,127);
+		waitForClaw();
+		stopClaw();
+		stopClawTask();
+
+		turnToAnglePID(450,127);
 	}
 
-	// Mode 3 [Launch + Sit still]
+	// Mode 3 [Compat] ----------------------------------------------------------
 	if (currentMode == 3) {
-		driveForTime(-80,-80,-80,-80,500);
-		wait1Msec(1000);
-		SensorValue[clawActuator] = 0; //open claw
+		driveRaw(-80,-80,-80,-80);
 		wait1Msec(3000);
-		SensorValue[clawActuator] = 1; //close claw
-		wait1Msec(2000);
-		launch();
-		waitForLauncherReady();
+		driveRaw(0,0,0,0);
 	}
 
-	// Mode 4 [Robot Skills]
+	// Mode 4 [C Compat] --------------------------------------------------------
 	if (currentMode == 4) {
-		tempEncoderForward(-60,275);
-		wait1Msec(500);
-		SensorValue[clawActuator] = 0; //open claw
-		wait1Msec(1000);
-		launch();
-		// Launch gameloads
-		for (int i=0; i<3; i++) {
-			waitForLauncherReady();
-			wait1Msec(3000);
-			SensorValue[clawActuator] = 1; //close claw
-			wait1Msec(2000);
-			launch();
-			wait1Msec(200);
+		driveRaw(-80,-80,-80,-80);
+		wait1Msec(2000);
+		driveRaw(0,0,0,0);
+	}
+
+	// Mode 5 [Skills] ----------------------------------------------------------
+	if (currentMode == 5) {
+		int cooldownTime = 200; // Time so motors don't change too quick
+		// TODO Figure out how long it takes to place stuff
+		int placementTimeStars = 3000;
+		int placementTimeCubes = 3000; // Might be 0, since robot goes and comes
+		int dumpValue = 300;
+
+		stopClaw();
+		startClawTask();
+
+		/*
+		** Green: Back up for stars and wait for placement
+		*/
+		pidDriveStraightLimit(-600,3000);
+		/* TODO Change values */ setClaw(500,100); // Deploy claw
+		/* TODO Delete */ breakpoint();
+
+		/*
+		** Red: Go to fence and score stars
+		** (TODO Replace with gyro PID)
+		*/
+		/* TODO Change values */ int fenceDistance = 600;
+		/* TODO Change values */ int fenceTurn = 600;
+		// Drive, dump, repeat
+		for (int i=0; i < 3; i++) { // Stars, then 2 cubes
+			wait1Msec(i == 0 ? placementTimeStars : placementTimeCubes); // Wait to place load
+			waitForClaw(); // Make sure claw is ready
+			/* TODO Change values */ clawClose(1000,100); // Clamp load for 1 second
+			/* TODO Delete */ breakpoint();
+			// Drive up to fence
+			pidDriveStraightLimit(-1*fenceDistance,10000);
+			wait1Msec(cooldownTime); // Motor cooldown
+			/* TODO Delete */ breakpoint();
+
+			// TODO Lift load so it doesn't drag?
+
+			// Turn towards fence
+			pidDrivePointLimit(-1*fenceTurn*sideMult,5000);
+			/* TODO Delete */ breakpoint();
+
+			// TODO Lift
+			/* TODO Change values */ setClaw(dumpValue,127); // Drop the load, open just enough to drop
+			waitForClaw();
+			/* TODO Delete */ breakpoint();
+			// TODO start lowering lift
+
+			if(i < 2) { // If we want to go back to starting tile
+				/* TODO Change values */ setClaw(500,127); // Set claw at whatever we want for pickup
+				// Turn away from fence
+				/* TODO Delete */ breakpoint();
+				pidDrivePointLimit(fenceTurn*sideMult,5000);
+				wait1Msec(cooldownTime); // Motor cooldown
+				/* TODO Delete */ breakpoint();
+				pidDriveStraight(fenceDistance); // Drive back to tile
+				// TODO Check and adjust claw values
+				waitForPidLimit(8000); // Make sure we wait for PID
+			}
 		}
 
-		// From here on it's just mode 2
-		resetMotorEncoder(driveFL);
-		tempEncoderForward(-60,275); //backwards with encoders
-		wait1Msec(500);
-		tempEncoderPoint(80*sideMult,300); //turn left towards star (on right side)
-		wait1Msec(500);
-		driveForTime(80,80,80,80,200);//forwards
-		driveForTime(40,40,40,40,250);//coast slowly to star
-		wait1Msec(500);
-		SensorValue[clawActuator] = 1; //close claw
-		wait1Msec(500);
-		waitForLauncherReady();
-		wait1Msec(300);
-		tempEncoderPoint(-80*sideMult,300);//turn right towards fence
-		wait1Msec(500);
-		launch();
-		waitForLauncherReady();
-	}
+		/*
+		** Yellow: Get 3 fence stars and dump
+		** (TODO Replace with gyro PID)
+		*/
+		/* TODO Change values */ setClaw(400,127); // Set claw at grabbing pos
+		/* TODO Delete */ breakpoint();
+		// After dumping, turn towards yellow stars
+		/* TODO Change values */ pidDrivePointLimit(90*sideMult,5000);
+		/* TODO Delete */ breakpoint();
 
-	if (currentMode == 5) {
-		pidRequestedValue = 1000;
+		// Drive into the stars
+		/* TODO Change values */ pidDriveStraightLimit(-1*600,10000);
+		/* TODO Delete */ breakpoint();
 
-		// start the PID task
-		startTask( drivePID );
+		/* TODO Change values */ clawClose(1000,100); // Clamp load for 1 second
+		/* TODO Delete */ breakpoint();
+
+		// Turn to fence to dump
+		/* TODO Change values */ pidDrivePointLimit(-90*sideMult,5000);
+		/* TODO Delete */ breakpoint();
+
+		// TODO Lift
+
+		/* TODO Change values */ setClaw(dumpValue,127); // Drop the load, open just enough to drop
+		waitForClaw();
+		/* TODO Delete */ breakpoint();
+
+		// TODO Lower lift
 
 
+		/*
+		** Orange: Grab center cube
+		*/
+
+		// TODO Finish auton
+		stopClawTask();
 	}
 }
