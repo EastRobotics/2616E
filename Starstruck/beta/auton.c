@@ -103,14 +103,13 @@ bool clawRunning = false;
 int clawSpeed;
 
 task adjustClawPosition() {
-	clawRunning = true;
 	int clawPosRight;
 	int clawPosLeft;
 	const int misal = 30;
 	do { // Align the claws
-		clawPosLeft = getMotorEncoder(clawL);
-		clawPosRight = getMotorEncoder(clawR);
-		clawPosRight *= -1; // so they both count up as they go out
+		clawPosLeft = nMotorEncoder[clawL];
+		clawPosRight = nMotorEncoder[clawR];
+		clawPosLeft *= -1; // so they both count up as they go out
 		// If we're misaligning, counteract
 		// Left claw
 		if (abs(clawPosLeft-clawTargetLeft) > misal) {
@@ -125,10 +124,10 @@ task adjustClawPosition() {
 			motor[clawR] = 0;
 		}
 		wait1Msec(20);
+		if (clawRunning)
+			clawRunning = (abs(clawPosRight-clawTargetRight) > misal) || (abs(clawPosLeft-clawTargetLeft) > misal);
 	} while // They aren't aliged
-		(!(abs(clawPosRight-clawTargetRight) > misal) // Right claw not aligned
-	&& !(abs(clawPosLeft-clawTargetLeft) > misal)); // Left claw not aligned
-	clawRunning = false;
+		(true); // Left claw not aligned
 }
 
 
@@ -147,6 +146,7 @@ void startClawTask() {
 
 // Should really only be used for opening, see clawClose(int ms)
 void setClaw(int target, int speed) {
+	clawRunning = true;
 	clawSpeed = speed;
 	clawTargetLeft = target;
 	clawTargetRight = target;
@@ -193,6 +193,8 @@ void breakpoint() {
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+task manageClaw();
+
 // Auton modes should handle team color and positon
 // (Thanks vex for making the pole opposite for each side)
 void runAuton() {
@@ -200,21 +202,24 @@ void runAuton() {
 	sprintf(debug,"Running Auton Mode: %i",currentMode);
 	writeDebugStreamLine(debug);
 	int sideMult = getAutonPosition() ? 1 : -1;
+	stopTask(manageClaw);
 	// Mode 1 [Default, Do nothing] ---------------------------------------------
 
 	// Mode 2 [Max Points] ------------------------------------------------------
 	if (currentMode == 2) {
 		//turnToAngle(650 * sideMult, -60 * sideMult);
 		//driveStraightPID(-1200,5000);
+
+		/*
 		clearDriveEncoders();
 		stopClaw();
 		startClawTask();
-		setClaw(500,127);
+		setClaw(500,-127);
 		waitForClaw();
 		stopClaw();
 		stopClawTask();
-
-		turnToAnglePID(450,127);
+		*/
+		pidDriveStraight(1200);
 	}
 
 	// Mode 3 [Compat] ----------------------------------------------------------
@@ -328,4 +333,5 @@ void runAuton() {
 		// TODO Finish auton
 		stopClawTask();
 	}
+	startTask(manageClaw);
 }
