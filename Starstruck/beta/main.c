@@ -1,7 +1,7 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    powerExpander,  sensorAnalog)
 #pragma config(Sensor, in2,    gyroMain,       sensorGyro)
-#pragma config(Sensor, in3,    potLauncher,    sensorPotentiometer)
+#pragma config(Sensor, in3,    potArm,         sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
 #pragma config(Sensor, dgtl2,  quadBR,         sensorQuadEncoder)
 #pragma config(Sensor, dgtl4,  quadBL,         sensorQuadEncoder)
@@ -111,23 +111,23 @@ task manageClaw() {
 			if (abs(clawPosLeft-clawPosRight) > misal) { // Misaligned
 				motor[clawL] = (clawPosRight < clawPosLeft) ? 90 : 127;
 				motor[clawR] = (clawPosRight > clawPosLeft) ? -90 : -127;
-			} else { // We good
+				} else { // We good
 				motor[clawL] = 127;
 				motor[clawR] = -127;
 			}
 			clawLastPosLeft = 0;
 			clawLastPosRight = 0;
-		} else if (vexRT[Btn6D] || vexRT[Btn6UXmtr2]) { // Closing, smaller more closed
+			} else if (vexRT[Btn6D] || vexRT[Btn6UXmtr2]) { // Closing, smaller more closed
 			if (abs(clawPosLeft-clawPosRight) > misal) { // Misaligned
 				motor[clawL] = (clawPosRight > clawPosLeft) ? -90 : -127;
 				motor[clawR] = (clawPosRight < clawPosLeft) ? 90 : 127;
-			} else { // We good
+				} else { // We good
 				motor[clawL] = -127;
 				motor[clawR] = 127;
 			}
 			clawLastPosLeft = 0;
 			clawLastPosRight = 0;
-		} else { // Sitting still
+			} else { // Sitting still
 			if (clawLastPosLeft == 0) {
 				clawLastPosLeft = clawPosLeft;
 				clawLastPosRight = clawPosRight;
@@ -140,13 +140,13 @@ task manageClaw() {
 			// Left claw
 			if (abs(clawPosLeft-clawLastPosLeft) > misal) {
 				motor[clawL] = clawPosLeft-clawLastPosLeft > 0 ? -50 : 50;
-			} else {
+				} else {
 				motor[clawL] = 0;
 			}
 			// Right claw
 			if (abs(clawPosRight-clawLastPosRight) > misal) {
 				motor[clawR] = clawPosRight-clawLastPosRight > 0 ? 50 : -50;
-			} else {
+				} else {
 				motor[clawR] = 0;
 			}
 		}
@@ -162,42 +162,25 @@ bool holdActive = false; // is the lift currently attempting to hold in place
 int desiredHeight = 0;   // desired height for the hold task to hold at
 
 void setLiftMotors(int speed){
-  motor[liftR1] = motor[liftYR23] = speed;
-  motor[liftL1] = motor[liftYL23] = speed * -1;
+	motor[liftR1] = motor[liftYR23] = speed;
+	motor[liftL1] = motor[liftYL23] = speed * -1;
 }
 
 task holdLiftTask() {
 	int currHeight;
-  while(true){
-    // get current potentiometer value
-    currHeight = SensorValue[potLauncher];
-    //if the lift has moved too far from the desired position
-    if (abs(currHeight-desiredHeight) > LIFT_ACC_MOV_RANGE) {
-      // set the motors to move up if below target, or down if above target
-      setLiftMotors(currHeight<desiredHeight ? 50 : -50);
-    } else {
-      // hold the lift in it's current position
-      setLiftMotors(0);
-    }
-  wait1Msec(25);
+	while(true){
+		// get current potentiometer value
+		currHeight = SensorValue[potArm];
+		//if the lift has moved too far from the desired position
+		if (abs(currHeight-desiredHeight) > LIFT_ACC_MOV_RANGE) {
+			// set the motors to move up if below target, or down if above target
+			setLiftMotors(currHeight<desiredHeight ? 50 : -50);
+			} else {
+			// hold the lift in it's current position
+			setLiftMotors(0);
+		}
+		wait1Msec(25);
 	}
-}
-
-// Setup the lift to hold the position of it's current potentiometer value
-void lockLift(){
-  if(!holdActive){
-    holdActive = true;
-    desiredHeight = SensorValue[potLauncher];
-    startTask(holdLiftTask);
-  }
-}
-
-// Stop the lift from holding the position of it's current potentiometer value
-void unlockLift(){
-  if(holdActive){
-    stopTask(holdLiftTask);
-    holdActive = false;
-  }
 }
 
 // Sets the lift motors with a range of speed, and can auto override the hold
@@ -209,45 +192,64 @@ void unlockLift(){
 //  bool: whether or not to turn off the hold if it is active
 //  bool: whether or not to slow down the lift at it's bounds
 void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed){
-  // if the speed is too low, set it to zero
-  if(abs(speed) < LIFT_MIN_SPEED){
-    speed = 0;
-  }
-  // if the limit switch is triggered, stop the arm
-  if(!SensorValue[liftLimit]) {
-  	speed = 0;
-  }
-  //unlock lift if it was locked
-  if(holdActive && overrideHold){
-    unlockLift();
-  } else if(holdActive) { // if the hold is active, but can't override, do nothing
-    return;
-  }
+	// if the speed is too low, set it to zero
+	if(abs(speed) < LIFT_MIN_SPEED){
+		speed = 0;
+	}
+	// if the limit switch is triggered, stop the arm
+	if(!SensorValue[liftLimit]) {
+		speed = 0;
+	}
+	//unlock lift if it was locked
+	if(holdActive && overrideHold){
+		unlockLift();
+		} else if(holdActive) { // if the hold is active, but can't override, do nothing
+		return;
+	}
 
-  int currHeight = SensorValue[potLauncher];
-  // if moving up
-  if(speed>0) {
-    // if within the slow zone, dampen the speed (if feature on)
-    if(dampenSpeed && (abs(LIFT_MAX_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
-      speed *= LIFT_SLOW_MOD;
-    }
-    // if greater than max and trying to go up, shut off
-    if(currHeight > LIFT_MAX_HEIGHT){
-      speed = 0;
-    }
-  } else { //if moving down
-    // if within the slow zone, dampen the speed
-    if(dampenSpeed && (abs(LIFT_MIN_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
-      speed *= LIFT_SLOW_MOD;
-    }
-    // if less than min and trying to go down, shut off
-    if(currHeight < LIFT_MIN_HEIGHT){
-      speed = 0;
-    }
-  }
+	int currHeight = SensorValue[potArm];
+	// if moving up
+	if(speed>0) {
+		// if within the slow zone, dampen the speed (if feature on)
+		if(dampenSpeed && (abs(LIFT_MAX_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
+			speed *= LIFT_SLOW_MOD;
+		}
+		// if greater than max and trying to go up, shut off
+		if(currHeight > LIFT_MAX_HEIGHT){
+			speed = 0;
+		}
+		} else { //if moving down
+		// if within the slow zone, dampen the speed
+		if(dampenSpeed && (abs(LIFT_MIN_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
+			speed *= LIFT_SLOW_MOD;
+		}
+		// if less than min and trying to go down, shut off
+		if(currHeight < LIFT_MIN_HEIGHT){
+			speed = 0;
+		}
+	}
 
-  // set the lift motors to the desired speed
-  setLiftMotors(speed);
+	// set the lift motors to the desired speed
+	setLiftMotors(speed);
+}
+
+// Setup the lift to hold the position of it's current potentiometer value
+void lockLift(){
+	moveLiftWithLogic(30,true,true);
+	return;
+	if(!holdActive){
+		holdActive = true;
+		desiredHeight = SensorValue[potArm];
+		startTask(holdLiftTask);
+	}
+}
+
+// Stop the lift from holding the position of it's current potentiometer value
+void unlockLift(){
+	if(holdActive){
+		stopTask(holdLiftTask);
+		holdActive = false;
+	}
 }
 
 // Intended for autonomous, waits until the lift has fully raised or lowered.
@@ -255,34 +257,34 @@ void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed){
 // PARAMS:
 //  int: the speed to set the motors (also +/- indicates direction (see above))
 void waitForLift(int speed){
-  // set the lift to the speed, and turn on inertial dampening, but only
-  // if this will NOT slow it too much to even move
-  moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD)));
-  // if the lift is being raised
-  if(speed>=0){
-    // wait until the lift is at it's max value
-    while(SensorValue[potLauncher] < LIFT_MAX_HEIGHT){
-      moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
-      wait1Msec(25);
-    }
-  } else { // if the lift is being lowered
-    // wait until the lift is at it's min value
-    while(SensorValue[potLauncher] > LIFT_MIN_HEIGHT){
-      moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
-      wait1Msec(25);
-    }
-  }
+	// set the lift to the speed, and turn on inertial dampening, but only
+	// if this will NOT slow it too much to even move
+	moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD)));
+	// if the lift is being raised
+	if(speed>=0){
+		// wait until the lift is at it's max value
+		while(SensorValue[potArm] < LIFT_MAX_HEIGHT){
+			moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
+			wait1Msec(25);
+		}
+		} else { // if the lift is being lowered
+		// wait until the lift is at it's min value
+		while(SensorValue[potArm] > LIFT_MIN_HEIGHT){
+			moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
+			wait1Msec(25);
+		}
+	}
 
-  setLiftMotors(0);
+	setLiftMotors(0);
 
 }
 
 // Sets up all necessary tasks and instance data for the lift
 void initLift(){
 	startTask(holdLiftTask);
-  unlockLift();
-  holdActive = false;
-  desiredHeight = SensorValue[potLauncher];
+	unlockLift();
+	holdActive = false;
+	desiredHeight = SensorValue[potArm];
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -306,14 +308,14 @@ void pre_auton()
 	datalogClear();
 
 	// Set the arm position
-	startingAngle = SensorValue[potLauncher];
+	startingAngle = SensorValue[potArm];
 
 	//Completely clear out any previous sensor readings by setting the port to "sensorNone"
-	 SensorType[in2] = sensorNone;
-	 wait1Msec(1000);
-	 //Reconfigure Analog Port 8 as a Gyro sensor and allow time for ROBOTC to calibrate it
-	 SensorType[in2] = sensorGyro;
-	 wait1Msec(2000);
+	SensorType[in2] = sensorNone;
+	wait1Msec(1000);
+	//Reconfigure Analog Port 8 as a Gyro sensor and allow time for ROBOTC to calibrate it
+	SensorType[in2] = sensorGyro;
+	wait1Msec(2000);
 
 	// Never passing if statement. Lets us get rid of compile warnings so we can focus on the ones we need to see.
 	if (false) {
@@ -350,6 +352,7 @@ task autonomous()
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
+bool lastButtonDown = false;
 /*
 // Driver control task
 */
@@ -397,17 +400,23 @@ task usercontrol()
 		*/
 		// Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Lock)
 		if (vexRT[Btn5U] || vexRT[Btn5UXmtr2]) {
+			lastButtonDown = false;
 			moveLiftWithLogic(127, true, true);
-		} else if (vexRT[Btn5D] || vexRT[Btn5DXmtr2]) {
+			} else if (vexRT[Btn5D] || vexRT[Btn5DXmtr2]) {
+			lastButtonDown = true;
 			moveLiftWithLogic(-127, true, true);
-		} else {
-			moveLiftWithLogic(0,true,true);
-			setLiftMotors(0);
+			} else {
+			if ((abs(startingAngle-SensorValue[potArm])>400) && (!lastButtonDown)) {
+				lockLift();
+				}else{
+				moveLiftWithLogic(0,true,true);
+			}
+			//setLiftMotors(0);
 		}
 
 		if (vexRT[Btn7D] || vexRT[Btn7DXmtr2]) {
 			lockLift();
-		} else {
+			} else {
 			unlockLift(); // If no buttons are pressed, simply unlock the lift
 		}
 

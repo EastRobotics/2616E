@@ -353,7 +353,7 @@ task taskDrivePid() {
 				motor[ driveFR ] = pidDrive;
 				motor[ driveBL ] = pidDrive;
 				motor[ driveBR ] = pidDrive;
-			} else if (pidMode == 1) { // Point turn
+				} else if (pidMode == 1) { // Point turn
 				motor[ driveFL ] = pidDrive;
 				motor[ driveFR ] = pidDrive * -1;
 				motor[ driveBL ] = pidDrive;
@@ -373,6 +373,10 @@ task taskDrivePid() {
 		wait1Msec( 20 );
 	}
 
+	motor[ driveFL ] = 0;
+	motor[ driveFR ] = 0;
+	motor[ driveBL ] = 0;
+	motor[ driveBR ] = 0;
 	pidRunning = false;
 }
 
@@ -445,6 +449,10 @@ void waitForPidLimit(int termLimit) {
 	}
 }
 
+void endPid() {
+	stopTask(taskDrivePid);
+}
+
 // Michaels 3:30AM, day of competition, last minute gyro turn.
 // Works, but might need some cleanup (and comments xD)
 void turnToAngle(int degrees, int speed, bool stopMotors = true) {
@@ -457,7 +465,7 @@ void turnToAngle(int degrees, int speed, bool stopMotors = true) {
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 			}
-		} else {
+			} else {
 			int lastDegrees = currentGyroVal;
 			while(lastDegrees <= currentGyroVal) {
 				driveRaw(speed, speed, speed*-1, speed*-1);
@@ -473,26 +481,26 @@ void turnToAngle(int degrees, int speed, bool stopMotors = true) {
 		}
 		driveRaw(25,25,-25,-25);
 		wait1Msec(250);
-	} else {
+		} else {
 		if(degrees < currentGyroVal) {
 			while(degrees < currentGyroVal) {
 				driveRaw(speed,speed, speed*-1, speed*-1);
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 			}
-		} else {
-		int lastDegrees = currentGyroVal;
-				while(lastDegrees >= currentGyroVal) {
-					driveRaw(speed,speed, speed*-1, speed*-1);
-					lastDegrees = currentGyroVal;
-					wait1Msec(20);
-					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				}
-				while(degrees < currentGyroVal) {
-					driveRaw(speed,speed,speed*-1,speed*-1);
-					wait1Msec(20);
-					currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
-				}
+			} else {
+			int lastDegrees = currentGyroVal;
+			while(lastDegrees >= currentGyroVal) {
+				driveRaw(speed,speed, speed*-1, speed*-1);
+				lastDegrees = currentGyroVal;
+				wait1Msec(20);
+				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+			}
+			while(degrees < currentGyroVal) {
+				driveRaw(speed,speed,speed*-1,speed*-1);
+				wait1Msec(20);
+				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
+			}
 		}
 		driveRaw(-25,-25,25,25);
 		wait1Msec(250);
@@ -514,7 +522,7 @@ void turnToAnglePID(int degrees, int initSpeed){
 		if(degrees < currentGyroVal) {
 			pidSensorOffset = -3600;
 		}
-	} else {
+		} else {
 		if(degrees > currentGyroVal) {
 			pidSensorOffset = 3600;
 		}

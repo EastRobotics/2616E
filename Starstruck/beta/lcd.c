@@ -163,7 +163,7 @@ void lcdUpdatePage( bool userInteraction )
 		string title = "";
 		sprintf(title,"LaunchPot%c",0xF6);
 		displayLCDString(0,0,title);
-		displayLCDNumber(1,0,SensorValue[potLauncher]);
+		displayLCDNumber(1,0,SensorValue[potArm]);
 	}
 
 	// Page 8 [BR Encoder position]

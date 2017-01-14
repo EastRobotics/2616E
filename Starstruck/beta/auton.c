@@ -70,9 +70,9 @@ void driveForTime(int powerFL, int powerBL, int powerFR, int powerBR, int time){
 // Now with Quadrature encoders
 void tempEncoderForward(int speed, int ticks){
 	int tickTarget = (speed < 0) ? ((ticks*-1)
-	+ SensorValue[quadBL]) : (ticks + SensorValue[quadBL]);
+	+nMotorEncoder[driveBL]) : (ticks + nMotorEncoder[driveBL]);
 	driveRaw(speed,speed,speed,speed);
-	while((speed<0) ? SensorValue[quadBL] > tickTarget : SensorValue[quadBL] < tickTarget){
+	while((speed<0) ? nMotorEncoder[driveBL] > tickTarget : nMotorEncoder[driveBL] < tickTarget){
 		wait1Msec(10);
 	}
 	driveRaw(0,0,0,0);
@@ -81,7 +81,7 @@ void tempEncoderForward(int speed, int ticks){
 // Positive speed for right, negative for left
 void tempEncoderPoint(int speed, int ticks){
 	int tickTarget = (speed < 0) ? ((ticks*-1)
-	+ SensorValue[quadBL]) : (ticks + SensorValue[quadBL]);
+	+ nMotorEncoder[driveBL]) : (ticks + nMotorEncoder[driveBL]);
 	int speedLeft = 0;
 	int speedRight = 0;
 	if(speed>0){
@@ -92,7 +92,7 @@ void tempEncoderPoint(int speed, int ticks){
 		speedLeft = (speed < 0) ? speed : speed*-1;
 	}
 	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
-	while((speed<0) ? SensorValue[quadBL] > tickTarget : SensorValue[quadBL] < tickTarget){
+	while((speed<0) ? nMotorEncoder[driveBL] > tickTarget : nMotorEncoder[driveBL] < tickTarget){
 		wait1Msec(10);
 	}
 	driveRaw(0,0,0,0);
@@ -219,7 +219,7 @@ void runAuton() {
 		stopClaw();
 		stopClawTask();
 		*/
-		pidDriveStraight(1200);
+		pidDriveStraight(10000);
 	}
 
 	// Mode 3 [Compat] ----------------------------------------------------------
