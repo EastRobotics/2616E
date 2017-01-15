@@ -67,6 +67,12 @@ void operatorControl();
 
 // Holds gyro from the init.c file
 Gyro getGyro();
+Encoder getEncoderBR();
+Encoder getEncoderBL();
+Encoder getEncoderClawL();
+Encoder getEncoderClawR();
+void killDriveEncoders();
+void initDriveEncoders();
 
 ///////////////////////////////////////////////////////////////////
 //

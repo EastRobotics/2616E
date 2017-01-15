@@ -6,6 +6,41 @@ Gyro getGyro() {
     return gyro;
 }
 
+Encoder driveBR;
+Encoder driveBL;
+Encoder clawL;
+Encoder clawR;
+
+Encoder getEncoderBR() {
+  return driveBR;
+}
+
+Encoder getEncoderBL() {
+  return driveBL;
+}
+
+Encoder getEncoderClawL() {
+  return clawL;
+}
+
+Encoder getEncoderClawR() {
+  return clawR;
+}
+
+void killDriveEncoders() {
+  encoderShutdown(driveBL);
+  encoderShutdown(driveBR);
+}
+
+void initDriveEncoders() {
+  // Init right encoder, not reverse
+  driveBR = encoderInit(DIGITAL_ENC_DRIVE_BR_TOP,
+    DIGITAL_ENC_DRIVE_BR_BOT,false);
+  // Init left encoder, not reverse
+  driveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
+    DIGITAL_ENC_DRIVE_BL_BOT,false);
+}
+
 /*
  * Runs pre-initialization code. This function will be started in kernel mode one time while the
  * VEX Cortex is starting up. As the scheduler is still paused, most API functions will fail.
@@ -15,12 +50,6 @@ Gyro getGyro() {
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
 void initializeIO() {
-}
-
-void reinitialize() {
-  gyroReset(getGyro());
-  imeReset(IME_DRIVE_FR);
-  imeReset(IME_DRIVE_FL);
 }
 
 void updateLCD(bool userCaused, int page) {
@@ -101,10 +130,8 @@ void updateLCD(bool userCaused, int page) {
       case 6:
         {
           lcdPrintTitle("ClawPots");
-          int clawPosLeft;
-      		imeGet (IME_CLAW_L, &clawPosLeft);
-      		int clawPosRight;
-      		imeGet (IME_CLAW_R, &clawPosRight);
+          int clawPosLeft = encoderGet(clawL);
+      		int clawPosRight = encoderGet(clawR);
           lcdPrint(uart2, 2, "L:%.4d R:%.4d", clawPosLeft, clawPosRight);
         }
         break;
@@ -209,7 +236,7 @@ void initialize() {
 
   // Set up the LCD and start it
   print("[Init] Setting up the LCD\n");
-  lcdInitMenu(1,8,4);
+  lcdInitMenu(1,8,4); // Min 1, max 8, home 4
   lcdSetUpdater(updateLCD);
   lcdSetMenuBack(menuBack);
   lcdSetMenuNext(menuNext);
@@ -230,12 +257,17 @@ void initialize() {
   print("[Init] Setting gyroscope\n");
   lcdSetText(uart2, 1, "Init gyro...");
   gyro = gyroInit(ANALOG_GYRO, 0); // 0 multiplier = default, not * 0
+  delay(2000); // Give gyro some setup time
 
   // Set up our integrated incoders
-  print("[Init] Setting up IMEs\n");
-  lcdSetText(uart2, 1, "Init IMEs...");
-  imeInitializeAll(); // Initialize our IMEs;
-  
+  print("[Init] Setting up encoders\n");
+  lcdSetText(uart2, 1, "Init Encs...");
+  initDriveEncoders();
+  // Init right encoder, not reverse
+  clawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP,DIGITAL_ENC_CLAW_R_BOT,false);
+  // Init left encoder, not reverse
+  clawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP,DIGITAL_ENC_CLAW_L_BOT,false);
+
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");

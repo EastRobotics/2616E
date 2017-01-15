@@ -12,9 +12,7 @@ double KD = 0.0;
 // Gets the encoder value of a specific motor *without parameters*
 // To be used in PID
 double getEncoderValue(){
-  int imeVal = -1;
-  imeGet (IME_DRIVE_FR, &imeVal);
-  return (double)imeVal;
+  return encoderGet(getEncoderBR());
 }
 
 // Setter from the motor speed PID loop with *double parameter*
