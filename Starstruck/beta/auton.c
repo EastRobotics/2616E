@@ -1,8 +1,10 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 5;
+int maxAutonomous = 6;
 int currentMode = minAutonomous;
+
+void waitForLift(int speed); //
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -107,9 +109,11 @@ task adjustClawPosition() {
 	int clawPosLeft;
 	const int misal = 30;
 	do { // Align the claws
-		clawPosLeft = nMotorEncoder[clawL];
-		clawPosRight = nMotorEncoder[clawR];
-		clawPosLeft *= -1; // so they both count up as they go out
+		const int misal = 20;
+		int clawPosLeft = getMotorEncoder(clawL);
+		int clawPosRight = getMotorEncoder(clawR);
+		//clawPosRight *= -1; // so they both count up as they go out
+		clawPosLeft *= -1;
 		// If we're misaligning, counteract
 		// Left claw
 		if (abs(clawPosLeft-clawTargetLeft) > misal) {
@@ -119,7 +123,7 @@ task adjustClawPosition() {
 		}
 		// Right claw
 		if (abs(clawPosRight-clawTargetRight) > misal) {
-			motor[clawR] = clawPosRight-clawTargetRight > 0 ? clawSpeed : -1 * clawSpeed;
+				motor[clawR] = clawPosRight-clawTargetRight > 0 ? clawSpeed : -1 * clawSpeed;
 			} else {
 			motor[clawR] = 0;
 		}
@@ -194,6 +198,7 @@ void breakpoint() {
 /////////////////////////////////////////////////////////////////////////////////////////
 
 task manageClaw();
+void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed, bool overrideBounds);
 
 // Auton modes should handle team color and positon
 // (Thanks vex for making the pole opposite for each side)
@@ -201,51 +206,102 @@ void runAuton() {
 	string debug = "";
 	sprintf(debug,"Running Auton Mode: %i",currentMode);
 	writeDebugStreamLine(debug);
-	int sideMult = getAutonPosition() ? 1 : -1;
+	int sideMult = getAutonPosition() ? 1 : -1; // 1 for right, -1 for left
 	stopTask(manageClaw);
+	stopClaw();
+	//startClawTask();
 	// Mode 1 [Default, Do nothing] ---------------------------------------------
 
 	// Mode 2 [Max Points] ------------------------------------------------------
-	if (currentMode == 2) {
-		//turnToAngle(650 * sideMult, -60 * sideMult);
-		//driveStraightPID(-1200,5000);
-
-		/*
+	if (currentMode == 2)  {
 		clearDriveEncoders();
-		stopClaw();
-		startClawTask();
+		moveLiftWithLogic(0,false,false,false);
+		driveForTime(70,70,70,70,750); // Drive at stuff
+		wait1Msec(100);
+		driveForTime(-70,-70,-70,-70,500); // Back up
+		wait1Msec(100);
+		motor[clawL] = -127;
+		motor[clawR] = 127;
+		wait1Msec(500);
+		motor[clawL] = motor[clawR] = 0;
+		wait1Msec(100);
+		driveForTime(70,70,70,70,1250); // Back towards
+		motor[clawL] = 127;
+		motor[clawR] = -127;
+		wait1Msec(500);
+		motor[clawL] = 30;
+		motor[clawR] = -30;
+		wait1Msec(100);
+		turnToAngle(((sideMult < 0) ? -1350 : 1350),-100*sideMult);
+		wait1Msec(250);
+		driveForTime(-70,-70,-70,-70,1250); // Drive at stuff
+		wait1Msec(500);
+		waitForLift(100);
+		motor[clawL] = -127;
+		motor[clawR] = 127;
+		wait1Msec(500);
+		motor[clawL] = motor[clawR] = 0;
+
+		/*turnToAngle(((sideMult > 0) ? 3334 : 266) ,-100*sideMult);
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		driveForTime(-100,-100,-100,-100,1000); //TODO: Switch to encoders
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		turnToAngle(((sideMult > 0) ? 804 : 2796),-100*sideMult);
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
 		setClaw(500,-127);
 		waitForClaw();
-		stopClaw();
-		stopClawTask();
-		*/
-		pidDriveStraight(10000);
+		setClaw(0,127);
+		waitForClaw();
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		turnToAngle(10,-100*sideMult);
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		driveForTime(-100,-100,-100,-100,500); //TODO: Switch to encoders
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		waitForLift(100);
+		setClaw(500,-127);
+		waitForClaw();
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		waitForLift(-100);
+		waitForPid();
+		waitForClaw();*/
 	}
 
 	// Mode 3 [Compat] ----------------------------------------------------------
 	if (currentMode == 3) {
-		driveRaw(-80,-80,-80,-80);
-		wait1Msec(3000);
+		wait1Msec(5000);
+		driveForTime(70,70,70,70,750); // Drive at stuff
+		wait1Msec(100);
+		driveForTime(-70,-70,-70,-70,500); // Back up
+		wait1Msec(100);
+		motor[clawL] = -127;
+		motor[clawR] = 127;
+		wait1Msec(500);
+		motor[clawL] = motor[clawR] = 0;
+		wait1Msec(100);
+		driveRaw(127,127,127,127);
+		wait1Msec(1500);
 		driveRaw(0,0,0,0);
 	}
 
 	// Mode 4 [C Compat] --------------------------------------------------------
 	if (currentMode == 4) {
-		driveRaw(-80,-80,-80,-80);
-		wait1Msec(2000);
+		driveRaw(127,127,127,127);
+		wait1Msec(3000);
 		driveRaw(0,0,0,0);
 	}
 
+	// Mode 5 [Cube Toss] ------------------------------------------------------
+	if(currentMode == 5) {
+
+	}
+
 	// Mode 5 [Skills] ----------------------------------------------------------
-	if (currentMode == 5) {
+	if (currentMode == 6) {
 		int cooldownTime = 200; // Time so motors don't change too quick
 		// TODO Figure out how long it takes to place stuff
 		int placementTimeStars = 3000;
 		int placementTimeCubes = 3000; // Might be 0, since robot goes and comes
 		int dumpValue = 300;
-
-		stopClaw();
-		startClawTask();
 
 		/*
 		** Green: Back up for stars and wait for placement
@@ -331,7 +387,7 @@ void runAuton() {
 		*/
 
 		// TODO Finish auton
-		stopClawTask();
 	}
+	stopClawTask();
 	startTask(manageClaw);
 }

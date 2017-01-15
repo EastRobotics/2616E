@@ -383,7 +383,7 @@ task taskDrivePid() {
 void pidDriveStraight(long ticksToMove) {
 	pidRequestedValue = ticksToMove;
 	pidMode = 0;
-	pidSensor = quadBR;
+	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.09;
 	startTask(taskDrivePid);
@@ -392,7 +392,7 @@ void pidDriveStraight(long ticksToMove) {
 void pidDrivePoint(long ticksToMove) {
 	pidRequestedValue = ticksToMove;
 	pidMode = 1;
-	pidSensor = quadBL;
+	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.09;
 	startTask(taskDrivePid);
