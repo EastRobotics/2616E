@@ -87,6 +87,12 @@ void suspendClawControl();
 
 void resumeClawControl();
 
+void setClawMode(int mode);
+
+void setClawTarget(int target);
+
+void waitForClaw();
+
 ///////////////////////////////////////////////////////////////////
 //
 //  Lift.c functions

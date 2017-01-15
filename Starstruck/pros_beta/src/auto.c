@@ -29,19 +29,25 @@ void shutDownMotors() {
 
 void autonomous() {
   initPID();
+  setClawMode(1); // Give auton claw control
+
   switch (getAutonMode()) {
     case 1:
-      print("Ran auton one!");
-      addPIDLoop(getEncoderValue,setMotorSpeedPID,shutDownMotors,KP,KI,KD,50.0,12.0);
-      startPIDLoop(0, 500.0);
+      print("Ran auton one, so nothing is happening");
       break;
     case 2:
       print("Ran auton two!");
+      addPIDLoop(getEncoderValue,setMotorSpeedPID,
+        shutDownMotors,KP,KI,KD,50.0,12.0);
+      startPIDLoop(0, 500.0);
       break;
     default:
       print("Ran auton that wasn't given a case!");
   }
 
+  shutdownPID();
+  setClawTarget(0); // Set the claw to close when given control back
+  setClawMode(0);
   // Should be run after all autons
   if (isOnline()) {
     imeShutdown(); // Disable our IMEs

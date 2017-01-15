@@ -62,10 +62,10 @@ void updateLCD(bool userCaused, int page) {
         const char* autonName;
         switch (getAutonMode()) {
           case 1:
-            autonName = "Mode 1";
+            autonName = "Do Nothing";
             break;
           case 2:
-            autonName = "Mode 2";
+            autonName = "Max Points";
             break;
           default: // Unknown mode
             autonName = "Unknown";

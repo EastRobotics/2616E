@@ -23,6 +23,7 @@ double lastIntegral[PID_LOOP_COUNT];   //last I value of loop
 double lastError[PID_LOOP_COUNT];      //last error value of loop
 double accThresh[PID_LOOP_COUNT];      //range of values accepted to end pid loop
 unsigned int initializedLoops = 0;     //how many loops have already been created
+TaskHandle pidTask;
 
 bool loopActive[PID_LOOP_COUNT];       //whether or not to run the loop
 
@@ -194,6 +195,12 @@ void initPID(){
     lastIntegral[i] = 0;
     loopActive[i] = false;
   }
-  taskCreate(pidLoop, TASK_DEFAULT_STACK_SIZE,
-    NULL, TASK_PRIORITY_DEFAULT); //start the pid loop
+  if (pidTask == NULL)
+    pidTask = taskCreate(pidLoop, TASK_DEFAULT_STACK_SIZE,
+      NULL, TASK_PRIORITY_DEFAULT); //start the pid loop
+}
+
+void shutdownPID() {
+  print("[ELib] Killing PID control task\n");
+  taskDelete(pidTask); // Kill the PID task
 }

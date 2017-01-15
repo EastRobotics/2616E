@@ -133,7 +133,15 @@ void lcdManager(void * param) {
           }
         }
 
-        if (!paused) {
+        // Print out if we're disabled
+        if (!isEnabled()) {
+          lcdClear(uart2);
+          lcdPrint(uart2, 1, "%cEssential Evil%c",0xCD,0xCD);
+          lcdPrintCentered("- Disabled -", 2);
+        }
+
+        // Only run stuff if not paused or disabled
+        if (!paused && isEnabled()) {
           if (highestCombination == 1) { // Left button pressed
             lcdLastPage();
             buttonReleased = false;

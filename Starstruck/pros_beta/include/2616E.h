@@ -148,6 +148,8 @@ extern "C" {
 
   void initPID();
 
+  void shutdownPID();
+
 #ifdef __cplusplus // end method if
 }
 #endif
