@@ -65,6 +65,10 @@ void initialize();
 
 void operatorControl();
 
+void implUpdateLCD(bool userCaused, int page);
+void implMenuNext(int page);
+void implMenuBack(int page);
+
 // Holds gyro from the init.c file
 Gyro getGyro();
 Encoder getEncoderBR();
@@ -105,11 +109,11 @@ void holdLift(void * params);
 
 void lockLift();
 
-void unlockLift();
-
-void moveLiftWithLogic(int,bool,bool);
+void moveLiftWithLogic(int,bool);
 
 void initLift();
+
+int getLiftStartAngle();
 
 // End C++ export structure
 #ifdef __cplusplus

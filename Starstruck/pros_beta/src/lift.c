@@ -8,9 +8,11 @@
 #define LIFT_SLOW_RANGE 100    // how close to the bounds the lift should slow down
 #define LIFT_SLOW_MOD 0.8      // how much (0-1] that the lift should be slowed down at bounds
 
-TaskHandle holdLiftTask; // task handler for the task that holds the lift in place
-bool holdActive = false; // is the lift currently attempting to hold in place
-int desiredHeight = 0;   // desired height for the hold task to hold at
+int startingAngle = 0;   // desired height for the hold task to hold at
+
+int getLiftStartAngle() {
+    return startingAngle;
+}
 
 // Sets all of the lift motors to the desired speed
 // (Note: positive speed is intended to move the lift up)
@@ -21,42 +23,6 @@ void setLiftMotors(int speed){
   motorSet(MOTOR_Y_LIFT_R23, speed);
   motorSet(MOTOR_LIFT_L1, speed*-1);
   motorSet(MOTOR_Y_LIFT_L23, speed*-1);
-
-}
-
-//Task that holds the lift in it's current position
-void holdLift(void * ignored){
-  int currHeight;
-  while(true){
-    // get current potentiometer value
-    currHeight = analogRead(ANALOG_POT_LIFT);
-    //if the lift has moved too far from the desired position
-    if (abs(currHeight-desiredHeight) > LIFT_ACC_MOV_RANGE) {
-      // set the motors to move up if below target, or down if above target
-      setLiftMotors(currHeight<desiredHeight ? 50 : -50);
-    } else {
-      // hold the lift in it's current position
-      setLiftMotors(0);
-    }
-  delay(25);
-  }
-}
-
-// Setup the lift to hold the position of it's current potentiometer value
-void lockLift(){
-  if(!holdActive){
-    holdActive = true;
-    desiredHeight = analogRead(ANALOG_POT_LIFT);
-    taskResume(holdLiftTask);
-  }
-}
-
-// Stop the lift from holding the position of it's current potentiometer value
-void unlockLift(){
-  if(holdActive){
-    taskSuspend(holdLiftTask);
-    holdActive = false;
-  }
 }
 
 // Sets the lift motors with a range of speed, and can auto override the hold
@@ -67,16 +33,10 @@ void unlockLift(){
 //  int: the speed to set to the motors
 //  bool: whether or not to turn off the hold if it is active
 //  bool: whether or not to slow down the lift at it's bounds
-void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed){
+void moveLiftWithLogic(int speed, bool dampenSpeed){
   // if the speed is too low, set it to zero
   if(abs(speed) < LIFT_MIN_SPEED){
     speed = 0;
-  }
-  //unlock lift if it was locked
-  if(holdActive && overrideHold){
-    unlockLift();
-  } else if(holdActive) { // if the hold is active, but can't override, do nothing
-    return;
   }
 
   int currHeight = analogRead(ANALOG_POT_LIFT);
@@ -112,18 +72,18 @@ void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed){
 void waitForLift(int speed){
   // set the lift to the speed, and turn on inertial dampening, but only
   // if this will NOT slow it too much to even move
-  moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD)));
+  moveLiftWithLogic(speed,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD)));
   // if the lift is being raised
   if(speed>=0){
     // wait until the lift is at it's max value
     while(analogRead(ANALOG_POT_LIFT) < LIFT_MAX_HEIGHT){
-      moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
+      moveLiftWithLogic(speed,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
       delay(25);
     }
   } else { // if the lift is being lowered
     // wait until the lift is at it's min value
     while(analogRead(ANALOG_POT_LIFT) > LIFT_MIN_HEIGHT){
-      moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
+      moveLiftWithLogic(speed,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD))); // the speed must be reset for the auto slow down to work
       delay(25);
     }
   }
@@ -132,11 +92,12 @@ void waitForLift(int speed){
 
 }
 
+// Setup the lift to hold the position of it's current potentiometer value
+void lockLift(){
+  moveLiftWithLogic(30,true);
+}
+
 // Sets up all necessary tasks and instance data for the lift
 void initLift(){
-  holdLiftTask = taskCreate(holdLift, TASK_DEFAULT_STACK_SIZE,
-    NULL, TASK_PRIORITY_DEFAULT);
-  unlockLift();
-  holdActive = false;
-  desiredHeight = analogRead(ANALOG_POT_LIFT);
+  startingAngle = analogRead(ANALOG_POT_LIFT);
 }
