@@ -4,7 +4,8 @@
 #define LIFT_ACC_MOV_RANGE 30  // amount lift will move before it is held in place
 #define LIFT_MIN_SPEED 30      // lowest speed that will turn on the lift
 #define LIFT_MIN_HEIGHT 100    // lowest potentiometer value for the lift
-#define LIFT_MAX_HEIGHT 1500   // highest potentiometer value for the lift
+#define LIFT_MAX_HEIGHT 1600   // highest potentiometer value for the lift
+#define LIFT_MAX_DIFF 1600     // highest difference in angle for the lift
 #define LIFT_SLOW_RANGE 100    // how close to the bounds the lift should slow down
 #define LIFT_SLOW_MOD 0.8      // how much (0-1] that the lift should be slowed down at bounds
 

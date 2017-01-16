@@ -15,7 +15,7 @@ extern "C" {
   #define MOTOR_DRIVE_FR 2 // Front right drive motor, motor 2
   #define MOTOR_DRIVE_BR 3 // Back  right drive motor, motor 3
   #define MOTOR_DRIVE_FL 8 // Front left  drive motor, motor 8
-  #define MOTOR_DRIVE_BL 9 // Back  right drive motor, motor 9
+  #define MOTOR_DRIVE_BL 9 // Back  left  drive motor, motor 9
 
   // Drive
   #define MOTOR_DRIVE_FR_REV true  // Front right drive motor, motor 2
@@ -47,16 +47,16 @@ extern "C" {
 ** Digital
 ** (1-12) - Although not sure with PROS
 */
-  // Drive
-  #define DIGITAL_ENC_DRIVE_BR_TOP 2 // Encoder drive top    right, digital 2
-  #define DIGITAL_ENC_DRIVE_BR_BOT 3 // Encoder drive bottom right, digital 3
-  #define DIGITAL_ENC_DRIVE_BL_TOP 4 // Encoder drive top    left,  digital 4
-  #define DIGITAL_ENC_DRIVE_BL_BOT 5 // Encoder drive bottom left,  digital 5
   // Claw
-  #define DIGITAL_ENC_CLAW_R_TOP 6   // Encoder claw top     right, digital 6
-  #define DIGITAL_ENC_CLAW_R_BOT 7   // Encoder claw bottom  right, digital 7
-  #define DIGITAL_ENC_CLAW_L_TOP 8   // Encoder claw top     left,  digital 8
-  #define DIGITAL_ENC_CLAW_L_BOT 9   // Encoder claw bottom  left,  digital 9
+  #define DIGITAL_ENC_CLAW_R_TOP 2   // Encoder claw top     right, digital 6
+  #define DIGITAL_ENC_CLAW_R_BOT 3   // Encoder claw bottom  right, digital 7
+  #define DIGITAL_ENC_CLAW_L_TOP 4   // Encoder claw top     left,  digital 8
+  #define DIGITAL_ENC_CLAW_L_BOT 5   // Encoder claw bottom  left,  digital 9
+  // Drive
+  #define DIGITAL_ENC_DRIVE_BR_TOP 6 // Encoder drive top    right, digital 2
+  #define DIGITAL_ENC_DRIVE_BR_BOT 7 // Encoder drive bottom right, digital 3
+  #define DIGITAL_ENC_DRIVE_BL_TOP 8 // Encoder drive top    left,  digital 4
+  #define DIGITAL_ENC_DRIVE_BL_BOT 9 // Encoder drive bottom left,  digital 5
 
 /*
 ** I2C
