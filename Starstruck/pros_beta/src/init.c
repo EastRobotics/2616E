@@ -98,7 +98,7 @@ void initialize() {
   initDriveEncoders();
   // Init right encoder, not reverse
   encClawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP,DIGITAL_ENC_CLAW_R_BOT,false);
-  // Init left encoder, not reverse
+  // Init left encoder, reversed
   encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP,DIGITAL_ENC_CLAW_L_BOT,true);
 
   // Done init
