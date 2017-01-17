@@ -1,7 +1,8 @@
 #include "main.h"
 #include "math.h"
 #define CLAW_MISALIGN_THRESHOLD 150 // Difference we consider as misaligned
-# define CLAW_CATCHUP_SPEED 30# define CLAW_SPEED 127
+#define CLAW_CATCHUP_SPEED 30
+#define CLAW_SPEED 127
 
 TaskHandle claw;
 

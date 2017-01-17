@@ -6,38 +6,38 @@ Gyro getGyro() {
     return gyro;
 }
 
-Encoder driveBR;
-Encoder driveBL;
-Encoder clawL;
-Encoder clawR;
+Encoder encDriveBR;
+Encoder encDriveBL;
+Encoder encClawL;
+Encoder encClawR;
 
 Encoder getEncoderBR() {
-  return driveBR;
+  return encDriveBR;
 }
 
 Encoder getEncoderBL() {
-  return driveBL;
+  return encDriveBL;
 }
 
 Encoder getEncoderClawL() {
-  return clawL;
+  return encClawL;
 }
 
 Encoder getEncoderClawR() {
-  return clawR;
+  return encClawR;
 }
 
 void killDriveEncoders() {
-  encoderShutdown(driveBL);
-  encoderShutdown(driveBR);
+  encoderShutdown(encDriveBL);
+  encoderShutdown(encDriveBR);
 }
 
 void initDriveEncoders() {
   // Init right encoder, not reverse
-  driveBR = encoderInit(DIGITAL_ENC_DRIVE_BR_TOP,
+  encDriveBR = encoderInit(DIGITAL_ENC_DRIVE_BR_TOP,
     DIGITAL_ENC_DRIVE_BR_BOT,false);
   // Init left encoder, not reverse
-  driveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
+  encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
     DIGITAL_ENC_DRIVE_BL_BOT,false);
 }
 
@@ -87,20 +87,19 @@ void initialize() {
   lcdSetText(uart2, 1, "Init auton...");
   autonInit(4);
 
-  // Set up our autonomous to these modes
+  // Set up our gyroscope
   print("[Init] Setting gyroscope\n");
   lcdSetText(uart2, 1, "Init gyro...");
   gyro = gyroInit(ANALOG_GYRO, 0); // 0 multiplier = default, not * 0
-  delay(2000); // Give gyro some setup time
 
   // Set up our encoders
   print("[Init] Setting up encoders\n");
   lcdSetText(uart2, 1, "Init Encs...");
   initDriveEncoders();
   // Init right encoder, not reverse
-  clawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP,DIGITAL_ENC_CLAW_R_BOT,false);
+  encClawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP,DIGITAL_ENC_CLAW_R_BOT,false);
   // Init left encoder, not reverse
-  clawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP,DIGITAL_ENC_CLAW_L_BOT,true);
+  encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP,DIGITAL_ENC_CLAW_L_BOT,true);
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");
