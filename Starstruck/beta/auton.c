@@ -5,6 +5,8 @@ int maxAutonomous = 6;
 int currentMode = minAutonomous;
 
 void waitForLift(int speed); //
+void setLiftMotors(int speed);
+void lockLift();
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
@@ -173,6 +175,35 @@ void waitForClaw() {
 		wait1Msec(20);
 }
 
+//Open claw based on... time *SHUDDER*
+void tempOpenClaw(bool lock) {
+	//Open Claw
+	motor[clawL] = -127;
+	motor[clawR] = 127;
+	wait1Msec(500);
+	motor[clawL] = (lock ? 30 : 0);
+	motor[clawR] = (lock ? -30 : 0);
+	wait1Msec(100);
+}
+
+//Close claw based on... time *SHUDDER*
+void tempCloseClaw(bool lock) {
+	//Close Claw
+	motor[clawL] = 127;
+	motor[clawR] = -127;
+	wait1Msec(500);
+	motor[clawL] = (lock ? 30 : 0);
+	motor[clawR] = (lock ? -30 : 0);
+	wait1Msec(100);
+}
+
+void moveLiftWithTime(int speed, int time) {
+	time = abs(time);
+	setLiftMotors(speed);
+	wait1Msec(time);
+	setLiftMotors(0);
+}
+
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 //                                 Debug methods
@@ -225,18 +256,25 @@ void runAuton() {
 		wait1Msec(500);
 		motor[clawL] = motor[clawR] = 0;
 		wait1Msec(100);
-		driveForTime(70,70,70,70,1250); // Back towards
+		driveForTime(70,70,70,70,1000); // Back towards
 		motor[clawL] = 127;
 		motor[clawR] = -127;
 		wait1Msec(500);
 		motor[clawL] = 30;
 		motor[clawR] = -30;
 		wait1Msec(100);
+		//waitForLift(100);
+		moveLiftWithTime(100,700);
+		lockLift();
+		setLiftMotors(30);
+		wait1Msec(500);
 		turnToAngle(((sideMult < 0) ? -1350 : 1350),-100*sideMult);
 		wait1Msec(250);
 		driveForTime(-70,-70,-70,-70,1250); // Drive at stuff
-		wait1Msec(500);
-		waitForLift(100);
+		wait1Msec(100);
+		moveLiftWithTime(127,1000);
+		lockLift();
+		setLiftMotors(30);
 		motor[clawL] = -127;
 		motor[clawR] = 127;
 		wait1Msec(500);
@@ -290,103 +328,50 @@ void runAuton() {
 		driveRaw(0,0,0,0);
 	}
 
-	// Mode 5 [Cube Toss] ------------------------------------------------------
-	if(currentMode == 5) {
-
-	}
-
 	// Mode 5 [Skills] ----------------------------------------------------------
-	if (currentMode == 6) {
-		int cooldownTime = 200; // Time so motors don't change too quick
-		// TODO Figure out how long it takes to place stuff
-		int placementTimeStars = 3000;
-		int placementTimeCubes = 3000; // Might be 0, since robot goes and comes
-		int dumpValue = 300;
-
-		/*
-		** Green: Back up for stars and wait for placement
-		*/
-		pidDriveStraightLimit(-600,3000);
-		/* TODO Change values */ setClaw(500,100); // Deploy claw
-		/* TODO Delete */ breakpoint();
-
-		/*
-		** Red: Go to fence and score stars
-		** (TODO Replace with gyro PID)
-		*/
-		/* TODO Change values */ int fenceDistance = 600;
-		/* TODO Change values */ int fenceTurn = 600;
-		// Drive, dump, repeat
-		for (int i=0; i < 3; i++) { // Stars, then 2 cubes
-			wait1Msec(i == 0 ? placementTimeStars : placementTimeCubes); // Wait to place load
-			waitForClaw(); // Make sure claw is ready
-			/* TODO Change values */ clawClose(1000,100); // Clamp load for 1 second
-			/* TODO Delete */ breakpoint();
-			// Drive up to fence
-			pidDriveStraightLimit(-1*fenceDistance,10000);
-			wait1Msec(cooldownTime); // Motor cooldown
-			/* TODO Delete */ breakpoint();
-
-			// TODO Lift load so it doesn't drag?
-
-			// Turn towards fence
-			pidDrivePointLimit(-1*fenceTurn*sideMult,5000);
-			/* TODO Delete */ breakpoint();
-
-			// TODO Lift
-			/* TODO Change values */ setClaw(dumpValue,127); // Drop the load, open just enough to drop
-			waitForClaw();
-			/* TODO Delete */ breakpoint();
-			// TODO start lowering lift
-
-			if(i < 2) { // If we want to go back to starting tile
-				/* TODO Change values */ setClaw(500,127); // Set claw at whatever we want for pickup
-				// Turn away from fence
-				/* TODO Delete */ breakpoint();
-				pidDrivePointLimit(fenceTurn*sideMult,5000);
-				wait1Msec(cooldownTime); // Motor cooldown
-				/* TODO Delete */ breakpoint();
-				pidDriveStraight(fenceDistance); // Drive back to tile
-				// TODO Check and adjust claw values
-				waitForPidLimit(8000); // Make sure we wait for PID
-			}
+	if (currentMode == 5) {
+		clearDriveEncoders();
+		moveLiftWithLogic(0,false,false,false);
+		driveForTime(-70,-70,-70,-70,750); // Drive at fence
+		wait1Msec(100);
+		tempOpenClaw(false); // Open the claw
+		wait1Msec(2000);
+		driveForTime(70,70,70,70,750); // Back up
+		tempCloseClaw(true); // Close the claw
+		driveForTime(-70,-70,-70,-70,1250); // Drive at fence
+		wait1Msec(100);
+		waitForLift(100);
+		tempOpenClaw(false);
+		for(int i = 0; i < 2; i ++) {
+			waitForLift(-80);
+			wait1Msec(1000);
+			driveForTime(70,70,70,70,750); // Back up
+			wait1Msec(100);
+			tempCloseClaw(true); // Close the claw
+			driveForTime(-70,-70,-70,-70,1250); // Drive at fence
+			wait1Msec(100);
+			waitForLift(100);
+			tempOpenClaw(false);
 		}
-
-		/*
-		** Yellow: Get 3 fence stars and dump
-		** (TODO Replace with gyro PID)
-		*/
-		/* TODO Change values */ setClaw(400,127); // Set claw at grabbing pos
-		/* TODO Delete */ breakpoint();
-		// After dumping, turn towards yellow stars
-		/* TODO Change values */ pidDrivePointLimit(90*sideMult,5000);
-		/* TODO Delete */ breakpoint();
-
-		// Drive into the stars
-		/* TODO Change values */ pidDriveStraightLimit(-1*600,10000);
-		/* TODO Delete */ breakpoint();
-
-		/* TODO Change values */ clawClose(1000,100); // Clamp load for 1 second
-		/* TODO Delete */ breakpoint();
-
-		// Turn to fence to dump
-		/* TODO Change values */ pidDrivePointLimit(-90*sideMult,5000);
-		/* TODO Delete */ breakpoint();
-
-		// TODO Lift
-
-		/* TODO Change values */ setClaw(dumpValue,127); // Drop the load, open just enough to drop
-		waitForClaw();
-		/* TODO Delete */ breakpoint();
-
-		// TODO Lower lift
-
-
-		/*
-		** Orange: Grab center cube
-		*/
-
-		// TODO Finish auton
+		wait1Msec(100);
+		driveForTime(70,70,70,70,250); // Back up
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		turnToAngle(((sideMult < 0) ? 900 : -900),80*sideMult);
+		wait1Msec(250);
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		waitForLift(-80);
+		wait1Msec(100);
+		driveForTime(-70,-70,-70,-70,750); // Drive at cube
+		wait1Msec(100);
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		tempCloseClaw(true);
+		wait1Msec(100);
+		breakpoint(); // TODO: REMOVE BEFORE MATCH
+		turnToAngle(0,-80*sideMult);
+		wait1Msec(250);
+		breakpoint();
+		driveForTime(-70,-70,-70,-70,1250); // Drive at fence
+		tempOpenClaw(false);
 	}
 	stopClawTask();
 	startTask(manageClaw);

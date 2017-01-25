@@ -61,6 +61,10 @@ void driveBackwards(int speedForward, int speedTurn, int speedStrafe) {
 	driveRaw(speedFL, speedBL, speedFR, speedBR);
 }
 
+void driveTank(int speedRight, int speedLeft) {
+	driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+}
+
 // Drive with checks to rule out errors with joystick controls
 // NOTE:
 // 	Multipliers should always be (0 <= x <= 1.0). This avoids going too fast or slow and going out of proportion
@@ -115,6 +119,48 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe, bool rever
 		drive(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
 	else
 		driveBackwards(multipliedSpeedForward, multipliedSpeedTurn, multipliedSpeedStrafe); // Pass off the checked values to drive
+}
+
+// Drive with checks to rule out errors with joystick controls
+// NOTE:
+// 	Multipliers should always be (0 <= x <= 1.0). This avoids going too fast or slow and going out of proportion
+// PARAMETERS:
+//	int: -127 to 127, speed to drive forward or backward respectively
+//	int: -127 to 127, speed to turn left or right respectively
+//	int: -127 to 127, speed to strafe left or right respectively
+//	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
+//	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
+//	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
+void driveWithLogicTank(int speedRight, int speedLeft, bool reverse) {
+	int multipliedSpeedRight = speedRight; // ((float) speedForward)*forwardMultiplier;
+	int multipliedSpeedLeft = speedLeft; //((float) speedTurn)*turnMultiplier;
+
+	byte rightMult = (multipliedSpeedRight < 0) ? -1 : 1;
+	byte leftMult = (multipliedSpeedLeft < 0) ? -1 : 1;
+
+	multipliedSpeedRight = abs(multipliedSpeedRight);
+	multipliedSpeedLeft = abs(multipliedSpeedLeft);
+
+	if (abs(multipliedSpeedRight) <= DRIVE_THRESHOLD_FORWARD) multipliedSpeedRight = 0;
+	if (abs(multipliedSpeedLeft) <= DRIVE_THRESHOLD_TURN) multipliedSpeedLeft = 0;
+
+	if(abs(multipliedSpeedRight) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedRight = 0;
+	if(abs(multipliedSpeedLeft) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedLeft = 0;
+
+	//uses linear interpolation or lerp to fix the logarithmic nature of a motor's RPM to motor speed ratio into linear growth
+	multipliedSpeedRight = getLerpedSpeed(multipliedSpeedRight, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
+	multipliedSpeedLeft = getLerpedSpeed(multipliedSpeedLeft, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
+
+	if (abs(speedRight) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedRight = 0;
+	if (abs(speedLeft) <= JOYSTICK_MOVEMENT_THRESHOLD) multipliedSpeedLeft = 0;
+
+	multipliedSpeedRight *= rightMult;
+	multipliedSpeedLeft *= leftMult;
+
+	if (!reverse)
+		driveTank(multipliedSpeedRight, multipliedSpeedLeft); // Pass off the checked values to drive
+	else
+		driveTank(multipliedSpeedRight * -1, multipliedSpeedLeft * -1); // Pass off the checked values to drive
 }
 
 // Set each side of the drive to a certain speed.

@@ -1,7 +1,7 @@
 #pragma config(I2C_Usage, I2C1, i2cSensors)
 #pragma config(Sensor, in1,    powerExpander,  sensorAnalog)
 #pragma config(Sensor, in2,    gyroMain,       sensorGyro)
-#pragma config(Sensor, in3,    potArm,         sensorPotentiometer)
+#pragma config(Sensor, in8,    potArm,         sensorPotentiometer)
 #pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
 #pragma config(Sensor, dgtl2,  quadBR,         sensorQuadEncoder)
 #pragma config(Sensor, dgtl4,  quadBL,         sensorQuadEncoder)
@@ -40,7 +40,7 @@
 #define LIFT_ACC_MOV_RANGE 30  // amount lift will move before it is held in place
 #define LIFT_MIN_SPEED 30      // lowest speed that will turn on the lift
 #define LIFT_MIN_HEIGHT 100    // lowest potentiometer value for the lift
-#define LIFT_MAX_HEIGHT 1500   // highest potentiometer value for the lift
+#define LIFT_MAX_HEIGHT 1800   // highest potentiometer value for the lift
 #define LIFT_SLOW_RANGE 100    // how close to the bounds the lift should slow down
 #define LIFT_SLOW_MOD 0.8      // how much (0-1] that the lift should be slowed down at bounds
 
@@ -48,10 +48,10 @@
 //
 //                          			 2616E Starstruck
 //
-// Welcome to the 2616E Starstruck program.
+// Welcome to the 2616E Starstruck program.///////////////////////////////////
+//---------------------------------------------
 //
-/////////////////////////////////////////////////////////////////////////////////////////
-//-------------------------------------------------------------------------------------//
+//////////////////////////////////////////////////////----------------------------------------//
 /////////////////////////////////////////////////////////////////////////////////////////
 //
 // Pinmap: https://drive.google.com/open?id=1mSrSJ1BPUzoXAdo2x8ED-OwT-OZY7r5Y9P7FmuNDcLY
@@ -208,11 +208,11 @@ void unlockLift(){
 void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed, bool overrideBounds){
 	// if the speed is too low, set it to zero
 	if(abs(speed) < LIFT_MIN_SPEED){
-		speed = 0;
+		// speed = 0;
 	}
 	// if the limit switch is triggered, stop the arm
 	if(!SensorValue[liftLimit]) {
-		speed = 0;
+	//	speed = 0;
 	}
 	//unlock lift if it was locked
 	if(holdActive && overrideHold){
@@ -235,7 +235,7 @@ void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed, bool over
 	} else { //if moving down
 		// if within the slow zone, dampen the speed
 		if(dampenSpeed && (abs(LIFT_MIN_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
-			speed *= LIFT_SLOW_MOD;
+			//speed *= LIFT_SLOW_MOD;
 		}
 		// if less than min and trying to go down, shut off
 		/*if(currHeight < LIFT_MIN_HEIGHT && !overrideBounds){
@@ -397,8 +397,8 @@ task usercontrol()
 		*/
 		int speedForward = round(vexRT[Ch3]);
 		int speedTurn = round(vexRT[Ch1]);
-		int speedStrafe = round(vexRT[Ch4]);
-		driveWithLogic(speedForward, speedTurn, speedStrafe, false);
+		/*int speedStrafe = round(vexRT[Ch4]);*/
+		driveWithLogic(speedForward, speedTurn, 0, false);
 
 		if(vexRT[Btn8U] || vexRT[Btn8UXmtr2])
 			clearDriveEncoders();
@@ -462,6 +462,9 @@ task usercontrol()
 			}
 			//setLiftMotors(0);
 		}
+
+		if((vexRT[Btn7U]) || (vexRT[Btn7UXmtr2]))
+			lockLift();
 
 		/*if (vexRT[Btn7D] || vexRT[Btn7DXmtr2]) {
 			lockLift();
