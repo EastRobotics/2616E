@@ -12,8 +12,8 @@
 #define PID_MOTOR_INDEX     myMotor
 #define PID_MOTOR_SCALE     -1
 
-#define PID_DRIVE_MAX       60
-#define PID_DRIVE_MIN     (-40)
+#define PID_DRIVE_MAX       80
+#define PID_DRIVE_MIN     	25
 
 #define PID_INTEGRAL_LIMIT  50
 
@@ -306,8 +306,8 @@ tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
 //long tickTarget[4];
 //Setup the weights for the various stages of pid
-float kP = 0.35; //Proportional Gain
-float kI = 0.10; //Integral Gain
+float kP = 0.22; //Proportional Gain
+float kI = 0.25; //Integral Gain
 float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
@@ -335,7 +335,7 @@ task taskDrivePid() {
 	pidLastError  = 0;
 	pidIntegral   = 0;
 
-	pidRequestedValue += ((pidSensor==-1) ? nMotorEncoder[driveBR] : 0); // Account for existing ticks
+	pidRequestedValue += ((pidSensor==-1) ? nMotorEncoder[driveBL] : 0); // Account for existing ticks
 
 	while( true )
 	{
@@ -343,12 +343,12 @@ task taskDrivePid() {
 		if( true )
 		{
 			// Read the sensor value and scale
-			pidSensorCurrentValue = ((pidSensor==-1) ? nMotorEncoder[driveBR] : SensorValue[pidSensor]) * pidSensorScale + pidSensorOffset;
+			pidSensorCurrentValue = ((pidSensor==-1) ? nMotorEncoder[driveBL] : SensorValue[pidSensor]) * pidSensorScale + pidSensorOffset;
 
 			// calculate error
 			pidError = pidSensorCurrentValue - pidRequestedValue;
 
-			if (abs(pidError) < 13) {
+			if (abs(pidError) < 7) {
 				motor[ driveFL ] = 0;
 				motor[ driveFR ] = 0;
 				motor[ driveBL ] = 0;
@@ -378,10 +378,10 @@ task taskDrivePid() {
 			pidDrive *= PID_MOTOR_SCALE;
 
 			// limit drive
-			if( pidDrive > PID_DRIVE_MAX )
-				pidDrive = PID_DRIVE_MAX;
-			if( pidDrive < PID_DRIVE_MIN )
-				pidDrive = PID_DRIVE_MIN;
+			if( abs(pidDrive) > PID_DRIVE_MAX )
+				pidDrive = (pidDrive > 0) ? PID_DRIVE_MAX : PID_DRIVE_MAX * -1;
+			if( abs(pidDrive) < PID_DRIVE_MIN )
+				pidDrive = (pidDrive > 0) ? PID_DRIVE_MIN : PID_DRIVE_MIN * -1;
 
 			string debug = "";
 			sprintf(debug,"PIDS: %i",pidDrive);

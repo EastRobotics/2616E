@@ -106,34 +106,30 @@ int clawTargetRight;
 bool clawRunning = false;
 int clawSpeed;
 
-task adjustClawPosition() {
-	int clawPosRight;
-	int clawPosLeft;
-	const int misal = 30;
-	do { // Align the claws
+task adjustClawPosition() { // motor[clawL] = clawPosLeft-clawTargetLeft > 0 ? -1 * clawSpeed : clawSpeed;
+	while(true){
 		const int misal = 20;
 		int clawPosLeft = getMotorEncoder(clawL);
 		int clawPosRight = getMotorEncoder(clawR);
 		//clawPosRight *= -1; // so they both count up as they go out
 		clawPosLeft *= -1;
-		// If we're misaligning, counteract
+		// Go for target
 		// Left claw
-		if (abs(clawPosLeft-clawTargetLeft) > misal) {
-			motor[clawL] = clawPosLeft-clawTargetLeft > 0 ? -1 * clawSpeed : clawSpeed;
-			} else {
+		if (abs(clawTargetLeft+clawPosLeft) > misal) {
+			motor[clawL] = clawTargetLeft-clawPosLeft > 0 ? clawSpeed * -1 : clawSpeed;
+		} else {
 			motor[clawL] = 0;
 		}
 		// Right claw
-		if (abs(clawPosRight-clawTargetRight) > misal) {
-				motor[clawR] = clawPosRight-clawTargetRight > 0 ? clawSpeed : -1 * clawSpeed;
-			} else {
+		if (abs(clawTargetRight+clawPosRight) > misal) {
+			motor[clawR] = clawTargetRight-clawPosRight > 0 ? clawSpeed : -1 * clawSpeed;
+		} else {
 			motor[clawR] = 0;
 		}
+		if(clawRunning)
+			clawRunning = (abs(nMotorEncoder[clawR]+clawTargetRight) > misal) || (abs((nMotorEncoder[clawL]*-1)+clawTargetLeft) > misal);
 		wait1Msec(20);
-		if (clawRunning)
-			clawRunning = (abs(clawPosRight-clawTargetRight) > misal) || (abs(clawPosLeft-clawTargetLeft) > misal);
-	} while // They aren't aliged
-		(true); // Left claw not aligned
+	}
 }
 
 
@@ -160,7 +156,7 @@ void setClaw(int target, int speed) {
 
 // Used for when we want to clamp an unknown orientation, and can't guarentee a certain close value
 void clawClose(int ms, int speed) {
-	setClaw(-100, speed); // Try and close the claw
+	setClaw(-50, speed); // Try and close the claw
 	int timeGone = 0;
 	while (timeGone < ms || pidRunning) { // While we still have time or haven't reached 0ms
 		wait1Msec(10);
@@ -240,7 +236,7 @@ void runAuton() {
 	int sideMult = getAutonPosition() ? 1 : -1; // 1 for right, -1 for left
 	stopTask(manageClaw);
 	stopClaw();
-	//startClawTask();
+	startClawTask();
 	// Mode 1 [Default, Do nothing] ---------------------------------------------
 
 	// Mode 2 [Max Points] ------------------------------------------------------
@@ -372,6 +368,17 @@ void runAuton() {
 		breakpoint();
 		driveForTime(-70,-70,-70,-70,1250); // Drive at fence
 		tempOpenClaw(false);
+	}
+
+	// Mode 6 [PID Tuning] -----------------------------------------------------
+	if(currentMode == 6) {
+		//pidDriveStraight(-1450);
+		//waitForPid();
+		setClaw(300,60);
+		waitForClaw();
+		wait1Msec(1000);
+		clawClose(2000,-60);
+		wait1Msec(1000);
 	}
 	stopClawTask();
 	startTask(manageClaw);

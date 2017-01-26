@@ -171,7 +171,7 @@ void lcdUpdatePage( bool userInteraction )
 		string title = "";
 		sprintf(title,"DriveEnc%c",0xF6);
 		displayLCDString(0,0,title);
-		displayLCDNumber(1,0,SensorValue[liftLimit]);
+		displayLCDNumber(1,0,nMotorEncoder[driveBL]);
 	}
 
 	// Page 9 [Gyroscope value]
@@ -182,7 +182,7 @@ void lcdUpdatePage( bool userInteraction )
 		displayLCDNumber(1,0,SensorValue[gyroMain]);
 	}
 
-	// Page 9 [Gyroscope value]
+	// Page 9 [Claw Encoders]
 	else if (currentPage == 10) {
 		string title = "";
 		displayLCDNumber(0,0,nMotorEncoder[clawR]);
