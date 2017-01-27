@@ -208,7 +208,7 @@ void unlockLift(){
 void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed, bool overrideBounds){
 	// if the speed is too low, set it to zero
 	if(abs(speed) < LIFT_MIN_SPEED){
-		// speed = 0;
+		speed = 0;
 	}
 	// if the limit switch is triggered, stop the arm
 	if(!SensorValue[liftLimit]) {
@@ -235,7 +235,7 @@ void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed, bool over
 	} else { //if moving down
 		// if within the slow zone, dampen the speed
 		if(dampenSpeed && (abs(LIFT_MIN_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
-			//speed *= LIFT_SLOW_MOD;
+			speed *= LIFT_SLOW_MOD;
 		}
 		// if less than min and trying to go down, shut off
 		/*if(currHeight < LIFT_MIN_HEIGHT && !overrideBounds){
@@ -261,11 +261,13 @@ void lockLift(){
 	}
 }
 
+// /\/\/\/**DEPRECATED** Remaining for use in old autons **DEPRECATED**/\/\/\/
+
 // Intended for autonomous, waits until the lift has fully raised or lowered.
 // Which one it waits for depends on the direction of the motion.
 // PARAMS:
 //  int: the speed to set the motors (also +/- indicates direction (see above))
-void waitForLift(int speed){
+void waitForLiftOld(int speed){
 	// set the lift to the speed, and turn on inertial dampening, but only
 	// if this will NOT slow it too much to even move
 	moveLiftWithLogic(speed,true,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD)),false);

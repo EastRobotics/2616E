@@ -4,7 +4,7 @@ int minAutonomous = 1;
 int maxAutonomous = 6;
 int currentMode = minAutonomous;
 
-void waitForLift(int speed); //
+void waitForLiftOld(int speed); //
 void setLiftMotors(int speed);
 void lockLift();
 
@@ -107,14 +107,15 @@ bool clawRunning = false;
 int clawSpeed;
 
 task adjustClawPosition() {
-	clawRunning = true;
 	int clawPosRight;
 	int clawPosLeft;
 	const int misal = 30;
 	do { // Align the claws
-		clawPosLeft = getMotorEncoder(clawL);
-		clawPosRight = getMotorEncoder(clawR);
-		clawPosRight *= -1; // so they both count up as they go out
+		const int misal = 20;
+		int clawPosLeft = getMotorEncoder(clawL);
+		int clawPosRight = getMotorEncoder(clawR);
+		//clawPosRight *= -1; // so they both count up as they go out
+		clawPosRight *= -1;
 		// If we're misaligning, counteract
 		// Left claw
 		if (abs(clawPosLeft-clawTargetLeft) > misal) {
@@ -124,17 +125,16 @@ task adjustClawPosition() {
 		}
 		// Right claw
 		if (abs(clawPosRight-clawTargetRight) > misal) {
-			motor[clawR] = clawPosRight-clawTargetRight > 0 ? clawSpeed : -1 * clawSpeed;
+				motor[clawR] = clawPosRight-clawTargetRight > 0 ? clawSpeed : -1 * clawSpeed;
 			} else {
 			motor[clawR] = 0;
 		}
 		wait1Msec(20);
+		if (clawRunning)
+			clawRunning = (abs(clawPosRight-clawTargetRight) > misal) || (abs(clawPosLeft-clawTargetLeft) > misal);
 	} while // They aren't aliged
-		(!(abs(clawPosRight-clawTargetRight) > misal) // Right claw not aligned
-	&& !(abs(clawPosLeft-clawTargetLeft) > misal)); // Left claw not aligned
-	clawRunning = false;
+		(true); // Left claw not aligned
 }
-
 
 void stopClaw() {
 	clawTargetRight = getMotorEncoder(clawL);
@@ -194,6 +194,52 @@ void tempCloseClaw(bool lock) {
 	motor[clawL] = (lock ? 30 : 0);
 	motor[clawR] = (lock ? -30 : 0);
 	wait1Msec(100);
+}
+
+int liftTarget;
+bool liftRunning = false;
+int liftSpeed;
+bool holdUpLift = false;
+
+task adjustLiftPosition() {
+	liftRunning = true;
+	int liftPos;
+	const int misal = 10;
+	do { // align the lift with the target
+		liftPos = SensorValue[potArm];
+		if(abs(liftPos-liftTarget) > misal) {
+			moveLiftWithLogic(((liftPos-liftTarget > 0) ? liftSpeed : liftSpeed * -1), true, true, false);
+		} else {
+			setLiftMotors(holdUpLift ? 30 : 0);
+		}
+		wait1Msec(20);
+		if(liftRunning)
+			liftRunning = abs(liftPos-liftTarget) > misal;
+	} while (true);
+}
+
+void setLift(int target, int speed) {
+	liftRunning = true;
+	liftSpeed = speed;
+	liftTarget = speed;
+}
+
+// Wait for the lift to reach it's target
+void waitForLift() {
+	while (liftRunning)
+		wait1Msec(20);
+}
+
+void stopLift() {
+	setLiftMotors(0);
+}
+
+void stopLiftTask(){
+	stopTask(	adjustLiftPosition );
+}
+
+void startLiftTask() {
+	startTask( adjustLiftPosition );
 }
 
 void moveLiftWithTime(int speed, int time) {
@@ -262,7 +308,7 @@ void runAuton() {
 		motor[clawL] = 30;
 		motor[clawR] = -30;
 		wait1Msec(100);
-		//waitForLift(100);
+		//waitForLiftOld(100);
 		moveLiftWithTime(100,700);
 		lockLift();
 		setLiftMotors(30);
@@ -294,11 +340,11 @@ void runAuton() {
 		breakpoint(); // TODO: REMOVE BEFORE MATCH
 		driveForTime(-100,-100,-100,-100,500); //TODO: Switch to encoders
 		breakpoint(); // TODO: REMOVE BEFORE MATCH
-		waitForLift(100);
+		waitForLiftOld(100);
 		setClaw(500,-127);
 		waitForClaw();
 		breakpoint(); // TODO: REMOVE BEFORE MATCH
-		waitForLift(-100);
+		waitForLiftOld(-100);
 		waitForPid();
 		waitForClaw();*/
 	}
@@ -339,17 +385,17 @@ void runAuton() {
 		tempCloseClaw(true); // Close the claw
 		driveForTime(-70,-70,-70,-70,1250); // Drive at fence
 		wait1Msec(100);
-		waitForLift(100);
+		waitForLiftOld(100);
 		tempOpenClaw(false);
 		for(int i = 0; i < 2; i ++) {
-			waitForLift(-80);
+			waitForLiftOld(-80);
 			wait1Msec(1000);
 			driveForTime(70,70,70,70,750); // Back up
 			wait1Msec(100);
 			tempCloseClaw(true); // Close the claw
 			driveForTime(-70,-70,-70,-70,1250); // Drive at fence
 			wait1Msec(100);
-			waitForLift(100);
+			waitForLiftOld(100);
 			tempOpenClaw(false);
 		}
 		wait1Msec(100);
@@ -358,7 +404,7 @@ void runAuton() {
 		turnToAngle(((sideMult < 0) ? 900 : -900),80*sideMult);
 		wait1Msec(250);
 		breakpoint(); // TODO: REMOVE BEFORE MATCH
-		waitForLift(-80);
+		waitForLiftOld(-80);
 		wait1Msec(100);
 		driveForTime(-70,-70,-70,-70,750); // Drive at cube
 		wait1Msec(100);
