@@ -13,7 +13,7 @@
 #define PID_MOTOR_SCALE     -1
 
 #define PID_DRIVE_MAX       80
-#define PID_DRIVE_MIN     	25
+#define PID_DRIVE_MIN     	40
 
 #define PID_INTEGRAL_LIMIT  50
 
@@ -432,6 +432,10 @@ void pidDriveStraight(long ticksToMove) {
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.09;
+	kP = 0.22; //Proportional Gain
+	kI = 0.25; //Integral Gain
+	kD = 0.00; //Derivitive Gain
+	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
 }
 
@@ -441,6 +445,10 @@ void pidDrivePoint(long ticksToMove) {
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.09;
+	kP = 0.22; //Proportional Gain
+	kI = 0.25; //Integral Gain
+	kD = 0.00; //Derivitive Gain
+	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
 }
 

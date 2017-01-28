@@ -388,9 +388,6 @@ task usercontrol()
 		writeDebugStreamLine("Running Driver Control [Normal]...");
 	}
 
-	setAutonMode(6);
-	runAuton();
-
 	while (true)
 	{
 		//////////////////////////////
