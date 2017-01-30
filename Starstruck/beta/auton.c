@@ -1,7 +1,7 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 7;
+int maxAutonomous = 8;
 int currentMode = minAutonomous;
 
 void waitForLiftOld(int speed);
@@ -461,12 +461,18 @@ void runAuton() {
 		wait1Msec(500);
 		turnToAngle(-100 * sideMult, 127 * sideMult); // Turn to fence
 		waitForPID(); // Wait for drive
-		pidDriveStraight(-700); // Drive to fence
-		waitForPID(); //  for drive
-		setLift(1900,127); // Lift
-		waitForLift(); // Wait for lift
-		setClaw(200,127); // Open claw
-		waitForClaw(); // Wait for claw
+		// TODO Uncomment -----------------------------------------------------------------------------------------------------
+		//pidDriveStraight(-700); // Drive to fence
+		//waitForPID(); //  for drive
+		//setLift(1900,127); // Lift
+		//waitForLift(); // Wait for lift
+		//setClaw(200,127); // Open claw
+		//waitForClaw(); // Wait for claw
+	}
+
+	if(currentMode == 8) {
+		pidDriveStraight(700);
+		waitForPid();
 	}
 	stopClawTask();
 	startTask(manageClaw);

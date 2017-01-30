@@ -377,6 +377,13 @@ task usercontrol()
 	lcdInit(); // Starts all tasks for handling the lcd. Check lcd.c
 
 	/*
+	// Test auton
+	*/
+	//setAutonMode(8);
+	//lcdSetPage(8);
+	//runAuton();
+
+	/*
 	// Claw
 	*/
 	startTask(manageClaw);
