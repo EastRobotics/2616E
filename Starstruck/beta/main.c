@@ -464,7 +464,7 @@ task usercontrol()
 			lastButtonDown = true;
 			moveLiftWithLogic(-127, true, true, overrideLiftBounds);
 			} else {
-			if ((abs(startingAngle-SensorValue[potArm])>400) && (!lastButtonDown)) {
+			if ((abs(startingAngle-SensorValue[potArm])>150) && (!lastButtonDown)) {
 				lockLift();
 				}else{
 				moveLiftWithLogic(0,true,true, overrideLiftBounds);
