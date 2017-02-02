@@ -32,14 +32,39 @@
 //	int: -127 to 127, speed for the back left motor
 //	int: -127 to 127, speed for the front right motor
 //	int: -127 to 127, speed for the back right motor
+
+int leftDriveSpeed = 0;
+int leftDriveTarget = 0;
+int rightDriveSpeed = 0;
+int rightDriveTarget = 0;
+int slewRate = 15;
+
 void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
-	motor[driveFL] = speedFL; // Front left
-	motor[driveBL] = speedBL; // Back left
-	motor[driveFR] = speedFR; // Front right
-	motor[driveBR] = speedBR; // Back right
+	//motor[driveFL] = speedFL; // Front left
+	//motor[driveBL] = speedBL; // Back left
+	//motor[driveFR] = speedFR; // Front right
+	//motor[driveBR] = speedBR; // Back right
+	leftDriveTarget = speedFL;
+	rightDriveTarget = speedFR;
 }
 
-
+task slewDrive() {
+	while (true) {
+		if (leftDriveSpeed != leftDriveTarget) {
+			if (abs(leftDriveSpeed-leftDriveTarget) < slewRate)
+				leftDriveSpeed = leftDriveTarget;
+			else
+				leftDriveSpeed += (leftDriveSpeed > leftDriveTarget) ? -1 * slewRate : slewRate;
+		}
+		if (rightDriveSpeed != rightDriveTarget) {
+			if (abs(rightDriveSpeed-rightDriveTarget) < slewRate)
+				rightDriveSpeed = rightDriveTarget;
+			else
+				rightDriveSpeed += (rightDriveSpeed > rightDriveTarget) ? -1 * slewRate : slewRate;
+		}
+		wait1Msec(20);
+	}
+}
 
 // Set mecanum wheel motor speeds based on forward, turn, and strafe speeds
 // PARAMETERS:
@@ -418,16 +443,16 @@ task taskDrivePid() {
 				// Check if speeds need to be corrected
 				if (straightAssist) {
 					if (abs(straightStartAngle - SensorValue[gyroMain]) > PID_STRAIGHT_THRESH) { // If we need to correct. Goes 5 degrees inward when correcting
-							straightCorrAct=true;
-							if (straightStartAngle - SensorValue[gyroMain] < 0) { // If too far left (pos diff)
-								// Speed the left motors
-									pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain]);
+						straightCorrAct=true;
+						if (straightStartAngle - SensorValue[gyroMain] < 0) { // If too far left (pos diff)
+							// Speed the left motors
+							pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain]);
 							} else { // If too far right (neg diff)
-								// Speed the right motors
-									pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain]);;
+							// Speed the right motors
+							pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain]);;
 						}
-					} else {
-						straightCorrAct = false
+						} else {
+						straightCorrAct = false;
 					}
 					datalogAddValue(0,straightStartAngle);
 					datalogAddValue(1,SensorValue[gyroMain]);
