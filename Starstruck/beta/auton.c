@@ -290,10 +290,12 @@ void runAuton() {
 	writeDebugStreamLine(debug);
 	int sideMult = getAutonPosition() ? 1 : -1; // 1 for right, -1 for left
 	stopTask(manageClaw);
+	stopSlew();
 	stopClaw();
 	stopLift();
 	startClawTask();
 	startLiftTask();
+	startSlewTask();
 	// Mode 1 [Default, Do nothing] ---------------------------------------------
 
 	// Mode 2 [Max Points] ------------------------------------------------------
@@ -471,9 +473,14 @@ void runAuton() {
 	}
 
 	if(currentMode == 8) {
-		pidDriveStraight(700);
+		pidDriveStraight(2000);
+		waitForPid();
+		wait1Msec(5000);
+		pidDriveStraight(-2000);
 		waitForPid();
 	}
 	stopClawTask();
+	stopSlewTask();
 	startTask(manageClaw);
+
 }

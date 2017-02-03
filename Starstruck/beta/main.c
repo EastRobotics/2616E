@@ -10,7 +10,7 @@
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           clawR,         tmotorVex393_HBridge, openLoop, reversed, encoderPort, dgtl2)
 #pragma config(Motor,  port2,           driveFR,       tmotorVex393_MC29, openLoop, reversed, driveLeft, encoderPort, I2C_2)
-#pragma config(Motor,  port3,           driveBR,       tmotorVex393_MC29, openLoop, reversed, driveLeft, encoderPort, dgtl2)
+#pragma config(Motor,  port3,           driveBR,       tmotorVex393_MC29, openLoop, reversed, driveLeft)
 #pragma config(Motor,  port4,           liftR1,        tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port5,           liftYR23,      tmotorVex393_MC29, openLoop)
 #pragma config(Motor,  port6,           liftYL23,      tmotorVex393_MC29, openLoop)
@@ -379,9 +379,9 @@ task usercontrol()
 	/*
 	// Test auton
 	*/
-	//setAutonMode(8);
-	//lcdSetPage(8);
-	//runAuton();
+	setAutonMode(8);
+	lcdSetPage(8);
+	runAuton();
 
 	/*
 	// Claw
@@ -394,6 +394,8 @@ task usercontrol()
 		} else {
 		writeDebugStreamLine("Running Driver Control [Normal]...");
 	}
+
+	startTask( slewDrive );
 
 	while (true)
 	{
@@ -485,7 +487,9 @@ task usercontrol()
 		if(vexRT[Btn7U]) {
 			if(vexRT[Btn7D] && vexRT[Btn7R] && vexRT[Btn7L]) {
 				stopTask(manageClaw);
+				stopSlewTask();
 				runAuton();
+				startSlewTask();
 				startTask(manageClaw);
 			}
 		}

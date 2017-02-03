@@ -62,8 +62,25 @@ task slewDrive() {
 			else
 				rightDriveSpeed += (rightDriveSpeed > rightDriveTarget) ? -1 * slewRate : slewRate;
 		}
+		motor[driveFL] = leftDriveSpeed; // Front left
+		motor[driveBL] = leftDriveSpeed; // Back left
+		motor[driveFR] = rightDriveSpeed; // Front right
+		motor[driveBR] = rightDriveSpeed; // Back right
 		wait1Msec(20);
 	}
+}
+
+void stopSlewTask() {
+	stopTask( slewDrive );
+}
+
+void startSlewTask() {
+	startTask( slewDrive );
+}
+
+void stopSlew() {
+	leftDriveTarget = 0;
+	rightDriveTarget = 0;
 }
 
 // Set mecanum wheel motor speeds based on forward, turn, and strafe speeds
@@ -332,8 +349,8 @@ tMotor motorsToChange[4] = {driveFL,driveFR,driveBR,driveBL};
 bool motorToMotorReverse[4] = {false, false, false, false};
 //long tickTarget[4];
 //Setup the weights for the various stages of pid
-float kP = 0.22; //Proportional Gain
-float kI = 0.25; //Integral Gain
+float kP = 0.05; //Proportional Gain
+float kI = 0.00; //Integral Gain
 float kD = 0.00; //Derivitive Gain
 float kL = 50.0; //Apparently this is there to be the integral limit, I think we missed it when working last time
 
@@ -344,7 +361,6 @@ int pidSensor = -1; // -1 for encoders, port of the sensor to use a sensor
 int pidSensorOffset = 0;  // amount to offset the sensor by (used for gyro turns)
 float pidSensorScale = 1.0;
 bool straightAssist = true;
-bool straightCorrAct = false; // Whether or not we're currently correcting the angle
 int straightStartAngle = 0;
 
 int pidCorrectSpeed(int input) {
@@ -359,7 +375,6 @@ task taskDrivePid() {
 
 	if (straightAssist) {
 		straightStartAngle = SensorValue[gyroMain];
-		straightCorrAct = false;
 	}
 
 	float  pidSensorCurrentValue;
@@ -388,7 +403,7 @@ task taskDrivePid() {
 			// calculate error
 			pidError = pidSensorCurrentValue - pidRequestedValue;
 
-			if (abs(pidError) < 7) {
+			if (abs(pidError) < 14) {
 				motor[ driveFL ] = 0;
 				motor[ driveFR ] = 0;
 				motor[ driveBL ] = 0;
@@ -443,16 +458,21 @@ task taskDrivePid() {
 				// Check if speeds need to be corrected
 				if (straightAssist) {
 					if (abs(straightStartAngle - SensorValue[gyroMain]) > PID_STRAIGHT_THRESH) { // If we need to correct. Goes 5 degrees inward when correcting
-						straightCorrAct=true;
-						if (straightStartAngle - SensorValue[gyroMain] < 0) { // If too far left (pos diff)
-							// Speed the left motors
-							pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain]);
+						if ((straightStartAngle - SensorValue[gyroMain]) < 0) { // If too far left (pos diff)
+							// Speed the left motors (forward)
+							if (pidDrive > 0) {
+								pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain])*4;
+							} else {
+								pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain])*4;
+							}
 							} else { // If too far right (neg diff)
 							// Speed the right motors
-							pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain]);;
+							if(pidDrive > 0) {
+								pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain])*4;
+							} else {
+								pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain])*4;
+							}
 						}
-						} else {
-						straightCorrAct = false;
 					}
 					datalogAddValue(0,straightStartAngle);
 					datalogAddValue(1,SensorValue[gyroMain]);
@@ -469,16 +489,20 @@ task taskDrivePid() {
 				//pidDriveRight = pidCorrectSpeed(pidDriveRight);
 
 				// Set speeds
-				motor[ driveFL ] = pidDriveLeft;
+				/*motor[ driveFL ] = pidDriveLeft;
 				motor[ driveBL ] = pidDriveLeft;
 				motor[ driveFR ] = pidDriveRight;
-				motor[ driveBR ] = pidDriveRight;
+				motor[ driveBR ] = pidDriveRight;*/
+				driveRaw(pidDriveLeft, pidDriveLeft, pidDriveRight, pidDriveRight);
 				datalogDataGroupEnd();
 				} else if (pidMode == 1) { // Point turn
+				/*
 				motor[ driveFL ] = pidDrive;
 				motor[ driveFR ] = pidDrive * -1;
 				motor[ driveBL ] = pidDrive;
 				motor[ driveBR ] = pidDrive * -1;
+				*/
+				driveRaw(pidDrive, pidDrive, pidDrive*-1, pidDrive*-1);
 			}
 		}
 		else
@@ -494,6 +518,7 @@ task taskDrivePid() {
 		wait1Msec( 20 );
 	}
 
+	driveRaw(0,0,0,0);
 	motor[ driveFL ] = 0;
 	motor[ driveFR ] = 0;
 	motor[ driveBL ] = 0;
@@ -507,8 +532,8 @@ void pidDriveStraight(long ticksToMove) {
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.00;
-	kP = 0.09; //Proportional Gain
-	kI = 0.0075; //Integral Gain
+	kP = 0.05103; //Proportional Gain
+	kI = 0.0100; //Integral Gain
 	kD = 0; //Derivitive Gain
 	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
