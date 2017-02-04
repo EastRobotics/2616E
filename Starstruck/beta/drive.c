@@ -627,14 +627,24 @@ void turnToAngle(int degrees, int speed, bool stopMotors = true) {
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 			}
+			if(degrees == 0 || degrees == 3600) {
+				if(stopMotors) {
+					driveRaw(25,25,-25,-25);
+					wait1Msec(250);
+					driveRaw(0,0,0,0);
+				}
+				return;
+			}
 			while(degrees > currentGyroVal) {
 				driveRaw(speed, speed, speed*-1, speed*-1);
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 			}
 		}
-		driveRaw(25,25,-25,-25);
-		wait1Msec(250);
+		if(stopMotors) {
+			driveRaw(25,25,-25,-25);
+			wait1Msec(250);
+		}
 		} else {
 		if(degrees < currentGyroVal) {
 			while(degrees < currentGyroVal) {
@@ -650,14 +660,24 @@ void turnToAngle(int degrees, int speed, bool stopMotors = true) {
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 			}
+			if(degrees==0 || degrees==3600) {
+				if(stopMotors) {
+					driveRaw(-25,-25,25,25);
+					wait1Msec(250);
+					driveRaw(0,0,0,0);
+				}
+				return;
+			}
 			while(degrees < currentGyroVal) {
 				driveRaw(speed,speed,speed*-1,speed*-1);
 				wait1Msec(20);
 				currentGyroVal = tempGyroFix(SensorValue[gyroMain]);
 			}
 		}
-		driveRaw(-25,-25,25,25);
-		wait1Msec(250);
+		if(stopMotors) {
+			driveRaw(-25,-25,25,25);
+			wait1Msec(250);
+		}
 	}
 	if(stopMotors)
 		driveRaw(0,0,0,0);
