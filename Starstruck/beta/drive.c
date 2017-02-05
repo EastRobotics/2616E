@@ -527,27 +527,29 @@ task taskDrivePid() {
 }
 
 void pidDriveStraight(long ticksToMove) {
+	straightAssist = true;
 	pidRequestedValue = ticksToMove;
 	pidMode = 0;
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.00;
-	kP = 0.05103; //Proportional Gain
-	kI = 0.0100; //Integral Gain
+	kP = 0.06; //Proportional Gain
+	kI = 0.000; //Integral Gain
 	kD = 0; //Derivitive Gain
 	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
 }
 
 void pidDrivePoint(long ticksToMove) {
+	straightAssist = false;
 	pidRequestedValue = ticksToMove;
 	pidMode = 1;
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.00;
-	kP = 0.22; //Proportional Gain
-	kI = 0.25; //Integral Gain
-	kD = 0.00; //Derivitive Gain
+	kP = 0.38; //Proportional Gain
+	kI = 0.0; //Integral Gain
+	kD = 0; //Derivitive Gain
 	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
 }

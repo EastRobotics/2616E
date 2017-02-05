@@ -127,7 +127,7 @@ task adjustClawPosition() {
 		}
 		// Right claw
 		if (abs(clawPosRight-clawTargetRight) > misal) {
-				motor[clawR] = clawPosRight-clawTargetRight > 0 ? -1 * localClawSpeed : localClawSpeed;
+			motor[clawR] = clawPosRight-clawTargetRight > 0 ? -1 * localClawSpeed : localClawSpeed;
 			} else {
 			motor[clawR] = 0;
 		}
@@ -216,7 +216,7 @@ task adjustLiftPosition() {
 		int localLiftSpeed = liftRunning ? liftSpeed : 0;
 		if(abs(liftPos-liftTarget) > misal) {
 			moveLiftWithLogic(((liftPos-liftTarget > 0) ? localLiftSpeed * -1 : localLiftSpeed), true, true, false);
-		} else {
+			} else {
 			setLiftMotors(holdUpLift ? 30 : 0);
 		}
 		wait1Msec(20);
@@ -473,11 +473,20 @@ void runAuton() {
 	}
 
 	if(currentMode == 8) {
-		pidDriveStraight(2000);
-		waitForPid();
-		wait1Msec(5000);
-		pidDriveStraight(-2000);
-		waitForPid();
+		pidDriveStraight(-1400); // Back up
+		waitForPID(); // Wait for drive
+		pidDrivePoint(-400 * sideMult); // Turn to the stars
+		waitForPID(); // Wait for drive
+		setClaw(250,127); // Deploy claw
+		waitForClaw(); // Wait for claw
+		wait1Msec(200);
+		driveRaw(100,100,100,100);
+		wait1Msec(400);
+		driveRaw(0,0,0,0);
+		clawClose(500,127); // Unnamed action 9
+		setLift(750,90); // Hover lift
+		waitForLift(); // Wait for lift
+		setLift(750,30); // Stall lift
 	}
 	stopClawTask();
 	stopSlewTask();
