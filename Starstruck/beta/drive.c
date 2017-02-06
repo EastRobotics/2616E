@@ -371,7 +371,7 @@ int pidCorrectSpeed(int input) {
 }
 
 task taskDrivePid() {
-	pidRunning = true;
+/*	pidRunning = true;
 
 	if (straightAssist) {
 		straightStartAngle = SensorValue[gyroMain];
@@ -488,20 +488,10 @@ task taskDrivePid() {
 				//pidDriveLeft = pidCorrectSpeed(pidDriveLeft);
 				//pidDriveRight = pidCorrectSpeed(pidDriveRight);
 
-				// Set speeds
-				/*motor[ driveFL ] = pidDriveLeft;
-				motor[ driveBL ] = pidDriveLeft;
-				motor[ driveFR ] = pidDriveRight;
-				motor[ driveBR ] = pidDriveRight;*/
 				driveRaw(pidDriveLeft, pidDriveLeft, pidDriveRight, pidDriveRight);
 				datalogDataGroupEnd();
 				} else if (pidMode == 1) { // Point turn
-				/*
-				motor[ driveFL ] = pidDrive;
-				motor[ driveFR ] = pidDrive * -1;
-				motor[ driveBL ] = pidDrive;
-				motor[ driveBR ] = pidDrive * -1;
-				*/
+
 				driveRaw(pidDrive, pidDrive, pidDrive*-1, pidDrive*-1);
 			}
 		}
@@ -524,6 +514,33 @@ task taskDrivePid() {
 	motor[ driveBL ] = 0;
 	motor[ driveBR ] = 0;
 	pidRunning = false;
+	*/
+
+	nMotorEncoder[driveBL] = 0;
+	float leftPower;
+	float rightPower;
+	int power;
+	int turningFactor;
+
+	if (straightAssist) {
+		straightStartAngle = SensorValue[gyroMain];
+	}
+
+	while(true) {
+		//if(distance < 30)
+		//	break;
+		power = (distance - nMotorEncoder[driveBL]) * 1.0;
+		if(straightAssist)
+			turningFactor = SensorValue[gyroMain] * kP * ((power < 30) ? 0.5 : 1.0);
+		else
+			turningFactor = 0;
+		leftPower = power + turningFactor;
+		rightPower = power - turningFactor;
+		if(pidMode == 1)
+			rightPower *= -1;
+		driveRaw(leftPower, leftPower, rightPower, rightPower);
+	}
+	driveRaw(0,0,0,0);
 }
 
 void pidDriveStraight(long ticksToMove) {
