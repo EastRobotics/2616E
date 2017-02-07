@@ -1,7 +1,7 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 8;
+int maxAutonomous = 10;
 int currentMode = minAutonomous;
 
 void waitForLiftOld(int speed);
@@ -341,7 +341,7 @@ void runAuton() {
 	// Mode 3 [Compat] ----------------------------------------------------------
 	if (currentMode == 3) {
 		wait1Msec(5000);
-		driveForTime(70,70,70,70,750); // Drive at stuff
+		driveForTime(70,70,70,70,+750); // Drive at stuff
 		wait1Msec(100);
 		driveForTime(-70,-70,-70,-70,500); // Back up
 		wait1Msec(100);
@@ -392,7 +392,8 @@ void runAuton() {
 			waitForClaw();
 		}
 		wait1Msec(100);
-		driveForTime(70,70,70,70,250); // Back up
+		breakpoint(); //////////
+		/*driveForTime(70,70,70,70,250); // Back up
 		turnToAngle(450,-127);
 		breakpoint();
 		driveForTime(70,70,70,70,1000);
@@ -408,7 +409,33 @@ void runAuton() {
 		setClaw(300,127);
 		waitForClaw();
 		breakpoint();
-		driveForTime(70,70,70,70,250);
+		driveForTime(70,70,70,70,250);*/
+		pidDriveStraight(-3000); // Drive to fence
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		setClaw(200,127); // Unnamed action 15`
+		waitForClaw(); // Wait for claw
+		breakpoint(); /////////////////////////////////
+		setLift(600,127); // Lower lift
+		setClaw(250,127); // Reset claw
+		waitForLift(); // Wait for lift
+		waitForClaw(); // Wait for claw
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(500); // Back up
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		turnToAngle(-900 * sideMult, 127 * sideMult); // Turn to stars
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(2500); // Back towards stars
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		clawClose(500,127); // Close claw
+		setLift(700,127); // Hover lift
+		waitForLift(); // Wait for lift
+		setLift(700,30); // Lock lift
+		breakpoint(); /////////////////////////////////
+		pidDrivePoint(-469 * sideMult); // Turn to wall
 	}
 
 	// Mode 6 [PID Tuning] -----------------------------------------------------
@@ -475,7 +502,7 @@ void runAuton() {
 	if(currentMode == 8) {
 		pidDriveStraight(-1400); // Back up
 		waitForPID(); // Wait for drive
-		pidDrivePoint(-400 * sideMult); // Turn to the stars
+		pidDrivePoint(-250 * sideMult); // Turn to the stars
 		waitForPID(); // Wait for drive
 		setClaw(250,127); // Deploy claw
 		waitForClaw(); // Wait for claw
@@ -487,6 +514,180 @@ void runAuton() {
 		setLift(750,90); // Hover lift
 		waitForLift(); // Wait for lift
 		setLift(750,30); // Stall lift
+		turnToAngle(100 * sideMult, -127 * sideMult);
+		pidDriveStraight(2000);
+		waitForPid();
+		setLift(1900,127);
+		waitForLift();
+		setClaw(300,127);
+		waitForClaw();
+	}
+
+	if(currentMode == 9) {
+		pidDriveStraight(-1560); // Drive forward
+		waitForPID(); // Wait for drive
+		setClaw(300,127); // Open claw
+		breakpoint(); ///////////////////////////////
+		waitForClaw(); // Wait for claw
+		pidDriveStraight(450); // Drive to stars
+		wait1MSec(200); // Delay claw close
+		clawClose(500,127); // Close claw
+		waitForPID(); // Wait for drive
+		breakpoint(); ///////////////////////////////
+		pidDriveStraight(-1550); // Drive to fence
+		waitForPID(); // Wait for drive
+		setLift(1900,127); // Lift stars
+		waitForLift(); // Wait for lift
+		breakpoint(); /////////////////////////////////
+		setClaw(300,127); // Open claw
+		waitForClaw(); // Wait for claw
+		setLift(600,127); // Lower Lift
+		waitForLift(); // Wait for lift
+		breakpoint(); /////////////////////////////////
+		turnToAngle(-900 * sideMult, 100 * sideMult); // Turn to wall
+		setClaw(200,127); // Narrow claw
+		pidDriveStraight(4800); // Back towards star group
+		waitForPID(); // Wait for drive
+		clawClose(500,127); // Close claw
+		breakpoint(); /////////////////////////////////
+		setLift(1500,127); // Lift stars
+		turnToAngle(0 * sideMult, -127 * sideMult); // Turn to fence
+		setLift(1900,127); // Finish lift motion
+		waitForLift(); // Wait for lift
+		breakpoint(); /////////////////////////////////
+		setClaw(300,127); // Open claw
+		waitForClaw(); // Wait for claw
+		setLift(600,127); // Lower lift
+		turnToAngle(120 * sideMult, -100 * sideMult); // Turn to cube
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(1700); // Drive to cube
+		clawClose(500,127); // Close claw
+		setLift(1500,127); // Lift cube
+		turnToAngle(0 * sideMult, 0 * sideMult); // Turn to fence
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(-1640); // Drive to fence
+		waitForLift(); // Wait for lift
+		waitForPID(); // Wait for drive
+		setLift(1900,127); // Finish lift movement
+		setClaw(250,127); // Open claw
+		waitForClaw(); // Wait for claw
+		breakpoint(); /////////////////////////////////
+		setLift(600,127); // Lower lift
+		pidDriveStraight(2400); // Drive to wall
+		waitForLift(); // Wait for lift
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		turnToAngle(900 * sideMult, -127 * sideMult); // Turn to stars
+		pidDriveStraight(5000); // Drive through stars
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		clawClose(750,0); // Close claw
+		wait1MSec(500); // Hold claw
+		turnToAngle(550 * sideMult, 127 * sideMult); // Turn to corner
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(-640); // Back up
+		waitForPID(); // Wait for drive
+		turnToAngle(0 * sideMult, 0 * sideMult); // Turn to fence
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(-2050); // Drive to fence
+		waitForPID(); // Wait for drive
+		setLift(1900,127); // Lift stars
+		waitForLift(); // Wait for lift
+		setClaw(300,127); // Open claw
+		waitForClaw(); // Wait for claw
+		breakpoint(); /////////////////////////////////
+		setLift(600,127); // Lower lift
+		pidDriveStraight(1700); // Drive to start
+		waitForLift(); // Wait for lift
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		clawClose(500,0); // Close claw
+		pidDriveStraight(-1700); // Drive to fence
+		waitForPID(); // Wait for drive
+		setLift(1900,127); // Lift cube
+		waitForLift(); // Wait for lift
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(0); // Open claw
+		waitForClaw(); // Wait for claw
+		setLift(600,127); // Lower lift
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(1700); // Drive to cube
+		waitForLift(); // Wait for lift
+		waitForPID(); // Wait for drive
+		clawClose(500,0); // Close claw
+		breakpoint(); /////////////////////////////////
+		setLift(1200,127); // Partially lift cube
+		turnToAngle(350 * sideMult, 0 * sideMult); // Turn to center
+		breakpoint(); /////////////////////////////////
+		pidDriveStraight(-1800); // Drive to center
+		waitForLift(); // Wait for lift
+		waitForPID(); // Wait for drive
+		breakpoint(); /////////////////////////////////
+		setLift(1900,127); // Lift cube
+		waitForLift(); // Wait for lift
+		setClaw(300,127); // Open claw
+		waitForClaw(); // Wait for claw
+		breakpoint(); /////////////////////////////////
+		setLift(1400,95); // Lower lift (slightly)
+		turnToAngle(-450 * sideMult, 0 * sideMult); // Turn to center cube
+		breakpoint(); /////////////////////////////////
+		setLift(600,127); // Lower lift (fully)
+		waitForLift(); // Wait for lift
+		clawClose(500,0); // Close claw
+		setLift(1500,127); // Raise lift
+		breakpoint(); /////////////////////////////////
+		wait1MSec(200); // Wait for some lift movement
+		turnToAngle(0 * sideMult, -127 * sideMult); // Turn to fence
+		breakpoint(); /////////////////////////////////
+		setLift(1900,127); // Lift cube over
+		waitForLift(); // Wait for lift
+		setClaw(300,127); // Open claw
+		waitForClaw(); // Wait for claw
+	}
+
+	if(currentMode == 10) {
+		pidDriveStraight(-2200); // Drive to cube
+		waitForPID(); // Wait for drive
+		pidDrivePoint(500 * sideMult); // Turn to cube
+		waitForPid(); // Wait for drive
+		wait1Msec(600); // Delay Deploy
+		setClaw(300,127); // Deploy claw
+		waitForClaw(); // Wait for claw
+		wait1MSec(100); // Delay close claw
+		clawClose(500,127); // Close claw
+		setLift(1000,127); // Hover lift
+		waitForLift(); // Wait for lift
+		turnToAngle(-350 * sideMult, -127 * sideMult); // Turn to fence
+		setLift(1900,127); // Lift cube
+		waitForLift(); // Wait for lift
+		setClaw(300,127); // Open claw
+		waitForClaw(); // Wait for claw
+		breakpoint(); //////////////////////////
+		setLift(1000,127); // Lower lift
+		wait1MSec(200); // Delay turn
+		pidDrivePoint(234 * sideMult); // Turn to stars... sort  of
+		waitForPid(); // Wait for drive
+		/*breakpoint(); //////////////////////////
+		waitForLift(); // Wait for lift
+		pidDriveStraight(1400); // Back up
+		breakpoint(); //////////////////////////
+		pidDrivePoint(-234 * sideMult); // Turn to stars
+		waitForPID(); // Wait for drive
+		*/
+		breakpoint(); //////////////////////////
+		driveForTime(127,127,127,127,500); // Backup
+		waitForPID(); // Wait for drive
+		clawClose(500,127); // Close claw
+		breakpoint(); //////////////////////////
+		pidDriveStraight(-1500); // Drive to fence
+		waitForPID(); // Wait for drive
+		setLift(1900,127); // Raise lift
+		waitForLift(); // Wait for lift
+		setClaw(500,127); // Open claw (wide)
+		breakpoint(); //////////////////////////
+		waitForClaw(); // Wait for claw
+		waitForLift(); // Wait for lift
+		waitForPID(); // Wait for drive
 	}
 	stopClawTask();
 	stopSlewTask();
