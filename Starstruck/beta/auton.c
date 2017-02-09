@@ -1,7 +1,7 @@
 bool position = false; // False for left, true for right
 bool color = false; // False for red, true for blue
 int minAutonomous = 1;
-int maxAutonomous = 10;
+int maxAutonomous = 11;
 int currentMode = minAutonomous;
 
 void waitForLiftOld(int speed);
@@ -688,6 +688,11 @@ void runAuton() {
 		waitForClaw(); // Wait for claw
 		waitForLift(); // Wait for lift
 		waitForPID(); // Wait for drive
+	}
+
+	if(currentMode == 11) {
+		pidDriveStraight(2000);
+		waitForPid();
 	}
 	stopClawTask();
 	stopSlewTask();

@@ -379,10 +379,10 @@ task usercontrol()
 	/*
 	// Test auton
 	*/
-	//setAutonMode(8);
-	//lcdSetPage(8);
+	setAutonMode(11);
+	lcdSetPage(8);
 	setAutonPosition(true); // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	//runAuton();
+	runAuton();
 
 	/*
 	// Claw

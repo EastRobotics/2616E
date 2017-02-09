@@ -371,7 +371,7 @@ int pidCorrectSpeed(int input) {
 }
 
 task taskDrivePid() {
-/*	pidRunning = true;
+	pidRunning = true;
 
 	if (straightAssist) {
 		straightStartAngle = SensorValue[gyroMain];
@@ -403,7 +403,7 @@ task taskDrivePid() {
 			// calculate error
 			pidError = pidSensorCurrentValue - pidRequestedValue;
 
-			if (abs(pidError) < 14) {
+			/* if (abs(pidError) < 14) {
 				motor[ driveFL ] = 0;
 				motor[ driveFR ] = 0;
 				motor[ driveBL ] = 0;
@@ -411,7 +411,7 @@ task taskDrivePid() {
 				writeDebugStream("I finished brah");
 				pidRunning = false;
 				break;
-			}
+			} */
 			// integral - if Ki is not 0
 			if( kI != 0 )
 			{
@@ -461,16 +461,20 @@ task taskDrivePid() {
 						if ((straightStartAngle - SensorValue[gyroMain]) < 0) { // If too far left (pos diff)
 							// Speed the left motors (forward)
 							if (pidDrive > 0) {
-								pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain])*4;
+								pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain]);
+								pidDriveRight -= abs(straightStartAngle - SensorValue[gyroMain]);
 							} else {
-								pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain])*4;
+								pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain]);
+								pidDriveLeft -= abs(straightStartAngle - SensorValue[gyroMain]);
 							}
 							} else { // If too far right (neg diff)
 							// Speed the right motors
 							if(pidDrive > 0) {
-								pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain])*4;
+								pidDriveRight += abs(straightStartAngle - SensorValue[gyroMain]);
+								pidDriveLeft -= abs(straightStartAngle - SensorValue[gyroMain]);
 							} else {
-								pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain])*4;
+								pidDriveLeft += abs(straightStartAngle - SensorValue[gyroMain]);
+								pidDriveRight -= abs(straightStartAngle - SensorValue[gyroMain]);
 							}
 						}
 					}
@@ -514,33 +518,44 @@ task taskDrivePid() {
 	motor[ driveBL ] = 0;
 	motor[ driveBR ] = 0;
 	pidRunning = false;
-	*/
-
+	/*
 	nMotorEncoder[driveBL] = 0;
 	float leftPower;
 	float rightPower;
 	int power;
 	int turningFactor;
+	float powerMult = 0.13;
+	int topSpeed = ((pidRequestedValue - nMotorEncoder[driveBL]) * powerMult > 100) ? 100 : ((pidRequestedValue - nMotorEncoder[driveBL]) * powerMult);
 
 	if (straightAssist) {
 		straightStartAngle = SensorValue[gyroMain];
 	}
 
 	while(true) {
-		//if(distance < 30)
+		datalogDataGroupStart();
+		//if(abs(pidRequestedValue - nMotorEncode[driveBL]) < 30)
 		//	break;
-		power = (distance - nMotorEncoder[driveBL]) * 1.0;
+		power = (pidRequestedValue - nMotorEncoder[driveBL]) * powerMult;
 		if(straightAssist)
-			turningFactor = SensorValue[gyroMain] * kP * ((power < 30) ? 0.5 : 1.0);
+			turningFactor = ((SensorValue[gyroMain]) * kP);
 		else
 			turningFactor = 0;
+		if(power > topSpeed)
+			power = topSpeed;
 		leftPower = power + turningFactor;
 		rightPower = power - turningFactor;
 		if(pidMode == 1)
 			rightPower *= -1;
 		driveRaw(leftPower, leftPower, rightPower, rightPower);
+		datalogAddValue(0,power);
+		datalogAddValue(1,leftPower);
+		datalogAddValue(2,rightPower);
+		datalogAddValue(3,SensorValue[gyroMain]);
+		datalogAddValue(4,turningFactor);
+		datalogDataGroupEnd();
 	}
 	driveRaw(0,0,0,0);
+	*/
 }
 
 void pidDriveStraight(long ticksToMove) {
@@ -549,8 +564,8 @@ void pidDriveStraight(long ticksToMove) {
 	pidMode = 0;
 	pidSensor = -1;
 	pidSensorOffset = 0;
-	pidSensorScale = 1.00;
-	kP = 0.06; //Proportional Gain
+	pidSensorScale = 0.80;
+	kP = 0.05; //Proportional Gain
 	kI = 0.000; //Integral Gain
 	kD = 0; //Derivitive Gain
 	kL = 50.0; //Integral Limit
