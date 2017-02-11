@@ -425,16 +425,6 @@ task taskDrivePid() {
 			pidDrive = (kP * pidError) + (kI * pidIntegral) + (kD * pidDerivative);
 			pidDrive *= PID_MOTOR_SCALE;
 
-			if (abs(pidError) < 10) {
-					int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);;
-					driveRaw(breakSpeed,breakSpeed,breakSpeed,breakSpeed);
-					wait1Msec(75);
-					driveRaw(0,0,0,0);
-					writeDebugStream("I finished brah");
-					pidRunning = false;
-					break;
-			}
-
 			// limit drive
 			pidDrive = pidCorrectSpeed(pidDrive);
 
@@ -451,6 +441,7 @@ task taskDrivePid() {
 
 			int pidDriveLeft = pidDrive;
 			int pidDriveRight = pidDrive;
+			int breakCount = 0;
 			// send to motor
 			if (pidMode == 0) { // Normal drive
 				datalogDataGroupStart();
@@ -474,6 +465,16 @@ task taskDrivePid() {
 					datalogAddValue(5,turningFactor);
 				}
 
+				if (abs(pidError) < 10) {
+					int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);
+					driveRaw(breakSpeed,breakSpeed,breakSpeed,breakSpeed);
+					wait1Msec(75);
+					driveRaw(0,0,0,0);
+					writeDebugStream("I finished brah");
+					pidRunning = false;
+					break;
+				}
+
 				// Linearize speeds
 				pidDriveLeft = (pidDriveLeft > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDriveLeft), 15, 0);
 				pidDriveRight = (pidDriveRight > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDriveRight), 15, 0);
@@ -483,6 +484,31 @@ task taskDrivePid() {
 				datalogDataGroupEnd();
 				} else if (pidMode == 1) { // Point turn
 				// Linearize speeds
+				datalogAddValue(2,pidDrive);
+				datalogAddValue(6,abs(pidError)/5);
+				datalogAddValue(1,SensorValue[gyroMain]/10);
+
+				if (abs(pidError) < 10) {
+					int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);
+					driveRaw(breakSpeed,breakSpeed,breakSpeed*-1,breakSpeed*-1);
+					wait1Msec(3000);
+					driveRaw(0,0,0,0);
+					writeDebugStream("I finished brah");
+					pidRunning = false;
+					break;
+					//breakCount++;
+				}
+
+				if(breakCount >= 20) {
+					/*int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);
+					driveRaw(breakSpeed,breakSpeed,breakSpeed*-1,breakSpeed*-1);
+					wait1Msec(75);
+					driveRaw(0,0,0,0);
+					writeDebugStream("I finished brah");
+					pidRunning = false;
+					break;*/
+				}
+
 				pidDrive = (pidDrive > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDrive), 15, 0);
 
 				driveRaw(pidDrive, pidDrive, pidDrive*-1, pidDrive*-1);
@@ -533,9 +559,9 @@ void pidDrivePoint(long ticksToMove) {
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.00;
-	kP = 0.38; //Proportional Gain
+	kP = 1.5; //Proportional Gain
 	kI = 0.0; //Integral Gain
-	kD = -0.75; //Derivitive Gain
+	kD = 0.9; //Derivitive Gain
 	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
 }
