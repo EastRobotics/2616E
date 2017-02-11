@@ -467,9 +467,18 @@ task taskDrivePid() {
 
 				if (abs(pidError) < 10) {
 					int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);
-					driveRaw(breakSpeed,breakSpeed,breakSpeed,breakSpeed);
-					wait1Msec(75);
-					driveRaw(0,0,0,0);
+					stopSlewTask();
+					motor[driveFL] = breakSpeed; // Front left
+					motor[driveBL] = breakSpeed; // Back left
+					motor[driveFR] = breakSpeed; // Front right
+					motor[driveBR] = breakSpeed; // Back right
+					wait1Msec(100);
+					motor[driveFL] = 0; // Front left
+					motor[driveBL] = 0; // Back left
+					motor[driveFR] = 0; // Front right
+					motor[driveBR] = 0; // Back right
+					startSlewTask();
+					break;
 					writeDebugStream("I finished brah");
 					pidRunning = false;
 					break;
@@ -488,13 +497,19 @@ task taskDrivePid() {
 				datalogAddValue(6,abs(pidError)/5);
 				datalogAddValue(1,SensorValue[gyroMain]/10);
 
-				if (abs(pidError) < 10) {
-					int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);
-					driveRaw(breakSpeed,breakSpeed,breakSpeed*-1,breakSpeed*-1);
-					wait1Msec(3000);
-					driveRaw(0,0,0,0);
-					writeDebugStream("I finished brah");
-					pidRunning = false;
+				if (abs(pidError) < 20) {
+					int breakSpeed = 65 * (pidError > 0 ? 1 : -1);
+					stopSlewTask();
+					motor[driveFL] = breakSpeed; // Front left
+					motor[driveBL] = breakSpeed; // Back left
+					motor[driveFR] = breakSpeed*-1; // Front right
+					motor[driveBR] = breakSpeed*-1; // Back right
+					wait1Msec(100);
+					motor[driveFL] = 0; // Front left
+					motor[driveBL] = 0; // Back left
+					motor[driveFR] = 0; // Front right
+					motor[driveBR] = 0; // Back right
+					startSlewTask();
 					break;
 					//breakCount++;
 				}
@@ -559,9 +574,9 @@ void pidDrivePoint(long ticksToMove) {
 	pidSensor = -1;
 	pidSensorOffset = 0;
 	pidSensorScale = 1.00;
-	kP = 1.5; //Proportional Gain
+	kP = 2.45; //Proportional Gain
 	kI = 0.0; //Integral Gain
-	kD = 0.9; //Derivitive Gain
+	kD = 0.8; //Derivitive Gain
 	kL = 50.0; //Integral Limit
 	startTask(taskDrivePid);
 }

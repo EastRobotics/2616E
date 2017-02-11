@@ -691,7 +691,7 @@ void runAuton() {
 	}
 
 	if(currentMode == 11) {
-		//pidDriveStraight(2000);
+		//pidDriveStraight(-2000);
 		pidDrivePoint(234 * sideMult);
 		waitForPid();
 	}
