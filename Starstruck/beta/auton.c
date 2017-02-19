@@ -167,7 +167,7 @@ void setClaw(int target, int speed) {
 void clawClose(int ms, int speed) {
 	setClaw(-100, speed); // Try and close the claw
 	int timeGone = 0;
-	while (timeGone < ms || pidRunning) { // While we still have time or haven't reached 0ms
+	while (timeGone < ms || clawRunning) { // While we still have time or haven't reached 0ms
 		wait1Msec(10);
 		timeGone += 10;
 	}
