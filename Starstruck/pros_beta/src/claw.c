@@ -98,7 +98,7 @@ void manageClaw(void * ignored) {
 
     // Sitting still or autonomous control
     if (clawMode == 1 || buttonDirection == 0) {
-      // If there's no position set yet, hold current
+      // If there's no position set yet, grab the current
       if (clawLastPosLeft == 0) {
         clawLastPosLeft = clawPosLeft;
         clawLastPosRight = clawPosRight;

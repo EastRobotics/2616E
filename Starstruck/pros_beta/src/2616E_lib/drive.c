@@ -8,6 +8,7 @@
 
 unsigned char driveFL, driveBL, driveFR, driveBR;
 bool driveFLReverse, driveBLReverse, driveFRReverse, driveBRReverse;
+bool slewRate = 0;
 
 /*
 ** Sets the drive motors we're using. This makes it so we don't need to provide
@@ -88,7 +89,6 @@ void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
   // Set drive back  right
   driveIfValid(driveBR, speedBR * (driveBRReverse ? -1 : 1), "driveBR");
 }
-
 
 /*
 ** Sets the drive motors based on forward and turn speed. This is for tank
@@ -198,4 +198,32 @@ void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
 
 	driveHolonomic(multipliedSpeedForward, multipliedSpeedTurn,
     multipliedSpeedStrafe); // Pass off the checked values to drive
+}
+
+// Enables slew rate, limiting speed change to _slewRate every update cycle
+// PARAMETERS:
+//	int: Amount of speed change allowed every 20ms
+void enableSlew(int _slewRate) {
+  slewRate = _slewRate;
+}
+
+// Disables slew rate code
+void disableSlew() {
+  slewRate = 0;
+}
+
+// Returns a speed based on the last speed and set slew rate
+// PARAMETERS:
+//	int: The current speed of the drive
+//  int: The target speed of the drive
+// RETURNS:
+//  int: The slewed speed to set the motors to
+int slew(int currentSpeed, int targetSpeed) {
+  // If slew rate is off or we are closer to the target than slewRate
+  if (slewRate == 0 || abs(currentSpeed-targetSpeed) < slewRate)
+    return targetSpeed; // Return the target
+  else // We need to slew
+    // Add positive or negative slewRate to the given speed and return it
+  	return currentSpeed += (currentSpeed > targetSpeed)
+  ? -1 * slewRate : slewRate;
 }
