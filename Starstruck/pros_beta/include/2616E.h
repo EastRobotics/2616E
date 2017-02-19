@@ -18,21 +18,128 @@ extern "C" {
 ** Methods from drive.c
 */
 
-  void driveInit(unsigned char, unsigned char, unsigned char, unsigned char);
+  /*
+  ** Sets the drive motors we're using. This makes it so we don't need to provide
+  ** the ports every time we want to do any drive methods.
+  **
+  ** PARAMETERS:
+  **   unsigned char: Front left  drive motor port
+  **   unsigned char: Back  left  drive motor port
+  **   unsigned char: Front right drive motor port
+  **   unsigned char: Back  right drive motor port
+  */
+  void driveInit(unsigned char _driveFL, unsigned char _driveBL, unsigned char _driveFR, unsigned char _driveBR);
 
-  void driveSetReverse(bool, bool, bool, bool);
+  /*
+  ** Sets whether each drive motor should be reverse or not
+  **
+  ** PARAMETERS:
+  **   bool: Front left  drive motor reverse
+  **   bool: Back  left  drive motor reverse
+  **   bool: Front right drive motor reverse
+  **   bool: Back  right drive motor reverse
+  */
+  void driveSetReverse(bool _driveFLReverse, bool _driveBLReverse, bool _driveFRReverse, bool _driveBRReverse);
 
-  void driveIfValid(unsigned char, int, const char*);
+  /*
+  ** Sets the given motor's speed, assuming the motor is valid. Otherwise, an
+  ** error is output to the console.
+  **
+  ** PARAMETERS:
+  **   unsigned char: Motor port to be set
+  **   int: The speed of the motor, -127 to 127
+  **   const char *: String to represent motor in console output if invalid
+  **
+  ** OPTIONAL PARAMETERS:
+  **   const char *: Text representation of motor, used for error message
+  **
+  ** NOTES:
+  **   Calls to printf can be taxing, so try to not have any erroneous calls
+  */
+  void driveIfValid(unsigned char motor, int speed, const char *string);
 
-  void driveRaw(int, int, int, int);
+  /*
+  ** Directly sets the motor speeds, checking to make sure the motors have been
+  ** set. Base method for most other drive methods.
+  **
+  ** PARAMETERS:
+  **   int: The speed of the front left  motor, -127 to 127
+  **   int: The speed of the back  left  motor, -127 to 127
+  **   int: The speed of the front right motor, -127 to 127
+  **   int: The speed of the back  right motor, -127 to 127
+  */
+  void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR);
 
-  void drive(int, int);
+  /*
+  ** Sets the drive motors based on forward and turn speed. This is for tank
+  ** style drives. Use driveHolonomic() for x-drive and mecanum style drives.
+  **
+  ** PARAMETERS:
+  **   int: The speed/rate to move, -127 (backward) to 127 (forward)
+  **   int: The speed/rate to turn, -127 (left)     to 127 (right)
+  */
+  void drive(int speedForward, int speedTurn);
 
-  void driveTank(int, int);
+  /*
+  ** Sets left and right side drive speeds. Very basic drive style, and it's
+  ** suggested to use drive() for normal driving. Made for tank style drives.
 
-  void driveHolonomic(int, int, int);
+  ** PARAMETERS:
+  **   int: The speed for left  drive, -127 (backward) to 127 (forward)
+  **   int: The speed for right drive, -127 (backward) to 127 (forward)
+  */
+  void driveTank(int speedLeft, int speedRight);
 
-  void driveHolonomicWithLogic(int, int, int);
+  /*
+  ** Sets the drive motors based on forward, turn, and strafe speed. This is for
+  ** holonomic drives like x-drives and mecanum. Use drive() for tank drives.
+  **
+  ** PARAMETERS:
+  **   int: The speed/rate to move,   -127 (backward) to 127 (forward)
+  **   int: The speed/rate to turn,   -127 (left)     to 127 (right)
+  **   int: The speed/rate to strafe, -127 (left)     to 127 (right)
+  */
+  void driveHolonomic(int speedForward, int speedTurn, int speedStrafe);
+
+  // Drive with checks to rule out errors with joystick controls
+  // NOTES:
+  // 	Multipliers should always be (0 <= x <= 1.0). This avoids going too fast
+  // or slow and going out of proportion
+  // PARAMETERS:
+  //	int: -127 to 127, speed to drive forward or backward respectively
+  //	int: -127 to 127, speed to turn left or right respectively
+  //	int: -127 to 127, speed to strafe left or right respectively
+  //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
+  //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
+  //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
+  void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe);
+
+  // Enables slew rate, limiting speed change to _slewRate every update cycle
+  // PARAMETERS:
+  //	int: Amount of speed change allowed every 20ms
+  void enableSlew(int _slewRate);
+
+  // Disables slew rate code
+  void disableSlew();
+
+  // Returns a speed based on the last speed and set slew rate
+  // PARAMETERS:
+  //	int: The current speed of the drive
+  //  int: The target speed of the drive
+  // RETURNS:
+  //  int: The slewed speed to set the motors to
+  int slew(int currentSpeed, int targetSpeed);
+
+  /*
+  ** Calls driveRaw with slewed speeds, using slew rate set by enableSlew
+  **
+  ** PARAMETERS:
+  **   int: The target speed of the front left  motor, -127 to 127
+  **   int: The target speed of the back  left  motor, -127 to 127
+  **   int: The target speed of the front right motor, -127 to 127
+  **   int: The target speed of the back  right motor, -127 to 127
+  */
+  void driveRawSlew(int speedFL, int speedBL, int speedFR, int speedBR);
 
 /*
 ** Methods from autonswitch.c
