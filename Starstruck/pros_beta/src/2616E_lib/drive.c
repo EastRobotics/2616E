@@ -101,6 +101,44 @@ void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
   driveIfValid(driveBR, speedBR * (driveBRReverse ? -1 : 1), "driveBR");
 }
 
+// Enables slew rate, limiting speed change to _slewRate every update cycle
+// PARAMETERS:
+//	int: Amount of speed change allowed every 20ms
+void enableSlew(int _slewRate) { slewRate = _slewRate; }
+
+// Disables slew rate code
+void disableSlew() { slewRate = 0; }
+
+// Returns a speed based on the last speed and set slew rate
+// PARAMETERS:
+//	int: The current speed of the drive
+//  int: The target speed of the drive
+// RETURNS:
+//  int: The slewed speed to set the motors to
+int slew(int currentSpeed, int targetSpeed) {
+  // If slew rate is off or we are closer to the target than slewRate
+  if (slewRate == 0 || abs(currentSpeed - targetSpeed) < slewRate)
+    return targetSpeed; // Return the target
+  else                  // We need to slew
+    // Add positive or negative slewRate to the given speed and return it
+    return currentSpeed +=
+           (currentSpeed > targetSpeed) ? -1 * slewRate : slewRate;
+}
+
+/*
+** Calls driveRaw with slewed speeds, using slew rate set by enableSlew
+**
+** PARAMETERS:
+**   int: The target speed of the front left  motor, -127 to 127
+**   int: The target speed of the back  left  motor, -127 to 127
+**   int: The target speed of the front right motor, -127 to 127
+**   int: The target speed of the back  right motor, -127 to 127
+*/
+void driveRawSlew(int speedFL, int speedBL, int speedFR, int speedBR) {
+  driveRaw(slew(lastDriveFL, speedFL), slew(lastDriveBL, speedBL),
+           slew(lastDriveFR, speedFR), slew(lastDriveBR, speedBR));
+}
+
 /*
 ** Sets the drive motors based on forward and turn speed. This is for tank
 ** style drives. Use driveHolonomic() for x-drive and mecanum style drives.
@@ -114,7 +152,7 @@ void drive(int speedForward, int speedTurn) {
   int speedBL = speedForward - speedTurn;
   int speedFR = speedForward + speedTurn;
   int speedBR = speedForward + speedTurn;
-  driveRaw(speedFL, speedBL, speedFR, speedBR);
+  driveRawSlew(speedFL, speedBL, speedFR, speedBR);
 }
 
 /*
@@ -126,7 +164,7 @@ void drive(int speedForward, int speedTurn) {
 **   int: The speed for right drive, -127 (backward) to 127 (forward)
 */
 void driveTank(int speedLeft, int speedRight) {
-  driveRaw(speedLeft, speedLeft, speedRight, speedRight);
+  driveRawSlew(speedLeft, speedLeft, speedRight, speedRight);
 }
 
 /*
@@ -143,7 +181,7 @@ void driveHolonomic(int speedForward, int speedTurn, int speedStrafe) {
   int speedBL = speedForward + speedTurn - speedStrafe;
   int speedFR = speedForward - speedTurn - speedStrafe;
   int speedBR = speedForward - speedTurn + speedStrafe;
-  driveRaw(speedFL, speedBL, speedFR, speedBR);
+  driveRawSlew(speedFL, speedBL, speedFR, speedBR);
 }
 
 // Drive with checks to rule out errors with joystick controls
@@ -212,42 +250,4 @@ void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
 
   driveHolonomic(multipliedSpeedForward, multipliedSpeedTurn,
                  multipliedSpeedStrafe); // Pass off the checked values to drive
-}
-
-// Enables slew rate, limiting speed change to _slewRate every update cycle
-// PARAMETERS:
-//	int: Amount of speed change allowed every 20ms
-void enableSlew(int _slewRate) { slewRate = _slewRate; }
-
-// Disables slew rate code
-void disableSlew() { slewRate = 0; }
-
-// Returns a speed based on the last speed and set slew rate
-// PARAMETERS:
-//	int: The current speed of the drive
-//  int: The target speed of the drive
-// RETURNS:
-//  int: The slewed speed to set the motors to
-int slew(int currentSpeed, int targetSpeed) {
-  // If slew rate is off or we are closer to the target than slewRate
-  if (slewRate == 0 || abs(currentSpeed - targetSpeed) < slewRate)
-    return targetSpeed; // Return the target
-  else                  // We need to slew
-    // Add positive or negative slewRate to the given speed and return it
-    return currentSpeed +=
-           (currentSpeed > targetSpeed) ? -1 * slewRate : slewRate;
-}
-
-/*
-** Calls driveRaw with slewed speeds, using slew rate set by enableSlew
-**
-** PARAMETERS:
-**   int: The target speed of the front left  motor, -127 to 127
-**   int: The target speed of the back  left  motor, -127 to 127
-**   int: The target speed of the front right motor, -127 to 127
-**   int: The target speed of the back  right motor, -127 to 127
-*/
-void driveRawSlew(int speedFL, int speedBL, int speedFR, int speedBR) {
-  driveRaw(slew(lastDriveFL, speedFL), slew(lastDriveBL, speedBL),
-           slew(lastDriveFR, speedFR), slew(lastDriveBR, speedBR));
 }
