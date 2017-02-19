@@ -71,11 +71,11 @@ void manageClaw(void * ignored) {
 			// Opening, bigger is more open
       if (buttonDirection == 1) {
         if (abs(clawPosLeft - clawPosRight) > misal) { // Misaligned
-          motorSet(MOTOR_CLAW_L, (clawPosRight < clawPosLeft) ? 90 : 127);
-          motorSet(MOTOR_CLAW_R, (clawPosRight > clawPosLeft) ? -90 : -127);
+          motorSet(MOTOR_CLAW_L, (clawPosRight < clawPosLeft) ? -90 : -127);
+          motorSet(MOTOR_CLAW_R, (clawPosRight > clawPosLeft) ? 90 : 127);
         } else { // We good
-          motorSet(MOTOR_CLAW_L, 127);
-          motorSet(MOTOR_CLAW_R, -127);
+          motorSet(MOTOR_CLAW_L, -127);
+          motorSet(MOTOR_CLAW_R, 127);
         }
 				// Reset position so when we hold nothing we know to hold claw pos
         clawLastPosLeft = 0;
@@ -84,11 +84,11 @@ void manageClaw(void * ignored) {
  			// Closing, smaller more closed
 			else if (buttonDirection == 2) {
         if (abs(clawPosLeft - clawPosRight) > misal) { // Misaligned
-          motorSet(MOTOR_CLAW_L, (clawPosRight > clawPosLeft) ? -90 : -127);
-          motorSet(MOTOR_CLAW_R, (clawPosRight < clawPosLeft) ? 90 : 127);
+          motorSet(MOTOR_CLAW_L, (clawPosRight > clawPosLeft) ? 90 : 127);
+          motorSet(MOTOR_CLAW_R, (clawPosRight < clawPosLeft) ? -90 : -127);
         } else { // We good
-          motorSet(MOTOR_CLAW_L, -127);
-          motorSet(MOTOR_CLAW_R, 127);
+          motorSet(MOTOR_CLAW_L, 127);
+          motorSet(MOTOR_CLAW_R, -127);
         }
 				// Reset position so when we hold nothing we know to hold claw pos
         clawLastPosLeft = 0;
@@ -112,15 +112,15 @@ void manageClaw(void * ignored) {
 
       // Left claw
       if (abs(clawPosLeft - clawLastPosLeft) > misal) {
-        motorSet(MOTOR_CLAW_L, clawPosLeft - clawLastPosLeft > 0 ? negClawSpeed
-					: clawSpeed);
+        motorSet(MOTOR_CLAW_L, clawPosLeft - clawLastPosLeft > 0 ?
+          clawSpeed : negClawSpeed);
       } else {
         motorSet(MOTOR_CLAW_L, 0);
       }
       // Right claw
       if (abs(clawPosRight - clawLastPosRight) > misal) {
-        motorSet(MOTOR_CLAW_R, clawPosRight - clawLastPosRight > 0 ? clawSpeed
-					: negClawSpeed);
+        motorSet(MOTOR_CLAW_R, clawPosRight - clawLastPosRight > 0 ?
+          negClawSpeed : clawSpeed);
       } else {
         motorSet(MOTOR_CLAW_R, 0);
       }
