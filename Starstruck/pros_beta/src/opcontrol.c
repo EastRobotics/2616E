@@ -54,7 +54,7 @@ void operatorControl() {
 			// Check buttons 7 L, R, and D
 			if (joystickGetDigital(1, 7, JOY_DOWN) ||
 					joystickGetDigital(2, 7, JOY_DOWN)) { // 7D held
-				moveLiftWithLogic(-60,true);
+				moveLiftWithLogic(-40,false);
 			}
 		}
 
