@@ -4,10 +4,11 @@
 #define LIFT_ACC_MOV_RANGE 30  // amount lift will move before it is held in place
 #define LIFT_MIN_SPEED 30      // lowest speed that will turn on the lift
 #define LIFT_MIN_HEIGHT 100    // lowest potentiometer value for the lift
-#define LIFT_MAX_HEIGHT 2000   // highest potentiometer value for the lift
-#define LIFT_MAX_DIFF 2000     // highest difference in angle for the lift
-#define LIFT_SLOW_RANGE 100    // how close to the bounds the lift should slow down
+#define LIFT_MAX_HEIGHT 2700   // highest potentiometer value for the lift
+#define LIFT_MAX_DIFF 2700     // highest difference in angle for the lift
+#define LIFT_SLOW_RANGE 300    // how close to the bounds the lift should slow down
 #define LIFT_SLOW_MOD 0.8      // how much (0-1] that the lift should be slowed down at bounds
+#define LIFT_DAMP_P 0.175
 
 int startingAngle = 0;   // desired height for the hold task to hold at
 
@@ -42,7 +43,7 @@ void moveLiftWithLogic(int speed, bool dampenSpeed){
 
   int currHeight = analogRead(ANALOG_POT_LIFT);
   // if moving up
-  if(speed>0) {
+  if(speed>=0) { // >= so that down dampening isn't happening when speed=0
     // if within the slow zone, dampen the speed (if feature on)
     if(dampenSpeed && (abs(LIFT_MAX_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
       speed *= LIFT_SLOW_MOD;
@@ -52,11 +53,14 @@ void moveLiftWithLogic(int speed, bool dampenSpeed){
       speed = 0;
     }
   } else { //if moving down
-    // if within the slow zone, dampen the speed
-    if(dampenSpeed && (abs(LIFT_MIN_HEIGHT-currHeight) < LIFT_SLOW_RANGE)){
-      speed *= LIFT_SLOW_MOD;
+    // dampen the speed with a P term
+    if(dampenSpeed) {
+      int speedTemp = speed;
+      speed = 0-(abs(startingAngle-currHeight)*LIFT_DAMP_P);
+      if (speedTemp > speed) // Never be faster than given speed
+        speed = speedTemp;
     }
-    // if less than min and trying to go down, shut off
+
     if(currHeight < LIFT_MIN_HEIGHT){
       speed = 0;
     }
