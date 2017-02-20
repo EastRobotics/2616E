@@ -97,6 +97,10 @@ void setClawTarget(int target);
 
 void waitForClaw();
 
+void stopClaw();
+
+void clawClose(int ms);
+
 ///////////////////////////////////////////////////////////////////
 //
 //  Lift.c functions
