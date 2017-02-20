@@ -13,12 +13,18 @@ void implUpdateLCD(bool userCaused, int page) {
             autonName = "Do Nothing";
             break;
           case 2:
-            autonName = "Max Points";
+            autonName = "PID Test";
             break;
-          default: // Unknown mode
-            autonName = "Unknown";
+          case 3:
+            autonName = "Claw Test";
+            break;
+          default: { // Unknown mode
+            char* temp = NULL;
+            snprintf(temp,17,"Unknown %i",page);
+            autonName = temp;
+          }
         }
-        char temp[16];
+        static char temp[16];
         sprintf(temp,"%c %s %c",0xBC, autonName, 0xBB);
         //lcdPrint(uart2, 2, "%c %s %c",0xBC, autonName, 0xBB);
         lcdPrintCentered(temp,2);
