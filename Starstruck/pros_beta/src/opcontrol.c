@@ -25,10 +25,6 @@ void operatorControl() {
 			moveLiftWithLogic(-127, true);
 			lastLiftButtonDown = true;
 		}
-		else if (joystickGetDigital(1, 7, JOY_DOWN) ||
-				joystickGetDigital(2, 7, JOY_DOWN)) { // 7D held
-			moveLiftWithLogic(-60,true);
-		}
 		else { // Nothing held
 			// If we didn't last press down, and are above 400 of start
 			if ((!lastLiftButtonDown) &&
@@ -45,9 +41,10 @@ void operatorControl() {
 		if (joystickGetDigital(1, 7, JOY_UP)){
 			// If the rest of the 7 group is pressed
 			if(joystickGetDigital(1, 7, JOY_LEFT) &&
-				joystickGetDigital(1, 7, JOY_DOWN) &&
-				joystickGetDigital(1, 7, JOY_RIGHT)){ // Run auton
-				autonomous();
+					joystickGetDigital(1, 7, JOY_DOWN) &&
+					joystickGetDigital(1, 7, JOY_RIGHT)) { // Run auton
+				moveLiftWithLogic(0, true); // Disable lift
+				autonomous(); // Start auton
 				setClawMode(0); // Give claw control back to controller
 			}
 		}
@@ -55,6 +52,10 @@ void operatorControl() {
 		// But if 7U isn't pressed, treat other 7 buttons as normal
 		else { // Auton button isn't pressed
 			// Check buttons 7 L, R, and D
+			if (joystickGetDigital(1, 7, JOY_DOWN) ||
+					joystickGetDigital(2, 7, JOY_DOWN)) { // 7D held
+				moveLiftWithLogic(-60,true);
+			}
 		}
 
 		delay(15); // Give other tasks time to run
