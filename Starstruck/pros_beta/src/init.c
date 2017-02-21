@@ -81,7 +81,7 @@ void initialize() {
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
   driveSetReverse(MOTOR_DRIVE_FL_REV, MOTOR_DRIVE_BL_REV, MOTOR_DRIVE_FR_REV,
     MOTOR_DRIVE_BR_REV);
-  enableSlew(20); // Set slew rate to 20
+  enableSlew(15); // Set slew rate to 25
 
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
