@@ -1,8 +1,6 @@
 #include "main.h"
 #include "math.h"
-#define CLAW_MISALIGN_THRESHOLD 150 // Difference we consider as misaligned
-#define CLAW_CATCHUP_SPEED 30
-#define CLAW_SPEED 127
+#define MISAL_THRESH 15 // Difference we consider as misaligned
 
 TaskHandle claw;
 
@@ -60,22 +58,28 @@ void waitForClaw() {
 // TODO: Adjust encoder init so both sides go up when out
 void manageClaw(void * ignored) {
   while (true) {
-    const int misal = 20;
     int clawPosLeft = encoderGet(getEncoderClawL());
     int clawPosRight = encoderGet(getEncoderClawR());
 		// NOTE: Old clawLastPosLeft & clawLastPosRight location
+
+    // Determine if target is achieved
+    if (!clawTargetAchieved) // If target isn't achieved
+          // Set achieved to !(left misal || right misal), so if both not misal,
+          //   clawTargetAchieved will be true
+          clawTargetAchieved = !((abs(clawPosRight-clawLastPosRight) > MISAL_THRESH)
+              || (abs(clawPosLeft-clawLastPosRight) > MISAL_THRESH));
 
 		// Holding button and in user control
 		int buttonDirection = getButtonDirection();
     if (clawMode == 0 && buttonDirection != 0) {
 			// Opening, bigger is more open
       if (buttonDirection == 1) {
-        if (abs(clawPosLeft - clawPosRight) > misal) { // Misaligned
-          motorSet(MOTOR_CLAW_L, (clawPosRight < clawPosLeft) ? 90 : 127);
-          motorSet(MOTOR_CLAW_R, (clawPosRight > clawPosLeft) ? -90 : -127);
+        if (abs(clawPosLeft - clawPosRight) > MISAL_THRESH) { // Misaligned
+          motorSet(MOTOR_CLAW_L, (clawPosRight < clawPosLeft) ? -90 : -127);
+          motorSet(MOTOR_CLAW_R, (clawPosRight > clawPosLeft) ? 90 : 127);
         } else { // We good
-          motorSet(MOTOR_CLAW_L, 127);
-          motorSet(MOTOR_CLAW_R, -127);
+          motorSet(MOTOR_CLAW_L, -127);
+          motorSet(MOTOR_CLAW_R, 127);
         }
 				// Reset position so when we hold nothing we know to hold claw pos
         clawLastPosLeft = 0;
@@ -83,12 +87,12 @@ void manageClaw(void * ignored) {
       }
  			// Closing, smaller more closed
 			else if (buttonDirection == 2) {
-        if (abs(clawPosLeft - clawPosRight) > misal) { // Misaligned
-          motorSet(MOTOR_CLAW_L, (clawPosRight > clawPosLeft) ? -90 : -127);
-          motorSet(MOTOR_CLAW_R, (clawPosRight < clawPosLeft) ? 90 : 127);
+        if (abs(clawPosLeft - clawPosRight) > MISAL_THRESH) { // Misaligned
+          motorSet(MOTOR_CLAW_L, (clawPosRight > clawPosLeft) ? 90 : 127);
+          motorSet(MOTOR_CLAW_R, (clawPosRight < clawPosLeft) ? -90 : -127);
         } else { // We good
-          motorSet(MOTOR_CLAW_L, -127);
-          motorSet(MOTOR_CLAW_R, 127);
+          motorSet(MOTOR_CLAW_L, 127);
+          motorSet(MOTOR_CLAW_R, -127);
         }
 				// Reset position so when we hold nothing we know to hold claw pos
         clawLastPosLeft = 0;
@@ -98,7 +102,7 @@ void manageClaw(void * ignored) {
 
     // Sitting still or autonomous control
     if (clawMode == 1 || buttonDirection == 0) {
-      // If there's no position set yet, hold current
+      // If there's no position set yet, grab the current
       if (clawLastPosLeft == 0) {
         clawLastPosLeft = clawPosLeft;
         clawLastPosRight = clawPosRight;
@@ -106,21 +110,22 @@ void manageClaw(void * ignored) {
 
       // If we're misaligning, counteract --------------------------------------
 
-			// Set the claw speed based on holding or reaching target
-      int clawSpeed = clawTargetAchieved ? 50 : 100;
+			// Set the claw speed based on holding or reaching target, or if close
+      int clawSpeed = clawTargetAchieved || (abs(clawPosLeft - clawLastPosLeft)
+          < 100 || abs(clawPosRight - clawLastPosRight) < 100) ? 50 : 100;
 			int negClawSpeed = -1 * clawSpeed;
 
       // Left claw
-      if (abs(clawPosLeft - clawLastPosLeft) > misal) {
-        motorSet(MOTOR_CLAW_L, clawPosLeft - clawLastPosLeft > 0 ? negClawSpeed
-					: clawSpeed);
+      if (abs(clawPosLeft - clawLastPosLeft) > MISAL_THRESH) {
+        motorSet(MOTOR_CLAW_L, clawPosLeft - clawLastPosLeft > 0 ?
+          clawSpeed : negClawSpeed);
       } else {
         motorSet(MOTOR_CLAW_L, 0);
       }
       // Right claw
-      if (abs(clawPosRight - clawLastPosRight) > misal) {
-        motorSet(MOTOR_CLAW_R, clawPosRight - clawLastPosRight > 0 ? clawSpeed
-					: negClawSpeed);
+      if (abs(clawPosRight - clawLastPosRight) > MISAL_THRESH) {
+        motorSet(MOTOR_CLAW_R, clawPosRight - clawLastPosRight > 0 ?
+          negClawSpeed : clawSpeed);
       } else {
         motorSet(MOTOR_CLAW_R, 0);
       }
@@ -129,4 +134,20 @@ void manageClaw(void * ignored) {
 		// Give other things time to run
     delay(20);
   }
+}
+
+void stopClaw() {
+	clawLastPosLeft = encoderGet(getEncoderClawL());;
+	clawLastPosRight = encoderGet(getEncoderClawR());;
+}
+
+// Used for when we want to clamp an unknown orientation, and can't guarentee a certain close value
+void clawClose(int ms) {
+	setClawTarget(-50); // Try and close the claw
+	int timeGone = 0;
+	while (!(timeGone > ms || clawTargetAchieved)) { // While we still have time or haven't reached 0ms
+		delay(10);
+		timeGone += 10;
+	}
+  stopClaw();
 }

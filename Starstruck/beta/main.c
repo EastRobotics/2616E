@@ -379,9 +379,10 @@ task usercontrol()
 	/*
 	// Test auton
 	*/
-	setAutonMode(11);
-	lcdSetPage(8);
-	setAutonPosition(true); // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+	//setAutonMode(11);
+	//lcdSetPage(8);
+	//setAutonPosition(true);
 	//runAuton();
 
 	/*

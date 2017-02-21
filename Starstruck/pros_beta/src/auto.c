@@ -41,16 +41,21 @@ void autonomous() {
         shutDownMotors,KP,KI,KD,50.0,12.0);
       startPIDLoop(0, 500.0);
       break;
+    case 3:
+      print("Ran auton three!");
+      setClawTarget(350);
+      waitForClaw();
+      clawClose(1000);
+      break;
     default:
       print("Ran auton that wasn't given a case!");
   }
 
   shutdownPID();
-  setClawTarget(0); // Set the claw to close when given control back
+  stopClaw(); // Set the claw to the current position
   setClawMode(0);
   // Should be run after all autons
   if (isOnline()) {
-    imeShutdown(); // Disable our IMEs
     gyroShutdown(getGyro()); // Disable our gyro
   }
 }

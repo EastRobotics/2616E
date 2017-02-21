@@ -202,6 +202,8 @@ void initPID(){
 
 void shutdownPID() {
   print("[ELib] Killing PID control task\n");
-  if (pidTask != NULL)
+  if (pidTask != NULL) {
     taskDelete(pidTask); // Kill the PID task
+    pidTask = NULL;
+  }
 }

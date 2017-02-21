@@ -37,8 +37,8 @@ void initDriveEncoders() {
   encDriveBR = encoderInit(DIGITAL_ENC_DRIVE_BR_TOP,
     DIGITAL_ENC_DRIVE_BR_BOT,false);
   // Init left encoder, not reverse
-  encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
-    DIGITAL_ENC_DRIVE_BL_BOT,false);
+  //encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
+  //  DIGITAL_ENC_DRIVE_BL_BOT,false);
 }
 
 /*
@@ -81,6 +81,7 @@ void initialize() {
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
   driveSetReverse(MOTOR_DRIVE_FL_REV, MOTOR_DRIVE_BL_REV, MOTOR_DRIVE_FR_REV,
     MOTOR_DRIVE_BR_REV);
+  enableSlew(15); // Set slew rate to 25
 
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
