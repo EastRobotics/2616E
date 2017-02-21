@@ -22,9 +22,9 @@ int getLiftStartAngle() {
 //  int: the speed of the motors
 void setLiftMotors(int speed){
   motorSet(MOTOR_LIFT_R1, speed);
-  motorSet(MOTOR_Y_LIFT_R23, speed);
+  motorSet(MOTOR_LIFT_R2, speed);
   motorSet(MOTOR_LIFT_L1, speed*-1);
-  motorSet(MOTOR_Y_LIFT_L23, speed*-1);
+  motorSet(MOTOR_LIFT_L2, speed*-1);
 }
 
 // Sets the lift motors with a range of speed, and can auto override the hold
