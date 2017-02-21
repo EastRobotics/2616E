@@ -12,6 +12,11 @@
 
 int startingAngle = 0;   // desired height for the hold task to hold at
 
+int targetAngle = 0;
+int liftSpeed  = 0;
+bool autoLiftRunning = false;
+bool holdUpLift = false;
+
 int getLiftStartAngle() {
     return startingAngle;
 }
@@ -74,7 +79,7 @@ void moveLiftWithLogic(int speed, bool dampenSpeed){
 // Which one it waits for depends on the direction of the motion.
 // PARAMS:
 //  int: the speed to set the motors (also +/- indicates direction (see above))
-void waitForLift(int speed){
+void waitForLiftOld(int speed){
   // set the lift to the speed, and turn on inertial dampening, but only
   // if this will NOT slow it too much to even move
   moveLiftWithLogic(speed,(speed>=ceil(LIFT_MIN_SPEED/LIFT_SLOW_MOD)));
@@ -105,4 +110,39 @@ void lockLift(){
 // Sets up all necessary tasks and instance data for the lift
 void initLift(){
   startingAngle = analogRead(ANALOG_POT_LIFT);
+}
+
+/*
+* Autonomous Methods
+*/
+
+void autoLift(void * ignored) {
+  int liftPos = analogRead(ANALOG_POT_LIFT);
+  const int misal = 25;
+  while(true) {
+    liftPos = analogRead(ANALOG_POT_LIFT);
+    int localLiftSpeed = autoLiftRunning ? liftSpeed : 0;
+    if(abs(liftPos-liftTarget) > misal) {
+      moveLiftWithLogic(((liftPos-liftTarget > 0) ? localLiftSpeed * -1 : localLiftSpeed),true, true, false);
+    } else {
+      setLiftMotors(holdUpLift ? 30 : 0);
+    }
+    delay(20);
+    if(liftRunning)
+      liftRunning = abs(liftPos-liftTarget) > misal;
+  }
+}
+
+void setLift(int target, int speed) {
+  targetAngle = target;
+  liftSpeed = speed;
+  autoLiftRunning = true;
+}
+
+void setHoldUp(bool holdUp) {
+  holdUpLift = holdUp;
+}
+
+void waitForLift() {
+  while
 }
