@@ -5,7 +5,7 @@
 #pragma config(Sensor, dgtl1,  autonCont,      sensorTouch)
 #pragma config(Sensor, dgtl2,  quadBR,         sensorQuadEncoder)
 #pragma config(Sensor, dgtl4,  quadBL,         sensorQuadEncoder)
-#pragma config(Sensor, dgtl10, liftLimit,      sensorNone)
+#pragma config(Sensor, dgtl6,  clawLimit,      sensorDigitalIn)
 #pragma config(Sensor, dgtl11, quadDriveBL,    sensorQuadEncoder)
 #pragma config(Sensor, I2C_2,  ,               sensorQuadEncoderOnI2CPort,    , AutoAssign )
 #pragma config(Motor,  port1,           clawR,         tmotorVex393_HBridge, openLoop, reversed, encoderPort, dgtl2)
@@ -136,7 +136,7 @@ task manageClaw() {
 					clawLastPosLeft = clawPosLeft;
 					clawLastPosRight = clawPosRight;
 				}
-				if(vexRT[Btn8D]) {
+				if(vexRT[Btn8U]) {
 					clawLastPosLeft = 1;
 					clawLastPosRight = 1;
 				}
@@ -211,9 +211,9 @@ void moveLiftWithLogic(int speed, bool overrideHold, bool dampenSpeed, bool over
 		speed = 0;
 	}
 	// if the limit switch is triggered, stop the arm
-	if(!SensorValue[liftLimit]) {
+	//if(!SensorValue[liftLimit]) {
 	//	speed = 0;
-	}
+	//}
 	//unlock lift if it was locked
 	if(holdActive && overrideHold){
 		unlockLift();
@@ -382,7 +382,7 @@ task usercontrol()
 	setAutonMode(11);
 	lcdSetPage(8);
 	setAutonPosition(true); // ------------------------------------------------------------------------------------------------------------------------------------------------------------------
-	runAuton();
+	//runAuton();
 
 	/*
 	// Claw
@@ -398,6 +398,8 @@ task usercontrol()
 
 	startTask( slewDrive );
 
+	bool liftSet = false;
+
 	while (true)
 	{
 		//////////////////////////////
@@ -411,10 +413,6 @@ task usercontrol()
 		int speedTurn = round(vexRT[Ch1]);
 		/*int speedStrafe = round(vexRT[Ch4]);*/
 		driveWithLogic(speedForward, speedTurn, 0, false);
-
-		if(vexRT[Btn8U] || vexRT[Btn8UXmtr2])
-			clearDriveEncoders();
-
 
 		/*
 		// Claw
@@ -460,19 +458,29 @@ task usercontrol()
 		}
 
 		// Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Lock)
-		if (vexRT[Btn5U] || vexRT[Btn5UXmtr2]) {
-			lastButtonDown = false;
-			moveLiftWithLogic(127, true, true, overrideLiftBounds);
-			} else if (vexRT[Btn5D] || vexRT[Btn5DXmtr2]) {
-			lastButtonDown = true;
-			moveLiftWithLogic(-127, true, true, overrideLiftBounds);
-			} else {
-			if ((abs(startingAngle-SensorValue[potArm])>150) && (!lastButtonDown)) {
-				lockLift();
-				}else{
-				moveLiftWithLogic(0,true,true, overrideLiftBounds);
+		if(!liftSet) {
+			if (vexRT[Btn5U] || vexRT[Btn5UXmtr2]) {
+				lastButtonDown = false;
+				moveLiftWithLogic(127, true, true, overrideLiftBounds);
+				} else if (vexRT[Btn5D] || vexRT[Btn5DXmtr2]) {
+				lastButtonDown = true;
+				moveLiftWithLogic(-127, true, true, overrideLiftBounds);
+				} else {
+				if ((abs(startingAngle-SensorValue[potArm])>150) && (!lastButtonDown)) {
+					lockLift();
+					}else{
+					moveLiftWithLogic(0,true,true, overrideLiftBounds);
+				}
+				//setLiftMotors(0);
 			}
-			//setLiftMotors(0);
+		}
+
+		if (vexRT[Btn8D]) {
+			setLift(1000,127);
+			liftSet = true;
+		} else if(vexRT[Btn5U] || vexRT[Btn5D] || vexRT[Btn7D]) {
+			setLift(1000,0);
+			liftSet = false;
 		}
 
 		/*if (vexRT[Btn7D] || vexRT[Btn7DXmtr2]) {
