@@ -119,10 +119,11 @@ int slew(int currentSpeed, int targetSpeed) {
   // If slew rate is off or we are closer to the target than slewRate
   if (slewRate == 0 || abs(currentSpeed - targetSpeed) < slewRate)
     return targetSpeed; // Return the target
-  else                  // We need to slew
+  else {                // We need to slew
     // Add positive or negative slewRate to the given speed and return it
-    return currentSpeed +=
-           (currentSpeed > targetSpeed) ? -1 * slewRate : slewRate;
+    currentSpeed += (currentSpeed > targetSpeed) ? -1 * slewRate : slewRate;
+    return currentSpeed;
+  }
 }
 
 /*
