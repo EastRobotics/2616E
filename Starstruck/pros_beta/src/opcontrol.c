@@ -24,9 +24,9 @@ void operatorControl() {
       moveLiftWithLogic(-127, true);
       lastLiftButtonDown = true;
     } else { // Nothing held
-      // If we didn't last press down, and are above 400 of start
+      // If we didn't last press down, and are above 150 of start
       if ((!lastLiftButtonDown) &&
-          (abs(getLiftStartAngle() - analogRead(ANALOG_POT_LIFT)) > 400)) {
+          (abs(getLiftStartAngle() - analogRead(ANALOG_POT_LIFT)) > 150)) {
         // lock the lift
         lockLift();
       } else { // Otherwise turn the lift off
@@ -39,7 +39,7 @@ void operatorControl() {
         joystickGetDigital(2, 8, JOY_LEFT)) { // 8L Held
       // TODO Make sure controller gets control if buttons are pressed
       // TODO  before the lift finishes
-      // setLift(getLiftStartAngle()+150);
+      // setLift(getLiftStartAngle()+200);
     }
 
     // Claw alignment buttons
