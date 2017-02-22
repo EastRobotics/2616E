@@ -34,6 +34,20 @@ void operatorControl() {
       }
     }
 
+    // Lift autolift
+    if (joystickGetDigital(1, 8, JOY_LEFT) ||
+        joystickGetDigital(2, 8, JOY_LEFT)) { // 8L Held
+      // TODO Make sure controller gets control if buttons are pressed
+      // TODO  before the lift finishes
+      // setLift(getLiftStartAngle()+150);
+    }
+
+    // Claw alignment buttons
+    if (joystickGetDigital(1, 8, JOY_DOWN) ||
+        joystickGetDigital(2, 8, JOY_DOWN)) { // 8D Held
+      setClawTarget(0);                       // Tell claws to go back to 0
+    }
+
     // Test auton, but only if pressing a complex series of buttons
     // (All of the 7 group)
     if (joystickGetDigital(1, 7, JOY_UP)) {
