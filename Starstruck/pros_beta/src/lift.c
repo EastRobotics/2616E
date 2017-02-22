@@ -116,6 +116,8 @@ void initLift(){
 * Autonomous Methods
 */
 
+int liftTarget = 0;
+
 void autoLift(void * ignored) {
   int liftPos = analogRead(ANALOG_POT_LIFT);
   const int misal = 25;
@@ -123,13 +125,14 @@ void autoLift(void * ignored) {
     liftPos = analogRead(ANALOG_POT_LIFT);
     int localLiftSpeed = autoLiftRunning ? liftSpeed : 0;
     if(abs(liftPos-liftTarget) > misal) {
-      moveLiftWithLogic(((liftPos-liftTarget > 0) ? localLiftSpeed * -1 : localLiftSpeed),true, true, false);
+      moveLiftWithLogic((liftPos-liftTarget > 0) ? localLiftSpeed * -1 :
+          localLiftSpeed,true);
     } else {
-      setLiftMotors(holdUpLift ? 30 : 0);
+      moveLiftWithLogic(holdUpLift ? 30 : 0,true);
     }
     delay(20);
-    if(liftRunning)
-      liftRunning = abs(liftPos-liftTarget) > misal;
+    if(autoLiftRunning)
+      autoLiftRunning = abs(liftPos-liftTarget) > misal;
   }
 }
 
@@ -144,5 +147,14 @@ void setHoldUp(bool holdUp) {
 }
 
 void waitForLift() {
-  while
+  while (autoLiftRunning)
+    delay(20);
+}
+
+void waitForLiftTimeout(int ms) {
+  int timeSince = 0;
+  while (!(timeSince < ms && autoLiftRunning)) {
+    delay(15);
+    timeSince += 15;
+  }
 }
