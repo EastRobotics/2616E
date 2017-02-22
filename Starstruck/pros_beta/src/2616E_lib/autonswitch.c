@@ -4,11 +4,9 @@
 unsigned char maxAutonMode;
 unsigned char autonMode = MIN_AUTON_MODE;
 bool position = false; // False for left, true for right
-bool color = false; // False for red, true for blue
+bool color = false;    // False for red, true for blue
 
-void autonInit(unsigned char _maxAutonMode) {
-  maxAutonMode = _maxAutonMode;
-}
+void autonInit(unsigned char _maxAutonMode) { maxAutonMode = _maxAutonMode; }
 
 /*
 ** Sets the current autonomous mode to the supplied value
@@ -20,7 +18,8 @@ void autonInit(unsigned char _maxAutonMode) {
 **   bool: Whether or not the set number was a valid number
 */
 bool setAutonMode(unsigned char _autonMode) {
-  if ((_autonMode >= MIN_AUTON_MODE) || (_autonMode <= maxAutonMode)) { // If valid input
+  if ((_autonMode >= MIN_AUTON_MODE) ||
+      (_autonMode <= maxAutonMode)) { // If valid input
     autonMode = _autonMode;
   }
   return false;
@@ -32,9 +31,7 @@ bool setAutonMode(unsigned char _autonMode) {
 ** RETURNS:
 **   int: The current autonomous mode
 */
-unsigned char getAutonMode() {
-	return autonMode;
-}
+unsigned char getAutonMode() { return autonMode; }
 
 /*
 ** Returns the minimum autonomous mode
@@ -42,9 +39,7 @@ unsigned char getAutonMode() {
 ** RETURNS:
 **   int: The minimum autonomous mode (Always 1)
 */
-unsigned char getAutonModeMin() {
-	return MIN_AUTON_MODE;
-}
+unsigned char getAutonModeMin() { return MIN_AUTON_MODE; }
 
 /*
 ** Returns the maximum autonomous mode
@@ -52,9 +47,7 @@ unsigned char getAutonModeMin() {
 ** RETURNS:
 **   int: The current autonomous mode
 */
-unsigned char getAutonModeMax() {
-	return maxAutonMode;
-}
+unsigned char getAutonModeMax() { return maxAutonMode; }
 
 /*
 ** Sets the current autonomous position. False for left, true for right.
@@ -62,9 +55,7 @@ unsigned char getAutonModeMax() {
 ** PARAMETERS:
 **   bool: The autonomous position. False for left, true for right.
 */
-void setAutonPosition(bool setPosition) {
-	position = setPosition;
-}
+void setAutonPosition(bool setPosition) { position = setPosition; }
 
 /*
 ** Gets the current autonomous position. False for left, true for right.
@@ -72,9 +63,7 @@ void setAutonPosition(bool setPosition) {
 ** RETURNS:
 **   bool: The autonomous position. False for left, true for right.
 */
-bool getAutonPosition() {
-	return position;
-}
+bool getAutonPosition() { return position; }
 
 /*
 ** Sets the current autonomous color. False for blue, true for red.
@@ -82,9 +71,7 @@ bool getAutonPosition() {
 ** PARAMETERS:
 **   bool: The autonomous color. False for blue, true for red.
 */
-void setAutonColor(bool setColor) {
-	color = setColor;
-}
+void setAutonColor(bool setColor) { color = setColor; }
 
 /*
 ** Gets the current autonomous color. False for blue, true for red.
@@ -92,6 +79,4 @@ void setAutonColor(bool setColor) {
 ** RETURNS:
 **   bool: The autonomous color. False for blue, true for red.
 */
-bool getAutonColor() {
-	return color;
-}
+bool getAutonColor() { return color; }
