@@ -72,8 +72,9 @@ void driveIfValid(unsigned char motor, int speed,
   if (motor != NULL)
     motorSet(motor, speed);
   else
-    printf("[ELib] Tried to set motor speed, but it wasn't initialized! [%s]\n",
-           string);
+    printf(
+        "[ELib] Tried to set motor speed, but motor wasn't initialized! [%s]\n",
+        string);
 }
 
 /*
