@@ -231,6 +231,8 @@ extern "C" {
 
   int getLerpedSpeed(int power, int minSpeed, int minPower);
 
+  bool sameSign(int one, int two);
+
   /*
   ** Methods from pid.c
   */

@@ -40,8 +40,8 @@ extern "C" {
   #define ANALOG_POW_EXPAND 1 // Power expander,    analog 1
   #define ANALOG_GYRO 2       // Gyroscope,         analog 2
   #define ANALOG_POT_LIFT 3   // Arm potentiometer, analog 3
-  #define ANALOG_LINE_LEFT  4 // Line Sensor Left,  analog 4
-  #define ANALOG_LINE_RIGHT 5 // Line Sensor Right, analog 5
+  #define ANALOG_LINE_LEFT  5 // Line Sensor Left,  analog 5
+  #define ANALOG_LINE_RIGHT 4 // Line Sensor Right, analog 4
 
 /*
 ** Digital
@@ -56,8 +56,8 @@ extern "C" {
   #define DIGITAL_ENC_CLAW_L_TOP 4   // Encoder claw top     left,  digital 4
   #define DIGITAL_ENC_CLAW_L_BOT 5   // Encoder claw bottom  left,  digital 5
   // Drive
-  #define DIGITAL_ENC_DRIVE_BR_TOP 8  // Encoder drive top    right, digital 8
-  #define DIGITAL_ENC_DRIVE_BR_BOT 9  // Encoder drive bottom right, digital 9
+  #define DIGITAL_ENC_DRIVE_BR_TOP 7  // Encoder drive top    right, digital 7
+  #define DIGITAL_ENC_DRIVE_BR_BOT 8  // Encoder drive bottom right, digital 8
   #define DIGITAL_ENC_DRIVE_BL_TOP 11 // Encoder drive top    left,  digital 11
   #define DIGITAL_ENC_DRIVE_BL_BOT 12 // Encoder drive bottom left,  digital 12
 

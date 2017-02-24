@@ -20,6 +20,7 @@ bool autoLiftRunning = false;
 bool holdUpLift = false;
 
 int getLiftStartAngle() { return startingAngle; }
+int setLiftStartAngle(int angle) { startingAngle = angle; }
 
 // Sets all of the lift motors to the desired speed
 // (Note: positive speed is intended to move the lift up)

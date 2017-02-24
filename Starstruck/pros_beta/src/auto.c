@@ -5,6 +5,8 @@
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
 
+#define WHITE_THRESH 500 // Value to accept of the light sensor as the white line
+
 double KP = 2.0;
 double KI = 0.04;
 double KD = 0.0;
@@ -17,6 +19,40 @@ double getEncoderValue() { return encoderGet(getEncoderBR()); }
 void setMotorSpeedPID(double speed) {
   int speedInt = round(speed);
   driveRaw(speedInt, speedInt, speedInt, speedInt);
+}
+
+bool isWhite(bool right){
+  return (right ? analogRead(ANALOG_LINE_RIGHT) : analogRead(ANALOG_LINE_LEFT)) < WHITE_THRESH;
+}
+
+void driveToLine(int speed, bool forwards) {
+  speed = abs(speed) * (forwards ? 1 : -1);
+  int speedLeft = speed, speedRight = speed;
+  int rightSightings = 0, leftSightings = 0;
+  while(!(isWhite(true) && isWhite(false))) {
+    if(isWhite(true)) {
+      if(speedRight!=0) {
+        speedRight = 0;
+        rightSightings++;
+      }
+    } else {
+      speedRight = ((rightSightings % 2==0) ? speed : speed*-1);
+      speedRight = (rightSightings > 0 ? speedRight/2 : speedRight);
+    }
+
+    if(isWhite(false)) {
+      if(speedLeft!=0) {
+        speedLeft = 0;
+        leftSightings++;
+      }
+    } else {
+      speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
+      speedLeft = (leftSightings > 0 ? speedLeft/2 : speedLeft);
+    }
+
+    driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+  }
+  driveRaw(0, 0, 0, 0);
 }
 
 // Shuts off motors *without parameters* to be used with PID Loop
@@ -41,6 +77,10 @@ void autonomous() {
     setClawTarget(350);
     waitForClaw();
     clawClose(1000);
+    break;
+  case 4:
+    print("Ran auton four!");
+    driveToLine(60,true);
     break;
   default:
     print("Ran auton that wasn't given a case!");

@@ -101,6 +101,8 @@ void stopClaw();
 
 void clawClose(int ms);
 
+void resetClaw();
+
 ///////////////////////////////////////////////////////////////////
 //
 //  Lift.c functions
@@ -118,6 +120,8 @@ void moveLiftWithLogic(int,bool);
 void initLift();
 
 int getLiftStartAngle();
+
+int setLiftStartAngle(int angle);
 
 // End C++ export structure
 #ifdef __cplusplus

@@ -27,8 +27,8 @@ void initDriveEncoders() {
   encDriveBR =
       encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, false);
   // Init left encoder, not reverse
-  // encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
-  //  DIGITAL_ENC_DRIVE_BL_BOT,false);
+   encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
+    DIGITAL_ENC_DRIVE_BL_BOT,false);
 }
 
 /*
@@ -69,7 +69,7 @@ void initialize() {
 
   // Set up the LCD and start it
   print("[Init] Setting up the LCD\n");
-  lcdInitMenu(1, 8, 4); // Min 1, max 8, home 4
+  lcdInitMenu(1, 9, 4); // Min 1, max 8, home 4
   lcdSetUpdater(implUpdateLCD);
   lcdSetMenuBack(implMenuBack);
   lcdSetMenuNext(implMenuNext);
@@ -85,7 +85,7 @@ void initialize() {
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
   lcdSetText(uart2, 1, "Init auton...");
-  autonInit(4);
+  autonInit(5);
 
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");

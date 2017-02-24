@@ -109,3 +109,7 @@ int getLerpedSpeed(int power, int minSpeed, int minPower) {
                               (float)power / 127.0));
   return (speed > 127) ? 127 : ((speed < 0) ? 0 : speed);
 }
+
+bool sameSign(int one, int two) {
+  return (one < 0 && two < 0) || (one > 0 && two > 0);
+}

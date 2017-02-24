@@ -43,9 +43,8 @@ void operatorControl() {
     }
 
     // Claw alignment buttons
-    if (joystickGetDigital(1, 8, JOY_DOWN) ||
-        joystickGetDigital(2, 8, JOY_DOWN)) { // 8D Held
-      setClawTarget(0);                       // Tell claws to go back to 0
+    if (joystickGetDigital(1, 8, JOY_DOWN)) { // 8D Held
+      resetClaw();                      // Tell claws to go back to 0
     }
 
     // Test auton, but only if pressing a complex series of buttons
@@ -69,6 +68,9 @@ void operatorControl() {
         moveLiftWithLogic(-40, false);
       }
     }
+
+    if(joystickGetDigital(1,8,JOY_UP))
+      setLiftStartAngle(analogRead(ANALOG_POT_LIFT));
 
     delay(15); // Give other tasks time to run
   }

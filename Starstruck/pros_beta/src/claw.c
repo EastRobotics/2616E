@@ -68,6 +68,7 @@ void manageClaw(void *ignored) {
 
     // Holding button and in user control
     int buttonDirection = getButtonDirection();
+    printf("%i",buttonDirection);
     if (clawMode == 0 && buttonDirection != 0) {
       // Opening, bigger is more open
       if (buttonDirection == 1) {
@@ -139,9 +140,7 @@ void manageClaw(void *ignored) {
 
 void stopClaw() {
   clawLastPosLeft = encoderGet(getEncoderClawL());
-  ;
   clawLastPosRight = encoderGet(getEncoderClawR());
-  ;
 }
 
 // Used for when we want to clamp an unknown orientation, and can't guarentee a
@@ -156,4 +155,10 @@ void clawClose(int ms) {
     timeGone += 10;
   }
   stopClaw();
+}
+
+// Method to reset the claw to original position
+void resetClaw() {
+    setClawTarget(-10);
+
 }

@@ -17,6 +17,9 @@ void implUpdateLCD(bool userCaused, int page) {
     case 3:
       autonName = "Claw Test";
       break;
+    case 4:
+      autonName = "Line up Test";
+      break;
     default: { // Unknown mode
       char *temp = NULL;
       snprintf(temp, 17, "Unknown %i", page);
@@ -85,6 +88,13 @@ void implUpdateLCD(bool userCaused, int page) {
   case 8: {
     lcdPrintTitle("ArmPot");
     lcdPrint(uart2, 2, "Arm: %.4d", analogRead(ANALOG_POT_LIFT));
+  } break;
+  // [Page 9] Drive Encoders ----------------------------------------------------
+  case 9: {
+    lcdPrintTitle("DriveEnc");
+    int backLeft = encoderGet(getEncoderBL());
+    int backRight = encoderGet(getEncoderBR());
+    lcdPrint(uart2, 2, "L:%.4d R:%.4d", backLeft, backRight);
   } break;
   // [Page ?] Unknown page ---------------------------------------------------
   default:
