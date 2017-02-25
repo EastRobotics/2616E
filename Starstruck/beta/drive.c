@@ -451,7 +451,7 @@ task taskDrivePid() {
 				// Save speeds to positive values
 				int turningFactor;
 				if(straightAssist && abs(pidDrive) > 20) {
-					turningFactor = SensorValue[gyroMain] * 2;
+					turningFactor = SensorValue[gyroMain] * 2; // NOTE: This needs to account for starting angle
 					// Limit turning factor
 					if (turningFactor > 20)
 						turningFactor = 20;
