@@ -6,6 +6,7 @@
 // From: Cameron, To: Cameron.
 
 #define WHITE_THRESH 500 // Value to accept of the light sensor as the white line
+#define LINE_BREAK_TIME 75 // Milliseconds for the brake to last for on line up
 
 double KP = 2.0;
 double KI = 0.04;
@@ -29,11 +30,19 @@ void driveToLine(int speed, bool forwards) {
   speed = abs(speed) * (forwards ? 1 : -1);
   int speedLeft = speed, speedRight = speed;
   int rightSightings = 0, leftSightings = 0;
+  int rightBrakeCount = 0, leftBrakeCount = 0;
+  const int delayRate = 15;
   while(!(isWhite(true) && isWhite(false))) {
     if(isWhite(true)) {
-      if(speedRight!=0) {
-        speedRight = 0;
+      if(sameSign(speedRight,speed)){
+        speedRight = speed*-0.75;
+        rightBrakeCount = delayRate;
         rightSightings++;
+      } else if(rightBrakeCount >= LINE_BREAK_TIME) {
+        speedRight = 0;
+        rightBrakeCount = 0;
+      } else {
+        rightBrakeCount += delayRate;
       }
     } else {
       speedRight = ((rightSightings % 2==0) ? speed : speed*-1);
@@ -41,9 +50,15 @@ void driveToLine(int speed, bool forwards) {
     }
 
     if(isWhite(false)) {
-      if(speedLeft!=0) {
-        speedLeft = 0;
+      if(sameSign(speedLeft,speed)){
+        speedLeft = speed*-0.75;
+        leftBrakeCount = delayRate;
         leftSightings++;
+      } else if(leftBrakeCount >= LINE_BREAK_TIME) {
+        speedLeft = 0;
+        leftBrakeCount = 0;
+      } else {
+        leftBrakeCount += delayRate;
       }
     } else {
       speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
@@ -51,6 +66,8 @@ void driveToLine(int speed, bool forwards) {
     }
 
     driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+
+    delay(delayRate);
   }
   driveRaw(0, 0, 0, 0);
 }
