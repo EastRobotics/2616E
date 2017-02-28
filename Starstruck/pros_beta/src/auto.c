@@ -34,8 +34,8 @@ void driveToLine(int speed, bool forwards) {
   const int delayRate = 15;
   while(!(isWhite(true) && isWhite(false))) {
     if(isWhite(true)) {
-      if(sameSign(speedRight,speed)){
-        speedRight = speed*-0.75;
+      if(((sameSign(speedRight,speed) && ((rightSightings % 2==0))) || ((!sameSign(speedRight,speed)) && (rightSightings % 2==1)))){
+        speedRight = speed * ((rightSightings % 2 == 0) ? -0.75 : 0.75);
         rightBrakeCount = delayRate;
         rightSightings++;
       } else if(rightBrakeCount >= LINE_BREAK_TIME) {
@@ -47,11 +47,17 @@ void driveToLine(int speed, bool forwards) {
     } else {
       speedRight = ((rightSightings % 2==0) ? speed : speed*-1);
       speedRight = (rightSightings > 0 ? speedRight/2 : speedRight);
+      if(rightBrakeCount >= LINE_BREAK_TIME) {
+        speedRight = 0;
+        rightBrakeCount = 0;
+      }
+      if(!(((sameSign(speedRight,speed) && ((rightSightings % 2==0))) || ((!sameSign(speedRight,speed)) && (rightSightings % 2==1)))))
+        rightBrakeCount++;
     }
 
     if(isWhite(false)) {
-      if(sameSign(speedLeft,speed)){
-        speedLeft = speed*-0.75;
+      if(((sameSign(speedLeft,speed) && ((leftSightings % 2==0))) || ((!sameSign(speedLeft,speed)) && (leftSightings % 2==1)))){
+        speedLeft = speed * ((leftSightings % 2 == 0) ? -0.75 : 0.75);
         leftBrakeCount = delayRate;
         leftSightings++;
       } else if(leftBrakeCount >= LINE_BREAK_TIME) {
@@ -63,6 +69,12 @@ void driveToLine(int speed, bool forwards) {
     } else {
       speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
       speedLeft = (leftSightings > 0 ? speedLeft/2 : speedLeft);
+      if(leftBrakeCount >= LINE_BREAK_TIME) {
+        speedLeft = 0;
+        leftBrakeCount = 0;
+      }
+      if(!(((sameSign(speedLeft,speed) && ((leftSightings % 2==0))) || ((!sameSign(speedLeft,speed)) && (leftSightings % 2==1)))))
+        leftBrakeCount++;
     }
 
     driveRaw(speedLeft,speedLeft,speedRight,speedRight);
@@ -89,6 +101,7 @@ void autonomous() {
     //           50.0, 12.0);
     //startPIDLoop(0, 500.0);
     pidDriveStraight(2000);
+    waitForPid();
     break;
   case 3:
     print("Ran auton three!");
