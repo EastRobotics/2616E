@@ -141,6 +141,26 @@ extern "C" {
   */
   void driveRawSlew(int speedFL, int speedBL, int speedFR, int speedBR);
 
+  int pidCorrectSpeed(int input);
+
+  void endPid();
+
+  void startPid();
+
+  void pidDriveStraight(long ticksToMove);
+
+  void pidDrivePoint(long ticksToMove);
+
+  void pidDriveStraightLimit(long ticksToMove, int termLimit);
+
+  void pidDrivePointLimit(long ticksToMove, int termLimit);
+
+  void waitForPid();
+
+  void waitForPidLimit(int termLimit);
+
+  void initPid();
+
 /*
 ** Methods from autonswitch.c
 */

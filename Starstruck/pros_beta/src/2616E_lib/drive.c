@@ -10,6 +10,17 @@
   15 // The amount the joystick has to move for it to be used in the linear
      // function to calculate RPM
 
+#define PID_SENSOR_INDEX    myEncoder
+
+#define PID_MOTOR_INDEX     myMotor
+#define PID_MOTOR_SCALE     -1
+
+#define PID_DRIVE_MAX       80
+
+#define PID_INTEGRAL_LIMIT  50
+
+#define PID_STRAIGHT_THRESH 4
+
 unsigned char driveFL, driveBL, driveFR, driveBR;
 char lastDriveFL, lastDriveBL, lastDriveFR, lastDriveBR;
 bool driveFLReverse, driveBLReverse, driveFRReverse, driveBRReverse;
@@ -252,4 +263,261 @@ void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
 
   driveHolonomic(multipliedSpeedForward, multipliedSpeedTurn,
                  multipliedSpeedStrafe); // Pass off the checked values to drive
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////
+//
+//                        PID (Currently on the frontburner)
+//
+/////////////////////////////////////////////////////////////////////////////////////////
+
+//Setup the weights for the various stages of pid
+float kP = 0.05; //Proportional Gain
+float kI = 0.00; //Integral Gain
+float kD = 0.00; //Derivitive Gain
+float kL = 0; // Set integral limit to only allow for speed delta of 20
+
+bool pidRunning = false;
+float pidRequestedValue = 0;
+int pidMode = 0;
+int pidSensor = -1; // -1 for encoders, port of the sensor to use a sensor
+int pidSensorOffset = 0;  // amount to offset the sensor by (used for gyro turns)
+float pidSensorScale = 1.0;
+bool straightAssist = true;
+int straightStartAngle = 0;
+int breakoutCount = 0;
+
+TaskHandle pidTask;
+
+int pidCorrectSpeed(int input) {
+	// limit drive
+	if( abs(input) > PID_DRIVE_MAX )
+		return (input > 0) ? PID_DRIVE_MAX : PID_DRIVE_MAX * -1;
+	return input;
+}
+
+void taskDrivePid(void * ignored) {
+	pidRunning = true;
+
+	if (straightAssist) {
+		straightStartAngle = analogRead(ANALOG_GYRO);
+	}
+
+	float  pidSensorCurrentValue;
+	float  pidError;
+	float  pidLastError;
+	float  pidIntegral;
+	float  pidDerivative;
+	float  pidDrive;
+
+	encoderReset(getEncoderBL());
+  encoderReset(getEncoderBR());
+
+	// Init the variables - thanks Glenn :)
+	pidLastError  = 0;
+	pidIntegral   = 0;
+	breakoutCount = 0;
+
+	pidRequestedValue += ((pidSensor==-1) ? encoderGet(getEncoderBL()) : 0); // Account for existing ticks
+
+	while( true )
+	{
+		// Is PID control active ?
+		if( true )
+		{
+			// Read the sensor value and scale
+			pidSensorCurrentValue = ((pidSensor==-1) ? encoderGet(getEncoderBL()) : digitalRead(pidSensor) * pidSensorScale + pidSensorOffset);
+
+			// calculate error
+			pidError = pidSensorCurrentValue - pidRequestedValue;
+
+			// integral - if Ki is not 0
+			if( kI != 0 )
+			{
+				// If we are inside controlable window then integrate the error
+				if (abs(pidError) < kL)
+					pidIntegral = pidIntegral + pidError;
+				else
+					pidIntegral = 0;
+			}
+			else
+				pidIntegral = 0;
+
+			// calculate the derivative
+			pidDerivative = pidError - pidLastError;
+			pidLastError  = pidError;
+
+			// calculate drive
+			pidDrive = (kP * pidError) + (kI * pidIntegral) + (kD * pidDerivative);
+			pidDrive *= PID_MOTOR_SCALE;
+
+			// limit drive
+			pidDrive = pidCorrectSpeed(pidDrive);
+
+			int pidDriveLeft = pidDrive;
+			int pidDriveRight = pidDrive;
+			// send to motor
+			if (pidMode == 0) { // Normal drive
+				// Save speeds to positive values
+				int turningFactor;
+				if(straightAssist && abs(pidDrive) > 20) {
+					turningFactor = analogRead(ANALOG_GYRO) * 2; // NOTE: This needs to account for starting angle
+					// Limit turning factor
+					if (turningFactor > 20)
+						turningFactor = 20;
+					if (turningFactor < -20)
+						turningFactor = -20;
+					pidDriveLeft += turningFactor;
+					pidDriveRight -= turningFactor;
+				}
+
+				if (abs(pidError) < 10) {
+					int breakSpeed = 5 * (pidDrive > 0 ? -1 : 1);
+					//stopSlewTask();
+					driveRaw(breakSpeed,breakSpeed,breakSpeed,breakSpeed);
+					delay(100);
+					driveRaw(0,0,0,0);
+					//startSlewTask();
+					break;
+					print("I finished brah");
+					pidRunning = false;
+					break;
+				}
+
+				// Linearize speeds
+				pidDriveLeft = (pidDriveLeft > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDriveLeft), 15, 0);
+				pidDriveRight = (pidDriveRight > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDriveRight), 15, 0);
+
+				driveRaw(pidDriveLeft, pidDriveLeft, pidDriveRight, pidDriveRight);
+				} else if (pidMode == 1) { // Point turn
+  				// Linearize speeds
+  				if (abs(pidError) < 20) {
+  					int breakSpeed = 65 * (pidError > 0 ? 1 : -1);
+  					//stopSlewTask();
+            driveRaw(breakSpeed, breakSpeed, breakSpeed*-1, breakSpeed*-1);
+  					delay(100);
+  					driveRaw(0,0,0,0);
+  					//startSlewTask();
+  					break;
+  					//breakCount++;
+				  }
+
+				pidDrive = (pidDrive > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDrive), 15, 0);
+
+				driveRaw(pidDrive, pidDrive, pidDrive*-1, pidDrive*-1);
+			}
+		}
+  	else
+  		{
+  			// clear all
+  			pidError      = 0;
+  			pidLastError  = 0;
+  			pidIntegral   = 0;
+  			pidDerivative = 0;
+  		}
+
+		delay( 50 );
+	}
+
+	driveRaw(0,0,0,0);
+	pidRunning = false;
+}
+
+void endPid() {
+	if(pidTask != NULL)
+    taskSuspend(pidTask);
+}
+
+void startPid() {
+  if(pidTask == NULL)
+    initPID();
+  taskResume(pidTask);
+}
+
+// Increase Kp until constant oscillations
+// Multiply by 0.8
+// Increase Kd until oscillations stop
+void pidDriveStraight(long ticksToMove) {
+	straightAssist = true;
+	pidRequestedValue = ticksToMove;
+	pidMode = 0;
+	pidSensor = -1;
+	pidSensorOffset = 0;
+	pidSensorScale = 1.00;
+	kP = 0.5; //Proportional Gain
+	kI = 0.0; //Integral Gain
+	kD = 1.0; //Derivitive Gain
+	kL = 50.0; //Integral Limit
+	startPid();
+}
+
+void pidDrivePoint(long ticksToMove) {
+	straightAssist = false;
+	pidRequestedValue = ticksToMove;
+	pidMode = 1;
+	pidSensor = -1;
+	pidSensorOffset = 0;
+	pidSensorScale = 1.00;
+	kP = 2.45; //Proportional Gain
+	kI = 0.0; //Integral Gain
+	kD = 0.8; //Derivitive Gain
+	kL = 50.0; //Integral Limit
+	startPid();
+}
+
+// breaks out if PID taking too long
+void pidDriveStraightLimit(long ticksToMove, int termLimit) {
+	pidDriveStraight(ticksToMove);
+	int timeRunning = 0;
+	while(pidRunning) {
+		delay(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			endPid();
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+// breaks out if PID taking too long
+void pidDrivePointLimit(long ticksToMove, int termLimit) {
+	pidDrivePoint(ticksToMove);
+	int timeRunning = 0;
+	while(pidRunning) {
+		delay(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			endPid();
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+void waitForPid() {
+	while (pidRunning)
+		delay(10);
+}
+
+void waitForPidLimit(int termLimit) {
+	int timeRunning = 0;
+	while(pidRunning) {
+		delay(10);
+		timeRunning+=10;
+		if(timeRunning > termLimit) {
+			endPid();
+			pidRunning = false;
+			driveRaw(0,0,0,0);
+			break;
+		}
+	}
+}
+
+void initPid() {
+  pidTask = taskCreate(taskDrivePid, TASK_DEFAULT_STACK_SIZE, NULL,
+                    TASK_PRIORITY_DEFAULT);
+  taskSuspend(pidTask);
 }
