@@ -29,46 +29,35 @@ bool isWhite(bool right){
 void driveToLine(int speed, bool forwards) {
   speed = abs(speed) * (forwards ? 1 : -1);
   int speedLeft = speed, speedRight = speed;
+  int lastSpeedLeft = speed, lastSpeedRight = speed; // Basicaly speedRight & speedLeft, but never set to 0
   int rightSightings = 0, leftSightings = 0;
-  int rightBrakeCount = 0, leftBrakeCount = 0;
-  const int delayRate = 15;
   while(!(isWhite(true) && isWhite(false))) {
     if(isWhite(true)) {
-      if(sameSign(speedRight,speed)){
-        speedRight = speed*-0.75;
-        rightBrakeCount = delayRate;
-        rightSightings++;
-      } else if(rightBrakeCount >= LINE_BREAK_TIME) {
+      if(speedRight!=0) {
         speedRight = 0;
-        rightBrakeCount = 0;
-      } else {
-        rightBrakeCount += delayRate;
-      }
+        rightSightings++;
+      } 
     } else {
       speedRight = ((rightSightings % 2==0) ? speed : speed*-1);
       speedRight = (rightSightings > 0 ? speedRight/2 : speedRight);
+      lastSpeedRight = speedRight;
     }
 
     if(isWhite(false)) {
-      if(sameSign(speedLeft,speed)){
-        speedLeft = speed*-0.75;
-        leftBrakeCount = delayRate;
-        leftSightings++;
-      } else if(leftBrakeCount >= LINE_BREAK_TIME) {
+      if(speedLeft!=0) {
         speedLeft = 0;
-        leftBrakeCount = 0;
-      } else {
-        leftBrakeCount += delayRate;
+        leftSightings++;
       }
     } else {
       speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
       speedLeft = (leftSightings > 0 ? speedLeft/2 : speedLeft);
+      lastSpeedLeft = speedLeft;
     }
 
     driveRaw(speedLeft,speedLeft,speedRight,speedRight);
-
-    delay(delayRate);
   }
+  driveRaw(lastSpeedLeft*-1,lastSpeedLeft*-1, lastSpeedRight*-1, lastSpeedRight*-1);
+  delay(100);
   driveRaw(0, 0, 0, 0);
 }
 
