@@ -88,7 +88,7 @@ void driveToLine(int speed, bool forwards) {
 void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 
 void autonomous() {
-  initPID();
+  //initPID();
   setClawMode(1); // Give auton claw control
 
   switch (getAutonMode()) {

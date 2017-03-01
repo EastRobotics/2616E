@@ -421,10 +421,9 @@ void taskDrivePid(void * ignored) {
 		delay( 50 );
 	}
 
-  print("[PID] Ich bin kill myself");
-
 	driveRaw(0,0,0,0);
 	pidRunning = false;
+  pidTask = NULL;
 }
 
 void endPid() {
@@ -435,7 +434,10 @@ void endPid() {
 void startPid() {
   if(pidTask == NULL)
     initPID();
-  taskResume(pidTask);
+  else {
+      print("[ELib] Tried to start PID, loop already running!");
+      return;
+  }
 }
 
 // Increase Kp until constant oscillations
@@ -524,10 +526,13 @@ void waitForPidLimit(int termLimit) {
 }
 
 void initPid() {
-  print("[PID] Ich bin init");
   pidTask = taskCreate(taskDrivePid, TASK_DEFAULT_STACK_SIZE, NULL,
                     TASK_PRIORITY_DEFAULT);
-  print("[PID] Ich bin suspending");
-  taskSuspend(pidTask);
-  printf("[PID] Ich bin running pid after init? %d",pidRunning);
+}
+
+// TODO Add to header and add to end of auton
+void killPid() {
+  // TODO Communicate to the task to kill itself so it can free up it's memory
+  if (pidTask != NULL)
+    taskDelete(pidTask);
 }
