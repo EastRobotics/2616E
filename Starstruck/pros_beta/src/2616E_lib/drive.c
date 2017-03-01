@@ -442,6 +442,7 @@ void startPid() {
 // Multiply by 0.8
 // Increase Kd until oscillations stop
 void pidDriveStraight(long ticksToMove) {
+  print("[PID] Ich bin PID drive straight");
 	straightAssist = true;
 	pidRequestedValue = ticksToMove;
 	pidMode = 0;
@@ -452,7 +453,9 @@ void pidDriveStraight(long ticksToMove) {
 	kI = 0.0; //Integral Gain
 	kD = 1.0; //Derivitive Gain
 	kL = 50.0; //Integral Limit
+  print("[PID] Ich bin starting PID back");
 	startPid();
+  printf("[PID] Ich bin running pid straight? %d",pidRunning);
 }
 
 void pidDrivePoint(long ticksToMove) {
@@ -521,7 +524,10 @@ void waitForPidLimit(int termLimit) {
 }
 
 void initPid() {
+  print("[PID] Ich bin init");
   pidTask = taskCreate(taskDrivePid, TASK_DEFAULT_STACK_SIZE, NULL,
                     TASK_PRIORITY_DEFAULT);
+  print("[PID] Ich bin suspending");
   taskSuspend(pidTask);
+  printf("[PID] Ich bin running pid after init? %d",pidRunning);
 }
