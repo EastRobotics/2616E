@@ -298,6 +298,7 @@ int pidCorrectSpeed(int input) {
 
 void taskDrivePid(void * ignored) {
 	pidRunning = true;
+  print("[PID] Ich bin come to life");
 
 	if (straightAssist) {
 		straightStartAngle = analogRead(ANALOG_GYRO);
@@ -325,6 +326,7 @@ void taskDrivePid(void * ignored) {
 		// Is PID control active ?
 		if( true )
 		{
+      print("[PID] Ich bin in the loop");
 			// Read the sensor value and scale
 			pidSensorCurrentValue = ((pidSensor==-1) ? encoderGet(getEncoderBL()) : digitalRead(pidSensor) * pidSensorScale + pidSensorOffset);
 
@@ -418,6 +420,8 @@ void taskDrivePid(void * ignored) {
 
 		delay( 50 );
 	}
+
+  print("[PID] Ich bin kill myself");
 
 	driveRaw(0,0,0,0);
 	pidRunning = false;
