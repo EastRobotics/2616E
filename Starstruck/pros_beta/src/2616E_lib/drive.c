@@ -298,6 +298,7 @@ int pidCorrectSpeed(int input) {
 
 void taskDrivePid(void * ignored) {
 	pidRunning = true;
+  print("[PID] Ich bin come to life");
 
 	if (straightAssist) {
 		straightStartAngle = analogRead(ANALOG_GYRO);
@@ -325,6 +326,7 @@ void taskDrivePid(void * ignored) {
 		// Is PID control active ?
 		if( true )
 		{
+      print("[PID] Ich bin in the loop");
 			// Read the sensor value and scale
 			pidSensorCurrentValue = ((pidSensor==-1) ? encoderGet(getEncoderBL()) : digitalRead(pidSensor) * pidSensorScale + pidSensorOffset);
 
@@ -421,6 +423,7 @@ void taskDrivePid(void * ignored) {
 
 	driveRaw(0,0,0,0);
 	pidRunning = false;
+  pidTask = NULL;
 }
 
 void endPid() {
@@ -431,13 +434,17 @@ void endPid() {
 void startPid() {
   if(pidTask == NULL)
     initPID();
-  taskResume(pidTask);
+  else {
+      print("[ELib] Tried to start PID, loop already running!");
+      return;
+  }
 }
 
 // Increase Kp until constant oscillations
 // Multiply by 0.8
 // Increase Kd until oscillations stop
 void pidDriveStraight(long ticksToMove) {
+  print("[PID] Ich bin PID drive straight");
 	straightAssist = true;
 	pidRequestedValue = ticksToMove;
 	pidMode = 0;
@@ -448,7 +455,9 @@ void pidDriveStraight(long ticksToMove) {
 	kI = 0.0; //Integral Gain
 	kD = 1.0; //Derivitive Gain
 	kL = 50.0; //Integral Limit
+  print("[PID] Ich bin starting PID back");
 	startPid();
+  printf("[PID] Ich bin running pid straight? %d",pidRunning);
 }
 
 void pidDrivePoint(long ticksToMove) {
@@ -519,5 +528,11 @@ void waitForPidLimit(int termLimit) {
 void initPid() {
   pidTask = taskCreate(taskDrivePid, TASK_DEFAULT_STACK_SIZE, NULL,
                     TASK_PRIORITY_DEFAULT);
-  taskSuspend(pidTask);
+}
+
+// TODO Add to header and add to end of auton
+void killPid() {
+  // TODO Communicate to the task to kill itself so it can free up it's memory
+  if (pidTask != NULL)
+    taskDelete(pidTask);
 }

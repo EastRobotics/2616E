@@ -27,35 +27,35 @@ bool isWhite(bool right){
 }
 
 void driveToLine(int speed, bool forwards) {
-  speed = abs(speed) * (forwards ? 1 : -1);
-  int speedLeft = speed, speedRight = speed;
-  int lastSpeedLeft = speed, lastSpeedRight = speed; // Basicaly speedRight & speedLeft, but never set to 0
-  int rightSightings = 0, leftSightings = 0;
-  while(!(isWhite(true) && isWhite(false))) {
-    if(isWhite(true)) {
-      if(speedRight!=0) {
-        speedRight = 0;
-        rightSightings++;
-      } 
-    } else {
-      speedRight = ((rightSightings % 2==0) ? speed : speed*-1);
-      speedRight = (rightSightings > 0 ? speedRight/2 : speedRight);
-      lastSpeedRight = speedRight;
-    }
+    speed = abs(speed) * (forwards ? 1 : -1);
+    int speedLeft = speed, speedRight = speed;
+    int rightSightings = 0, leftSightings = 0;
+    int lastSpeedLeft = speed, lastSpeedRight = speed; // Basicaly speedRight & speedLeft, but never set to 0
+    while(!(isWhite(true) && isWhite(false))) {
+        if(isWhite(true)) {
+            if(speedRight!=0) {
+                speedRight = 0;
+                rightSightings++;
+            }
+        } else {
+            speedRight = ((rightSightings % 2==0) ? speed : speed*-1);
+            speedRight = (rightSightings > 0 ? speedRight/2 : speedRight);
+            lastSpeedRight = speedRight;
+        }
 
-    if(isWhite(false)) {
-      if(speedLeft!=0) {
-        speedLeft = 0;
-        leftSightings++;
-      }
-    } else {
-      speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
-      speedLeft = (leftSightings > 0 ? speedLeft/2 : speedLeft);
-      lastSpeedLeft = speedLeft;
-    }
+        if(isWhite(false)) {
+            if(speedLeft!=0) {
+                speedLeft = 0;
+                leftSightings++;
+            }
+        } else {
+            speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
+            speedLeft = (leftSightings > 0 ? speedLeft/2 : speedLeft);
+            lastSpeedLeft = speedLeft;
+        }
 
-    driveRaw(speedLeft,speedLeft,speedRight,speedRight);
-  }
+        driveRaw(speedLeft,speedLeft,speedRight,speedRight);
+    }
   driveRaw(lastSpeedLeft*-1,lastSpeedLeft*-1, lastSpeedRight*-1, lastSpeedRight*-1);
   delay(100);
   driveRaw(0, 0, 0, 0);
@@ -65,7 +65,7 @@ void driveToLine(int speed, bool forwards) {
 void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 
 void autonomous() {
-  initPID();
+  //initPID();
   setClawMode(1); // Give auton claw control
 
   switch (getAutonMode()) {
@@ -78,6 +78,7 @@ void autonomous() {
     //           50.0, 12.0);
     //startPIDLoop(0, 500.0);
     pidDriveStraight(2000);
+    waitForPid();
     break;
   case 3:
     print("Ran auton three!");
