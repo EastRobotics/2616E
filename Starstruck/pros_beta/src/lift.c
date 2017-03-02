@@ -20,7 +20,7 @@ bool autoLiftRunning = false;
 bool holdUpLift = false;
 
 int getLiftStartAngle() { return startingAngle; }
-int setLiftStartAngle(int angle) { startingAngle = angle; }
+void setLiftStartAngle(int angle) { startingAngle = angle; }
 
 // Sets all of the lift motors to the desired speed
 // (Note: positive speed is intended to move the lift up)
@@ -126,6 +126,7 @@ void initLift() { startingAngle = analogRead(ANALOG_POT_LIFT); }
 */
 
 int liftTarget = 0;
+TaskHandle liftTask;
 
 void autoLift(void *ignored) {
   int liftPos = analogRead(ANALOG_POT_LIFT);
@@ -165,4 +166,28 @@ void waitForLiftTimeout(int ms) {
     delay(15);
     timeSince += 15;
   }
+}
+
+void initLiftTask() {
+  if(liftTask == NULL)
+    liftTask = taskCreate(autoLift, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+}
+
+void startLiftTask() {
+  if(liftTask==NULL)
+    initLiftTask();
+  if(taskGetState(liftTask) != TASK_RUNNING)
+    taskResume(liftTask);
+}
+
+void stopLiftTask() {
+  if(liftTask==NULL)
+    initLiftTask();
+  if(taskGetState(liftTask) != TASK_SUSPENDED)
+    taskSuspend(liftTask);
+}
+
+void deleteLiftTask() {
+  if(liftTask!=NULL)
+    taskDelete(liftTask);
 }

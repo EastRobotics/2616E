@@ -121,7 +121,17 @@ void initLift();
 
 int getLiftStartAngle();
 
-int setLiftStartAngle(int angle);
+void setLiftStartAngle(int angle);
+
+void setLift(int target, int speed);
+
+void waitForLift();
+
+void waitForLiftTimeout(int ms);
+
+void initLiftTask();
+
+void deleteLiftTask();
 
 // End C++ export structure
 #ifdef __cplusplus

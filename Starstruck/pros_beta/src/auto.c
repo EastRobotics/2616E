@@ -64,9 +64,81 @@ void driveToLine(int speed, bool forwards) {
 // Shuts off motors *without parameters* to be used with PID Loop
 void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 
+void driveForTime(int speedLeft, int speedRight, int delayTime) {
+  driveRaw(speedLeft, speedLeft, speedRight, speedRight);
+  delay(delayTime);
+  driveRaw(0,0,0,0);
+}
+
+// Waste of task, should only be initialized in a bad auton that uses timed driving
+TaskHandle timeDrive;
+bool timeDriveRunning = false;
+int timeDriveSpeedLeft = 0, timeDriveSpeedRight = 0;
+int timeDriveDelay = 0, timeDriveCount = 0;
+const int timeDriveDelayRate = 15;
+void timeDriveAsynch(void * params) {
+  while(true) {
+    if(timeDriveRunning) {
+      if(timeDriveCount >= timeDriveDelay) {
+        driveRaw(0,0,0,0);
+        timeDriveRunning = false;
+        timeDriveCount = 0;
+      } else {
+        driveRaw(timeDriveSpeedLeft, timeDriveSpeedLeft, timeDriveSpeedRight, timeDriveSpeedRight);
+        timeDriveCount += timeDriveDelayRate;
+      }
+    }
+    delay(timeDriveDelayRate);
+  }
+}
+
+void waitForTimeDrive() {
+  while(timeDriveRunning)
+    delay(15);
+}
+
+void initTimeDriveTask() {
+  if(timeDrive == NULL)
+    timeDrive = taskCreate(timeDriveAsynch, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+}
+
+void startTimeDriveTask() {
+  if(timeDrive==NULL)
+    initTimeDriveTask();
+  if(taskGetState(timeDrive) != TASK_RUNNING)
+    taskResume(timeDrive);
+}
+
+void stopTimeDriveTask() {
+  if(timeDrive==NULL)
+    initTimeDriveTask();
+  if(taskGetState(timeDrive) != TASK_SUSPENDED)
+    taskSuspend(timeDrive);
+}
+
+void deleteTimeDriveTask() {
+  if(timeDrive!=NULL)
+    taskDelete(timeDrive);
+}
+
+void setTimeDrive(int speedL, int speedR, int delay) {
+  timeDriveSpeedLeft = speedL;
+  timeDriveSpeedRight = speedR;
+  timeDriveDelay = delay;
+  timeDriveRunning = true;
+  startTimeDriveTask();
+}
+
+void breakpoint() {
+  while(!digitalRead(DIGITAL_BREAKPOINT))
+    delay(20);
+}
+
 void autonomous() {
   //initPID();
   setClawMode(1); // Give auton claw control
+  initLiftTask();
+  int sideMult = getAutonPosition() ? -1 : 1;
 
   switch (getAutonMode()) {
   case 1:
@@ -90,6 +162,39 @@ void autonomous() {
     print("Ran auton four!");
     driveToLine(60,true);
     break;
+  case 5:
+    print("Ran auton five!");
+    initTimeDriveTask();
+    setTimeDrive(127, 127, 500);
+    waitForTimeDrive();
+    deleteTimeDriveTask();
+    break;
+  case 6:
+    print("Ran auton six!");
+    initTimeDriveTask();
+    setTimeDrive(-127, -127, 1000);
+    waitForTimeDrive();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    setTimeDrive(127 * sideMult,-127 * sideMult,500);
+    waitForTimeDrive();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    setClawTarget(500);
+    waitForClaw();
+    delay(100);
+    clawClose(500);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    driveToLine(100,true);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    driveForTime(-127,-127,1000);
+    setLift(1900, 127);
+    waitForTimeDrive();
+    waitForLift();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    setClawTarget(600);
+    waitForClaw();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    deleteTimeDriveTask();
+    break;
   default:
     print("Ran auton that wasn't given a case!");
   }
@@ -97,6 +202,7 @@ void autonomous() {
   shutdownPID();
   stopClaw(); // Set the claw to the current position
   setClawMode(0);
+  deleteLiftTask();
   // Should be run after all autons
   if (isOnline()) {
     gyroShutdown(getGyro()); // Disable our gyro
