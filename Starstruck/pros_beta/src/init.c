@@ -1,4 +1,5 @@
 #include "main.h"
+#include "JINX.h"
 
 Gyro gyro;
 
@@ -101,6 +102,16 @@ void initialize() {
   // Init left encoder, reversed
   encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP, DIGITAL_ENC_CLAW_L_BOT, true);
   initPidControl();
+
+
+  // Sets communication port for JINX data and start task to parse incoming
+  // messages.
+  print("[Init] Setting up JINX\n");
+  lcdSetText(uart2, 1, "Init JINX...");
+  initJINX(stdout);
+  delay(100);
+  taskCreate(JINXRun, TASK_DEFAULT_STACK_SIZE, NULL, (TASK_PRIORITY_DEFAULT));
+  delay(100);
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");

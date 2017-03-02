@@ -1,4 +1,5 @@
 #include "main.h"
+#include "JINX.h"
 
 #define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 15    // Joystick turn threshold
@@ -267,7 +268,7 @@ void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
 
 /////////////////////////////////////////////////////////////////////////////////////////
 //
-//                        PID (Currently on the frontburner)
+//                        PID (Currently on the frontburner)(lol)
 //
 /////////////////////////////////////////////////////////////////////////////////////////
 
@@ -328,7 +329,8 @@ void taskDrivePid(void * ignored) {
 		{
       print("[PID] Ich bin in the loop");
 			// Read the sensor value and scale
-			pidSensorCurrentValue = ((pidSensor==-1) ? encoderGet(getEncoderBL()) : digitalRead(pidSensor) * pidSensorScale + pidSensorOffset);
+			pidSensorCurrentValue = ((pidSensor==-1) ? encoderGet(getEncoderBL()) :
+          digitalRead(pidSensor) * pidSensorScale + pidSensorOffset);
 
 			// calculate error
 			pidError = pidSensorCurrentValue - pidRequestedValue;
@@ -355,6 +357,15 @@ void taskDrivePid(void * ignored) {
 
 			// limit drive
 			pidDrive = pidCorrectSpeed(pidDrive);
+
+      // Log base drive speed
+      static char temp[16];
+      sprintf(temp, "%f", pidDrive);
+      writeJINXData ("pidDrive", temp);
+      // Log error
+      memset(&temp[0], 0, sizeof(temp));
+      sprintf(temp, "%f", pidError);
+      writeJINXData ("pidError", temp);
 
 			int pidDriveLeft = pidDrive;
 			int pidDriveRight = pidDrive;
@@ -389,6 +400,19 @@ void taskDrivePid(void * ignored) {
 				// Linearize speeds
 				pidDriveLeft = (pidDriveLeft > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDriveLeft), 15, 0);
 				pidDriveRight = (pidDriveRight > 0 ? 1 : -1) * getLerpedSpeed(abs(pidDriveRight), 15, 0);
+
+        // Log gyro
+        memset(&temp[0], 0, sizeof(temp));
+        sprintf(temp, "%i", analogRead(ANALOG_GYRO));
+        writeJINXData ("gyro", temp);
+        // Log left drive
+        memset(&temp[0], 0, sizeof(temp));
+        sprintf(temp, "%i", pidDriveLeft);
+        writeJINXData ("driveLeft", temp);
+        // Log right drive
+        memset(&temp[0], 0, sizeof(temp));
+        sprintf(temp, "%i", pidDriveRight);
+        writeJINXData ("driveRight", temp);
 
 				driveRaw(pidDriveLeft, pidDriveLeft, pidDriveRight, pidDriveRight);
 				} else if (pidMode == 1) { // Point turn

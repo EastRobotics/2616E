@@ -5,7 +5,7 @@ ROOT=.
 # Binary output directory
 BINDIR=$(ROOT)/bin
 # Subdirectories to include in the build
-SUBDIRS=src src/2616E_lib
+SUBDIRS=src src/2616E_lib src/jinx
 
 # Nothing below here needs to be modified by typical users
 
