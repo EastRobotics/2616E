@@ -100,7 +100,7 @@ void initialize() {
   encClawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP, DIGITAL_ENC_CLAW_R_BOT, false);
   // Init left encoder, reversed
   encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP, DIGITAL_ENC_CLAW_L_BOT, true);
-  initPID();
+  initPidControl();
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");

@@ -5,7 +5,7 @@
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
 
-#define WHITE_THRESH 500 // Value to accept of the light sensor as the white line
+#define WHITE_THRESH 200 // Value to accept of the light sensor as the white line
 #define LINE_BREAK_TIME 75 // Milliseconds for the brake to last for on line up
 
 double KP = 2.0;

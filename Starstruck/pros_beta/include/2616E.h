@@ -159,7 +159,7 @@ extern "C" {
 
   void waitForPidLimit(int termLimit);
 
-  void initPid();
+  void initPidControl();
 
 /*
 ** Methods from autonswitch.c

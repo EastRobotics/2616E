@@ -68,7 +68,7 @@ void manageClaw(void *ignored) {
 
     // Holding button and in user control
     int buttonDirection = getButtonDirection();
-    printf("%i",buttonDirection);
+    //printf("%i",buttonDirection);
     if (clawMode == 0 && buttonDirection != 0) {
       // Opening, bigger is more open
       if (buttonDirection == 1) {

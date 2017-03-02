@@ -525,7 +525,7 @@ void waitForPidLimit(int termLimit) {
 	}
 }
 
-void initPid() {
+void initPidControl() {
   pidTask = taskCreate(taskDrivePid, TASK_DEFAULT_STACK_SIZE, NULL,
                     TASK_PRIORITY_DEFAULT);
 }
