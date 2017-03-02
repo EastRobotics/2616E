@@ -133,6 +133,10 @@ void initLiftTask();
 
 void deleteLiftTask();
 
+void setLiftMotors(int speed);
+
+void setHoldUp(bool holdUp);
+
 // End C++ export structure
 #ifdef __cplusplus
 }

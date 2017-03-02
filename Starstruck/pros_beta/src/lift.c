@@ -133,7 +133,7 @@ void autoLift(void *ignored) {
   const int misal = 25;
   while (true) {
     liftPos = analogRead(ANALOG_POT_LIFT);
-    int localLiftSpeed = autoLiftRunning ? liftSpeed : 0;
+    int localLiftSpeed = autoLiftRunning ? liftSpeed : (holdUpLift ? 30 : 0);
     if (abs(liftPos - liftTarget) > misal) {
       moveLiftWithLogic((liftPos - liftTarget > 0) ? localLiftSpeed * -1
                                                    : localLiftSpeed,
@@ -148,7 +148,7 @@ void autoLift(void *ignored) {
 }
 
 void setLift(int target, int speed) {
-  targetAngle = target;
+  liftTarget = target;
   liftSpeed = speed;
   autoLiftRunning = true;
 }

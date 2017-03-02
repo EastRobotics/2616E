@@ -8,6 +8,8 @@ void operatorControl() {
   initLift();
   shutdownPID(); // Make sure auton PID isn't running
 
+  setAutonMode(6);
+
   while (true) { // true cooler than 1
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
     // and 0 for strafe
@@ -65,7 +67,8 @@ void operatorControl() {
       // Check buttons 7 L, R, and D
       if (joystickGetDigital(1, 7, JOY_DOWN) ||
           joystickGetDigital(2, 7, JOY_DOWN)) { // 7D held
-        moveLiftWithLogic(-40, false);
+        //moveLiftWithLogic(-40, false);
+        setLiftMotors(-40);
       }
     }
 

@@ -21,6 +21,9 @@ void implUpdateLCD(bool userCaused, int page) {
       autonName = "Line up Test";
       break;
     case 5:
+      autonName = "TimeDrive Test";
+      break;
+    case 6:
       autonName = "Time Cube";
       break;
     default: { // Unknown mode

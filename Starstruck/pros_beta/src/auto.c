@@ -130,7 +130,7 @@ void setTimeDrive(int speedL, int speedR, int delay) {
 }
 
 void breakpoint() {
-  while(!digitalRead(DIGITAL_BREAKPOINT))
+  while(digitalRead(DIGITAL_BREAKPOINT))
     delay(20);
 }
 
@@ -171,29 +171,28 @@ void autonomous() {
     break;
   case 6:
     print("Ran auton six!");
-    initTimeDriveTask();
-    setTimeDrive(-127, -127, 1000);
-    waitForTimeDrive();
-    breakpoint(); //////////////////////////////////////////////////////////////
-    setTimeDrive(127 * sideMult,-127 * sideMult,500);
-    waitForTimeDrive();
-    breakpoint(); //////////////////////////////////////////////////////////////
-    setClawTarget(500);
+    setHoldUp(true);
+    driveForTime(100,100,300);
+    setClawTarget(250);
     waitForClaw();
-    delay(100);
-    clawClose(500);
-    breakpoint(); //////////////////////////////////////////////////////////////
-    driveToLine(100,true);
-    breakpoint(); //////////////////////////////////////////////////////////////
-    driveForTime(-127,-127,1000);
-    setLift(1900, 127);
-    waitForTimeDrive();
+    delay(200);
+    setLiftMotors(-40);
+    delay(50);
+    setLiftMotors(0);
+    driveForTime(100, 100, 500);
+    clawClose(1000);
+    setLift(1400, 127);
     waitForLift();
-    breakpoint(); //////////////////////////////////////////////////////////////
-    setClawTarget(600);
-    waitForClaw();
-    breakpoint(); //////////////////////////////////////////////////////////////
-    deleteTimeDriveTask();
+    delay(1500);
+    driveForTime(-100*sideMult, 100*sideMult, 500);
+    driveForTime(-60,-60,300);
+    delay(1000);
+    driveToLine(80,true);
+    driveForTime(-127,-127,500);
+    setLift(2200,127);
+    waitForLift();
+    setHoldUp(false);
+    setClawTarget(300);
     break;
   default:
     print("Ran auton that wasn't given a case!");
