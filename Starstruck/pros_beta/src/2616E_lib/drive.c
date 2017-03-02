@@ -327,7 +327,7 @@ void taskDrivePid(void * ignored) {
 		// Is PID control active ?
 		if( true )
 		{
-      print("[PID] Ich bin in the loop");
+      print("[PID] Ich bin in the loop!");
 			// Read the sensor value and scale
 			pidSensorCurrentValue = ((pidSensor==-1) ? encoderGet(getEncoderBL()) :
           digitalRead(pidSensor) * pidSensorScale + pidSensorOffset);
@@ -481,7 +481,7 @@ void pidDriveStraight(long ticksToMove) {
 	kL = 50.0; //Integral Limit
   print("[PID] Ich bin starting PID back");
 	startPid();
-  printf("[PID] Ich bin running pid straight? %d",pidRunning);
+  printf("[PID] Ich bin running (pid straight)? %d",pidRunning);
 }
 
 void pidDrivePoint(long ticksToMove) {
