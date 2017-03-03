@@ -272,6 +272,10 @@ void autonomous() {
       delay(100);
       driveToLine(100,false);
       waitForLift();
+      if(i==2) {
+        breakpoint(); //////////////////////////////////////////////////////////
+        driveForTime(100,-100,200);
+      }
       breakpoint(); ////////////////////////////////////////////////////////////
       delay(300);
       driveForTime(-100, -100, 500);

@@ -130,7 +130,7 @@ TaskHandle liftTask;
 
 void autoLift(void *ignored) {
   int liftPos = analogRead(ANALOG_POT_LIFT);
-  const int misal = 25;
+  const int misal = 15;
   while (true) {
     liftPos = analogRead(ANALOG_POT_LIFT);
     int localLiftSpeed = autoLiftRunning ? liftSpeed : (holdUpLift ? 30 : 0);
