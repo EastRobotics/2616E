@@ -233,6 +233,7 @@ void autonomous() {
     break;
   case 8:
     print("Ran auton eight!");
+    setHoldUp(true);
     // Drive to line and raise lift
     driveForTime(-100, -100, 300);
     setClawTarget(325);
@@ -248,6 +249,44 @@ void autonomous() {
     breakpoint(); //////////////////////////////////////////////////////////////
     driveForTime(-100,-100,500);
     breakpoint(); //////////////////////////////////////////////////////////////
+    setHoldUp(false);
+    break;
+  case 9:
+    print("Ran auton nine!");
+    setHoldUp(true);
+    // Prepare to loop grabbing and dumping game objects
+    driveToLine(80,false);
+    setClawTarget(250);
+    waitForClaw();
+    driveForTime(100,100,100);
+    driveForTime(-100,-100,50);
+    delay(500);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    // loop grabbing and dumping game objects
+    for(int i = 0; i < 3; i++) {
+      driveForTime(100,100,300);
+      clawClose(500);
+      delay(300);
+      breakpoint(); ////////////////////////////////////////////////////////////
+      setLift(1400,100);
+      delay(100);
+      driveToLine(100,false);
+      waitForLift();
+      breakpoint(); ////////////////////////////////////////////////////////////
+      delay(300);
+      driveForTime(-100, -100, 500);
+      delay(300);
+      breakpoint(); ////////////////////////////////////////////////////////////
+      setLift(2200, 127);
+      waitForLift();
+      setClawTarget(250);
+      waitForClaw();
+      breakpoint(); ////////////////////////////////////////////////////////////
+      setLift(getLiftStartAngle(), 127);
+      driveToLine(80,true);
+      breakpoint(); ////////////////////////////////////////////////////////////
+    }
+    setHoldUp(false);
     break;
   default:
     print("Ran auton that wasn't given a case!");
