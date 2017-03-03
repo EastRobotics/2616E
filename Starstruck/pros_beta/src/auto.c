@@ -196,6 +196,59 @@ void autonomous() {
     break;
   case 7:
     print("Ran auton seven!");
+    setHoldUp(true);
+    // Back up and deploy the claw
+    driveForTime(-100,-100,200);
+    setClawTarget(200);
+    waitForClaw();
+    driveForTime(100,100,100);
+    driveForTime(-100,-100,50);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    delay(200);
+    // Drive to and grab corner star
+    driveForTime(100,100,500);
+    delay(200);
+    clawClose(750);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    delay(350);
+    setLift(1500,90);
+    waitForLift();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    delay(1000);
+    // Turn and drive to fence
+    driveForTime(-127*sideMult,127*sideMult,300);
+    driveForTime(-60,-60,200);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    driveToLine(80,false);
+    delay(100);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    driveForTime(-127,-127,500);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    // Dump over fence
+    setLift(2200,127);
+    waitForLift();
+    setClawTarget(300);
+    setHoldUp(false);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    break;
+  case 8:
+    print("Ran auton eight!");
+    // Drive to line and raise lift
+    driveForTime(-100, -100, 300);
+    setClawTarget(325);
+    waitForClaw();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    setLift(1400, 80);
+    driveToLine(80,false);
+    waitForLift();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    // Finish raising lift and driving to fence
+    setLift(2100,80);
+    waitForLift();
+    breakpoint(); //////////////////////////////////////////////////////////////
+    driveForTime(-100,-100,500);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    break;
   default:
     print("Ran auton that wasn't given a case!");
   }
