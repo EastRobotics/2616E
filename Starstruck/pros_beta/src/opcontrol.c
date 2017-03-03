@@ -31,8 +31,11 @@ void operatorControl() {
           (abs(getLiftStartAngle() - analogRead(ANALOG_POT_LIFT)) > 150)) {
         // lock the lift
         lockLift();
-      } else { // Otherwise turn the lift off
-        moveLiftWithLogic(0, true);
+      } else { // Otherwise turn the lift off or hold down
+        if(analogRead(ANALOG_POT_LIFT) < (getLiftStartAngle() + 400))
+          moveLiftWithLogic(-20, false);
+        else
+          moveLiftWithLogic(0, true);
       }
     }
 
