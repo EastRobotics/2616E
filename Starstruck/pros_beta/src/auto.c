@@ -194,6 +194,8 @@ void autonomous() {
     setHoldUp(false);
     setClawTarget(300);
     break;
+  case 7:
+    print("Ran auton seven!");
   default:
     print("Ran auton that wasn't given a case!");
   }

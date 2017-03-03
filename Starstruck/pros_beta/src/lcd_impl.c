@@ -26,6 +26,9 @@ void implUpdateLCD(bool userCaused, int page) {
     case 6:
       autonName = "Time Cube";
       break;
+    case 7:
+      autonName = "Corner Star";
+      break;
     default: { // Unknown mode
       char *temp = NULL;
       snprintf(temp, 17, "Unknown %i", page);

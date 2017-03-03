@@ -18,7 +18,7 @@ void autonInit(unsigned char _maxAutonMode) { maxAutonMode = _maxAutonMode; }
 **   bool: Whether or not the set number was a valid number
 */
 bool setAutonMode(unsigned char _autonMode) {
-  if ((_autonMode >= MIN_AUTON_MODE) ||
+  if ((_autonMode >= MIN_AUTON_MODE) &&
       (_autonMode <= maxAutonMode)) { // If valid input
     autonMode = _autonMode;
   }
