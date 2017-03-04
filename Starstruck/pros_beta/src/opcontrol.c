@@ -8,7 +8,7 @@ void operatorControl() {
   initLift();
   shutdownPID(); // Make sure auton PID isn't running
 
-  setAutonMode(6);
+  setAutonMode(9);
 
   while (true) { // true cooler than 1
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
@@ -33,7 +33,7 @@ void operatorControl() {
         lockLift();
       } else { // Otherwise turn the lift off or hold down
         if(analogRead(ANALOG_POT_LIFT) < (getLiftStartAngle() + 400))
-          moveLiftWithLogic(-20, false);
+          setLiftMotors(-10);
         else
           moveLiftWithLogic(0, true);
       }

@@ -30,7 +30,7 @@ void driveToLine(int speed, bool forwards) {
     speed = abs(speed) * (forwards ? 1 : -1);
     int speedLeft = speed, speedRight = speed;
     int rightSightings = 0, leftSightings = 0;
-    int lastSpeedLeft = speed, lastSpeedRight = speed; // Basicaly speedRight & speedLeft, but never set to 0
+    int lastSpeedLeft = speed, lastSpeedRight = speed; // Basically speedRight & speedLeft, but never set to 0
     while(!(isWhite(true) && isWhite(false))) {
         if(isWhite(true)) {
             if(speedRight!=0) {
@@ -49,7 +49,7 @@ void driveToLine(int speed, bool forwards) {
                 leftSightings++;
             }
         } else {
-            speedLeft = ((leftSightings % 2)==0 ? speed : speed*-1);
+            speedLeft = ((leftSightings % 2 == 0) ? speed : speed*-1);
             speedLeft = (leftSightings > 0 ? speedLeft/2 : speedLeft);
             lastSpeedLeft = speedLeft;
         }
@@ -174,6 +174,9 @@ void autonomous() {
     setHoldUp(true);
     driveForTime(100,100,300);
     setClawTarget(250);
+    //delay(100);
+    //driveForTime(100,100,300);
+    //driveForTime(-100,-100,300);
     waitForClaw();
     delay(200);
     setLiftMotors(-40);
@@ -181,18 +184,40 @@ void autonomous() {
     setLiftMotors(0);
     driveForTime(100, 100, 500);
     clawClose(1000);
-    setLift(1400, 127);
+    setLift(1200, 95);
     waitForLift();
-    delay(1500);
     driveForTime(-100*sideMult, 100*sideMult, 500);
-    driveForTime(-60,-60,300);
-    delay(1000);
-    driveToLine(80,true);
+    driveForTime(-80,-80,300);
+    delay(500);
+    driveToLine(60,true);
     driveForTime(-127,-127,500);
     setLift(2200,127);
     waitForLift();
     setHoldUp(false);
     setClawTarget(300);
+    waitForClaw();
+    // Lower lift and go for stars
+    setLift(getLiftStartAngle(),127);
+    driveForTime(60 * sideMult,-60 * sideMult, 100);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    driveToLine(60,true);
+    setClawTarget(400);
+    waitForLift();
+    setClawTarget(-50);
+    driveForTime(100,100,300);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    delay(100);
+    stopClaw();
+    setLift(1200,127);
+    delay(100);
+    driveForTime(-100,-100,800);
+    breakpoint(); //////////////////////////////////////////////////////////////
+    delay(100);
+    setLift(2200,127);
+    waitForLift();
+    setClawTarget(300);
+    waitForClaw();
+    breakpoint(); //////////////////////////////////////////////////////////////
     break;
   case 7:
     print("Ran auton seven!");
@@ -255,41 +280,45 @@ void autonomous() {
     print("Ran auton nine!");
     setHoldUp(true);
     // Prepare to loop grabbing and dumping game objects
-    driveToLine(80,false);
+    driveToLine(60,false);
     setClawTarget(250);
     waitForClaw();
-    driveForTime(100,100,100);
-    driveForTime(-100,-100,50);
     delay(500);
-    breakpoint(); //////////////////////////////////////////////////////////////
     // loop grabbing and dumping game objects
     for(int i = 0; i < 3; i++) {
-      driveForTime(100,100,300);
+      driveForTime(100,100,((i==0) ? 275 : 225));
       clawClose(500);
       delay(300);
-      breakpoint(); ////////////////////////////////////////////////////////////
       setLift(1400,100);
-      delay(100);
-      driveToLine(100,false);
+      waitForLift();
+      delay(500);
+      driveToLine(60,false);
       waitForLift();
       if(i==2) {
-        breakpoint(); //////////////////////////////////////////////////////////
-        driveForTime(100,-100,200);
+        driveForTime(-100,100,200);
       }
-      breakpoint(); ////////////////////////////////////////////////////////////
       delay(300);
-      driveForTime(-100, -100, 500);
+      driveForTime(-100, -100, ((i!=2) ? 400 : 500));
       delay(300);
-      breakpoint(); ////////////////////////////////////////////////////////////
       setLift(2200, 127);
       waitForLift();
       setClawTarget(250);
       waitForClaw();
-      breakpoint(); ////////////////////////////////////////////////////////////
       setLift(getLiftStartAngle(), 127);
-      driveToLine(80,true);
-      breakpoint(); ////////////////////////////////////////////////////////////
+      if(i==2) {
+        driveForTime(100,-100,400);
+      } else {
+        driveToLine(75,true);
+      }
     }
+    // Go for cube then stars
+    driveForTime(100, 100, 300);
+    clawClose(500);
+    driveForTime(-100,-100,400);
+    setLift(2000,127);
+    waitForLift();
+    setClawTarget(300);
+    waitForClaw();
     setHoldUp(false);
     break;
   default:
