@@ -18,11 +18,12 @@ int getOdomPosY() { return posY; }
 
 int getOdomTheta() { return posTheta; }
 
-void initOdomScale(float wheelDiam, float driveCircum) {
+void initOdomScale(float wheelDiam, float driveDiam) {
   scale = (wheelDiam * PI * IN_TO_MM) / TICKS_PER_REV; // 1 in = 25.4 mm
-  turnScale = driveCircum / wheelDiam;
+  turnScale = 1.0 / (driveDiam * IN_TO_MM);
 }
 
+// Based off https://github.com/VTOW/BCI/tree/master/Modules odometry
 void trackRobotPosition(void *param) {
   // Reset encoders
   encoderReset(getEncoderBL());
@@ -53,7 +54,7 @@ void trackRobotPosition(void *param) {
     mm = (leftMM + rightMM) / 2.0;
 
     // Get theta
-    posTheta += (rightTicks - leftTicks) / turnScale; // May be broken 3/27
+    posTheta += (rightMM - leftMM) / turnScale; // May be broken
 
     // Wrap theta
     if (posTheta > 180)
