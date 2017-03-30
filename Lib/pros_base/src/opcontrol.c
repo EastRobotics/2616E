@@ -7,6 +7,8 @@ void operatorControl() {
   initClawControl();
   initLift();
   shutdownPID(); // Make sure auton PID isn't running
+  initOdomScale(4,15);
+
 
   setAutonMode(9);
   taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
@@ -20,9 +22,10 @@ void operatorControl() {
     lcdClear(uart2);
 
     // lcdPrint(uart2, 1, "X:%i T:%i", getOdomPosX(), getOdomTheta());
-    lcdPrint(uart2, 1, "X:%i", getOdomPosX());
-    lcdPrint(uart2, 2, "Y:%i", getOdomPosY());
-
+    lcdPrint(uart2, 1, "X:%d", getOdomPosX());
+    lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
+    printf("X:%d\n", getOdomPosX());
+    printf("Y:%d\n\n", getOdomPosY());
     delay(20);
     // // Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Manual
     // down)

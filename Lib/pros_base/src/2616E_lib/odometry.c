@@ -38,6 +38,13 @@ void trackRobotPosition(void *param) {
     leftCurr = encoderGet(getEncoderBL());
     rightCurr = encoderGet(getEncoderBR());
 
+    print("----------------------------------------");
+    printf("LCurr: %d\n", leftCurr);
+    printf("RCurr: %d\n", rightCurr);
+    printf("LLast: %ld\n", lastLeft);
+    printf("RLast: %ld\n", lastRight);
+    printf("turnScale: %f\n", turnScale);
+
     // Get delta angle
     leftTicks = leftCurr - lastLeft;
     rightTicks = rightCurr - lastRight;
@@ -50,11 +57,17 @@ void trackRobotPosition(void *param) {
     leftMM = (float)leftTicks * scale;
     rightMM = (float)rightTicks * scale;
 
+    printf("leftMM: %f\n", leftMM);
+    printf("rightMM: %f\n", rightMM);
+
     // Get avg delta
     mm = (leftMM + rightMM) / 2.0;
 
     // Get theta
     posTheta += (rightMM - leftMM) / turnScale; // May be broken
+    printf("posTheta: %f\n", posTheta);
+    print("----------------------------------------");
+
 
     // Wrap theta
     if (posTheta > 180)
