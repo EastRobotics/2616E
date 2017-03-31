@@ -1,5 +1,5 @@
-#include "main.h"
 #include "JINX.h"
+#include "main.h"
 
 Gyro gyro;
 
@@ -28,8 +28,8 @@ void initDriveEncoders() {
   encDriveBR =
       encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, false);
   // Init left encoder, not reverse
-   encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
-    DIGITAL_ENC_DRIVE_BL_BOT,false);
+  encDriveBL =
+      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, false);
 }
 
 /*
@@ -103,7 +103,6 @@ void initialize() {
   encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP, DIGITAL_ENC_CLAW_L_BOT, true);
   initPidControl();
 
-
   // Sets communication port for JINX data and start task to parse incoming
   // messages.
   print("[Init] Setting up JINX\n");
@@ -117,5 +116,5 @@ void initialize() {
   print("[Init] Finished, starting LCD menu\n");
   lcdSetText(uart2, 1, "Init menu...");
   lcdSetCycles(false);
-  //lcdStartMenu();
+  // lcdStartMenu();
 }

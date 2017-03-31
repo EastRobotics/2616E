@@ -7,12 +7,14 @@ void operatorControl() {
   initClawControl();
   initLift();
   shutdownPID(); // Make sure auton PID isn't running
-  initOdomScale(4,15);
-
+  initOdomScale(4, 15);
 
   setAutonMode(9);
   taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
              (TASK_PRIORITY_DEFAULT));
+
+  delay(1000);
+  odomReset();
 
   while (true) { // true cooler than 1
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
@@ -21,10 +23,10 @@ void operatorControl() {
                             0);
     lcdClear(uart2);
 
-    // lcdPrint(uart2, 1, "X:%i T:%i", getOdomPosX(), getOdomTheta());
-    lcdPrint(uart2, 1, "X:%d", getOdomPosX());
+    lcdPrint(uart2, 1, "X:%d T:%d", getOdomPosX(), getOdomTheta());
+    // lcdPrint(uart2, 1, "X:%d", getOdomPosX());
     lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
-    printf("X:%d\n", getOdomPosX());
+    printf("\nX:%d\n", getOdomPosX());
     printf("Y:%d\n\n", getOdomPosY());
     delay(20);
     // // Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Manual
