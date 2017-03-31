@@ -24,9 +24,9 @@ void odomReset() {
   posTheta = 0;
 }
 
-void initOdomScale(float wheelDiam, float driveDiam) {
+void initOdomScale(float wheelDiam, float driveCircum) {
   scale = (wheelDiam * PI * IN_TO_MM) / TICKS_PER_REV; // 1 in = 25.4 mm
-  turnScale = 1.0 / (driveDiam * IN_TO_MM);
+  turnScale = (hypot(15,13)/wheelDiam)*1.76;
 }
 
 // Based off https://github.com/VTOW/BCI/tree/master/Modules odometry
@@ -38,7 +38,7 @@ void trackRobotPosition(void *param) {
   float leftMM, rightMM, mm;
   int leftCurr, rightCurr;
   long lastLeft, lastRight, leftTicks, rightTicks;
-  // int lastGyro = analogRead(ANALOG_GYRO);
+  int lastGyro = gyroGet(getGyro());
 
   while (true) {
     // Save current quads
@@ -71,18 +71,18 @@ void trackRobotPosition(void *param) {
     mm = (leftMM + rightMM) / 2.0;
 
     // Get theta
-    if (mm != 0) {
-      posTheta += (rightMM - leftMM) / turnScale; // May be broken
-    }
-    // posTheta += (analogRead(ANALOG_GYRO) - lastGyro);
-    // lastGyro = analogRead(ANALOG_GYRO);
+    //if ((rightMM-leftMM) != 0) {
+    //  posTheta += (rightMM - leftMM) / turnScale; // May be broken
+    //}
+    posTheta += (gyroGet(getGyro()) - lastGyro);
+    lastGyro = gyroGet(getGyro());
     // printf("posTheta: %f\n", posTheta);
 
     // Wrap theta
-    if (posTheta > 180)
-      posTheta -= 360;
-    if (posTheta <= -180)
-      posTheta += 360;
+    //if (posTheta > 180)
+    //  posTheta -= 360;
+    //if (posTheta <= -180)
+    //  posTheta += 360;
 
     float posThetaRad = posTheta * PI / 180;
     // Do the odom math

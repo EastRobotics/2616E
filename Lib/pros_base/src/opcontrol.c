@@ -25,7 +25,8 @@ void operatorControl() {
 
     lcdPrint(uart2, 1, "X:%d T:%d", getOdomPosX(), getOdomTheta());
     // lcdPrint(uart2, 1, "X:%d", getOdomPosX());
-    lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
+    lcdPrint(uart2, 2, "Y:%d G:%d", getOdomPosY(), gyroGet(getGyro()));
+    //lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
     printf("\nX:%d\n", getOdomPosX());
     printf("Y:%d\n\n", getOdomPosY());
     delay(20);

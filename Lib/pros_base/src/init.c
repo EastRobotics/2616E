@@ -24,12 +24,12 @@ void killDriveEncoders() {
 }
 
 void initDriveEncoders() {
-  // Init right encoder, not reverse
+  // Init right encoder, reverse
   encDriveBR =
-      encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, false);
-  // Init left encoder, not reverse
+      encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, true);
+  // Init left encoder, reverse
   encDriveBL =
-      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, false);
+      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, true);
 }
 
 /*
@@ -91,7 +91,8 @@ void initialize() {
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");
   lcdSetText(uart2, 1, "Init gyro...");
-  gyro = gyroInit(ANALOG_GYRO, 0); // 0 multiplier = default, not * 0
+  // To tune: 196*((360*rotations)/gyroValue)
+  gyro = gyroInit(ANALOG_GYRO, 190); // default is 196, this is after tune
 
   // Set up our encoders
   print("[Init] Setting up encoders\n");
