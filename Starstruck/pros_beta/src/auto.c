@@ -146,9 +146,9 @@ void autonomous() {
     break;
   case 2:
     print("Ran auton two!");
-    //addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, KP, KI, KD,
-    //           50.0, 12.0);
-    //startPIDLoop(0, 500.0);
+    addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, KP, KI, KD,
+               50.0, 12.0);
+    startPIDLoop(0, 500.0);
     pidDriveStraight(2000);
     waitForPid();
     break;

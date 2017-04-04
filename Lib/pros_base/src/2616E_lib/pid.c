@@ -35,7 +35,7 @@ bool loopActive[PID_LOOP_COUNT]; // whether or not to run the loop
 // bool: whether or not the loop is done
 bool runPID(int index) {
   // get the necessary variables
-  double current = (*valueGetters[index])();
+  double current =  (*valueGetters[index])();
   double target = targets[index];
   double Kp = pConsts[index];
   double Ki = iConsts[index];
@@ -158,9 +158,9 @@ int setPIDLoop(unsigned int index, getCurrentValFunction valueGetter,
   if (index < PID_LOOP_COUNT) { // still can create loops (under max)
     // initialize "instance data" (I really like OOP)
     // probably should have used structs, but this should work
-    (*valueGetters[index]) = valueGetter;
-    (*valueSetters[index]) = valueSetter;
-    (*callbacks[index]) = PIDIteratorCallback;
+    valueGetters[index] = (*valueGetter)();
+    valueSetters[index] = (*valueSetter)(); // (*valueSetter)();
+    callbacks[index] = (*PIDIteratorCallback)();
     pConsts[index] = kP;
     iConsts[index] = kI;
     dConsts[index] = kD;

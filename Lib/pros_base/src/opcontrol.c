@@ -6,11 +6,16 @@ void operatorControl() {
   setClawMode(0); // Make sure we have claw control
   initClawControl();
   initLift();
-  shutdownPID(); // Make sure auton PID isn't running
 
-  setAutonMode(9);
+  setAutonMode(2);
   taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
              (TASK_PRIORITY_DEFAULT));
+
+  autonomous(); // Run auton test
+
+  print("Done auton");
+
+  shutdownPID(); // Make sure auton PID isn't running
 
   while (true) { // true cooler than 1
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),

@@ -101,7 +101,7 @@ void initialize() {
   encClawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP, DIGITAL_ENC_CLAW_R_BOT, false);
   // Init left encoder, reversed
   encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP, DIGITAL_ENC_CLAW_L_BOT, true);
-  initPidControl();
+  //initPidControl();
 
 
   // Sets communication port for JINX data and start task to parse incoming

@@ -135,7 +135,7 @@ void breakpoint() {
 }
 
 void autonomous() {
-  //initPID();
+  initPID();
   setClawMode(1); // Give auton claw control
   initLiftTask();
   int sideMult = getAutonPosition() ? -1 : 1;
@@ -146,11 +146,11 @@ void autonomous() {
     break;
   case 2:
     print("Ran auton two!");
-    //addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, KP, KI, KD,
-    //           50.0, 12.0);
+    addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, KP, KI, KD,
+               50.0, 12.0);
     //startPIDLoop(0, 500.0);
-    pidDriveStraight(2000);
-    waitForPid();
+    //pidDriveStraight(2000);
+    //waitForPid();
     break;
   case 3:
     print("Ran auton three!");
