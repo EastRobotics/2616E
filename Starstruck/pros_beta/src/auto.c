@@ -164,55 +164,96 @@ void autonomous() {
     break;
   case 5:
     print("Ran auton five!");
-    initTimeDriveTask();
-    setTimeDrive(127, 127, 500);
-    waitForTimeDrive();
-    deleteTimeDriveTask();
-    break;
-  case 6:
-    print("Ran auton six!");
     setHoldUp(true);
-    driveForTime(100,100,300);
-    setClawTarget(250);
-    //delay(100);
-    //driveForTime(100,100,300);
-    //driveForTime(-100,-100,300);
+    driveForTime(100,-100,525); // turn if ending
+    // Go for cube then stars
+    driveForTime(100, 100, 300);
+    delay(1000);
+    clawClose(500); // grab cube
+    driveForTime(-100,-100,200);
+    delay(100);
+    driveForTime(-100 * sideMult,100 * sideMult,500); // turn to fence
+    delay(100);
+    driveForTime(-100,-100,200);
+    setLift(2000,127);
+    waitForLift();
+    setClawTarget(300); // dump cube
     waitForClaw();
-    delay(200);
-    setLiftMotors(-40);
-    delay(50);
-    setLiftMotors(0);
-    driveForTime(100, 100, 500);
-    clawClose(1000);
-    setLift(1200, 95);
+    setLift(getLiftStartAngle(),127); // lower lift
     waitForLift();
-    driveForTime(-100*sideMult, 100*sideMult, 500);
-    driveForTime(-80,-80,300);
-    delay(500);
-    driveToLine(60,true);
-    driveForTime(-127,-127,500);
-    setLift(2200,127);
-    waitForLift();
-    setHoldUp(false);
-    setClawTarget(300);
-    waitForClaw();
-    // Lower lift and go for stars
-    setLift(getLiftStartAngle(),127);
-    driveForTime(60 * sideMult,-60 * sideMult, 100);
-    driveToLine(60,true);
-    setClawTarget(400);
-    waitForLift();
+    driveForTime(100,100,200);
+    delay(100);
+    driveForTime(100 * sideMult, -100 * sideMult,500); // turn to center
+    delay(100);
+    driveToLine(60, true); // square up with center line facing stars
+    delay(300);
+    // Go for the stars
+    breakpoint(); //////////////////////////////////////////////////////////////
     setClawTarget(-50);
     driveForTime(100,100,300);
     delay(1000);
     stopClaw();
     setLift(1200,127);
+    breakpoint(); //////////////////////////////////////////////////////////////
     delay(100);
-    driveForTime(-100,-100,800);
+    driveForTime(-100,-100,1200);
     delay(100);
+    breakpoint(); //////////////////////////////////////////////////////////////
     setLift(2200,127);
     waitForLift();
     setClawTarget(300);
+    waitForClaw();
+    setHoldUp(false);
+    break;
+  case 6:
+    print("Ran auton six!");
+    delay(50);
+    setHoldUp(true);
+    driveForTime(100,100,300); // drive a bit to avoid star
+    setClawTarget(250); // deploy claw
+    //delay(100);
+    //driveForTime(100,100,300);
+    //driveForTime(-100,-100,300);
+    waitForClaw();
+    delay(200);
+    setLiftMotors(-40); // push lift down an extra bit
+    delay(50);
+    setLiftMotors(0);
+    driveForTime(100, 100, 500); // drive to cube
+    clawClose(1000); // grab cube
+    setLift(1200, 95);
+    waitForLift();
+    driveForTime(-100*sideMult, 100*sideMult, 500); // turn to fence
+    driveForTime(-80,-80,300);
+    delay(500);
+    driveToLine(60,true); // square up with line
+    driveForTime(-127,-127,500);
+    setLift(2200,127);
+    waitForLift();
+    setHoldUp(false);
+    setClawTarget(300); // dump cube
+    waitForClaw();
+    clawClose(500);
+    // Lower lift and go for stars
+    setLift(getLiftStartAngle(),127); // lower lift
+    driveForTime(60 * sideMult,-60 * sideMult, 125); // turn to center of field
+    setClawTarget(300);
+    delay(100);
+    driveToLine(60,true); // square up with line
+    setClawTarget(350); // open claw wide
+    waitForLift();
+    setClawTarget(-50);
+    driveForTime(100,100,300); // drive to stars while closing claw
+    delay(1000);
+    stopClaw();
+    clawClose(1000); // finish closing claw
+    setLift(1200,127);
+    delay(100);
+    driveForTime(-100,-100,800); // drive to fence
+    delay(100);
+    setLift(2200,127);
+    waitForLift();
+    setClawTarget(300); // dump stars
     waitForClaw();
     break;
   case 7:
@@ -254,18 +295,22 @@ void autonomous() {
     break;
   case 8:
     print("Ran auton eight!");
-    setHoldUp(true);
+    //setHoldUp(true);
     // Drive to line and raise lift
     driveForTime(-100, -100, 300);
-    setClawTarget(325);
+    setClawTarget(275);
     waitForClaw();
     setLift(1400, 80);
-    driveToLine(70,false);
+    //driveToLine(70,false);
+    driveForTime(-100,-100,650);
     delay(1000);
     waitForLift();
     setLift(1400, 30);
     // Finish raising lift and driving to fence
-    setLift(2400,80);
+    setLift(2600,80);
+    setLiftMotors(80);
+    delay(500);
+    setLiftMotors(0);
     waitForLift();
     driveForTime(-100,-100,600);
     delay(2000);
@@ -278,58 +323,65 @@ void autonomous() {
   case 9:
     print("Ran auton nine!");
     setHoldUp(true);
+    driveForTime(-100,-100,500); // escape reflective red
     // Prepare to loop grabbing and dumping game objects
-    driveToLine(60,false);
-    setClawTarget(250);
+    driveToLine(60,false); // square up with line
+    setClawTarget(250); // open claw
     waitForClaw();
     delay(500);
     // loop grabbing and dumping game objects
     for(int i = 0; i < 3; i++) {
-      driveForTime(100,100,((i==0) ? 275 : 225));
-      clawClose(500);
+      driveForTime(100,100,((i==0) ? 275 : 225)); // back up (different amount for first run)
+      setLift(getLiftStartAngle(),100);
+      clawClose(1000);
+      delay(1000);
+      driveForTime(-100,-100,50); // Avoid hitting wall
       delay(800);
-      setLift(1400,100);
+      setLift(1400,100); // grab and hold up game object
       waitForLift();
       delay(500);
-      driveToLine(60,false);
+      driveForTime(-100,-100,100); // escape reflective red
+      driveToLine(60,false); // line up with line
       waitForLift();
       if(i==2) {
-        driveForTime(-100,100,200);
+        driveForTime(-100 * sideMult,100 * sideMult,200); // turn if last cube
       }
       delay(300);
-      driveForTime(-100, -100, ((i!=2) ? 400 : 500));
+      driveForTime(-100, -100, ((i!=2) ? 425 : 500)); // drive to fence
       delay(300);
-      setLift(2200, 127);
+      setLift(1900, 127);
       waitForLift();
-      setClawTarget(250);
+      setClawTarget(300);
+      setLift(2200, 127);
       waitForClaw();
-      setLift(getLiftStartAngle(), 127);
+      setLift(getLiftStartAngle(), 127); // lower lift
+      delay(500);
       if(i==2) {
-        driveForTime(100,-100,500);
+        driveForTime(100,-100,525); // turn if ending
       } else {
-        driveToLine(75,true);
+        driveToLine(60,true); // go back to line otherwise
       }
     }
     // Go for cube then stars
     driveForTime(100, 100, 300);
     delay(1000);
-    clawClose(500);
+    clawClose(500); // grab cube
     driveForTime(-100,-100,200);
     delay(100);
-    driveForTime(100 * sideMult,-100 * sideMult,500);
+    driveForTime(-100 * sideMult,100 * sideMult,500); // turn to fence
     delay(100);
     driveForTime(-100,-100,200);
     setLift(2000,127);
     waitForLift();
-    setClawTarget(300);
+    setClawTarget(300); // dump cube
     waitForClaw();
-    setLift(getLiftStartAngle(),127);
+    setLift(getLiftStartAngle(),127); // lower lift
     waitForLift();
     driveForTime(100,100,200);
     delay(100);
-    driveForTime(-100,100,500);
+    driveForTime(100 * sideMult, -100 * sideMult,500); // turn to center
     delay(100);
-    driveToLine(60, true);
+    driveToLine(60, true); // square up with center line facing stars
     delay(300);
     // Go for the stars
     breakpoint(); //////////////////////////////////////////////////////////////
@@ -340,7 +392,7 @@ void autonomous() {
     setLift(1200,127);
     breakpoint(); //////////////////////////////////////////////////////////////
     delay(100);
-    driveForTime(-100,-100,800);
+    driveForTime(-100,-100,1200);
     delay(100);
     breakpoint(); //////////////////////////////////////////////////////////////
     setLift(2200,127);

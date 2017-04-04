@@ -146,7 +146,7 @@ void stopClaw() {
 // Used for when we want to clamp an unknown orientation, and can't guarentee a
 // certain close value
 void clawClose(int ms) {
-  setClawTarget(-50); // Try and close the claw
+  setClawTarget(-135); // Try and close the claw
   int timeGone = 0;
   while (!(
       timeGone > ms ||

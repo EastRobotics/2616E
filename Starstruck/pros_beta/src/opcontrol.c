@@ -8,7 +8,7 @@ void operatorControl() {
   initLift();
   shutdownPID(); // Make sure auton PID isn't running
 
-  setAutonMode(9);
+  setAutonMode(1);
 
   while (true) { // true cooler than 1
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),

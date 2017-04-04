@@ -1,5 +1,5 @@
-#include "main.h"
 #include "JINX.h"
+#include "main.h"
 
 Gyro gyro;
 
@@ -24,12 +24,12 @@ void killDriveEncoders() {
 }
 
 void initDriveEncoders() {
-  // Init right encoder, not reverse
+  // Init right encoder, reverse
   encDriveBR =
-      encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, false);
-  // Init left encoder, not reverse
-   encDriveBL = encoderInit(DIGITAL_ENC_DRIVE_BL_TOP,
-    DIGITAL_ENC_DRIVE_BL_BOT,false);
+      encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, true);
+  // Init left encoder, reverse
+  encDriveBL =
+      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, true);
 }
 
 /*
@@ -91,7 +91,8 @@ void initialize() {
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");
   lcdSetText(uart2, 1, "Init gyro...");
-  gyro = gyroInit(ANALOG_GYRO, 0); // 0 multiplier = default, not * 0
+  // To tune: 196*((360*rotations)/gyroValue)
+  gyro = gyroInit(ANALOG_GYRO, 190); // default is 196, this is after tune
 
   // Set up our encoders
   print("[Init] Setting up encoders\n");
@@ -102,7 +103,6 @@ void initialize() {
   // Init left encoder, reversed
   encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP, DIGITAL_ENC_CLAW_L_BOT, true);
   //initPidControl();
-
 
   // Sets communication port for JINX data and start task to parse incoming
   // messages.
@@ -117,5 +117,5 @@ void initialize() {
   print("[Init] Finished, starting LCD menu\n");
   lcdSetText(uart2, 1, "Init menu...");
   lcdSetCycles(false);
-  //lcdStartMenu();
+  // lcdStartMenu();
 }

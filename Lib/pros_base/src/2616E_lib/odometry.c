@@ -18,11 +18,18 @@ int getOdomPosY() { return posY; }
 
 int getOdomTheta() { return posTheta; }
 
-void initOdomScale(float wheelDiam, float driveCircum) {
-  scale = (wheelDiam * PI * IN_TO_MM) / TICKS_PER_REV; // 1 in = 25.4 mm
-  turnScale = driveCircum / wheelDiam;
+void odomReset() {
+  posX = 0;
+  posY = 0;
+  posTheta = 0;
 }
 
+void initOdomScale(float wheelDiam, float driveCircum) {
+  scale = (wheelDiam * PI * IN_TO_MM) / TICKS_PER_REV; // 1 in = 25.4 mm
+  turnScale = (hypot(15,13)/wheelDiam)*1.76;
+}
+
+// Based off https://github.com/VTOW/BCI/tree/master/Modules odometry
 void trackRobotPosition(void *param) {
   // Reset encoders
   encoderReset(getEncoderBL());
@@ -31,11 +38,19 @@ void trackRobotPosition(void *param) {
   float leftMM, rightMM, mm;
   int leftCurr, rightCurr;
   long lastLeft, lastRight, leftTicks, rightTicks;
+  int lastGyro = gyroGet(getGyro());
 
   while (true) {
     // Save current quads
     leftCurr = encoderGet(getEncoderBL());
     rightCurr = encoderGet(getEncoderBR());
+
+    print("----------------------------------------\n");
+    printf("LCurr: %d\n", leftCurr);
+    printf("RCurr: %d\n", rightCurr);
+    printf("LLast: %ld\n", lastLeft);
+    printf("RLast: %ld\n", lastRight);
+    // printf("turnScale: %f\n", turnScale);
 
     // Get delta angle
     leftTicks = leftCurr - lastLeft;
@@ -49,22 +64,35 @@ void trackRobotPosition(void *param) {
     leftMM = (float)leftTicks * scale;
     rightMM = (float)rightTicks * scale;
 
+    // printf("leftMM: %f\n", leftMM);
+    // printf("rightMM: %f\n", rightMM);
+
     // Get avg delta
     mm = (leftMM + rightMM) / 2.0;
 
     // Get theta
-    posTheta += (rightTicks - leftTicks) / turnScale; // May be broken 3/27
+    //if ((rightMM-leftMM) != 0) {
+    //  posTheta += (rightMM - leftMM) / turnScale; // May be broken
+    //}
+    posTheta += (gyroGet(getGyro()) - lastGyro);
+    lastGyro = gyroGet(getGyro());
+    // printf("posTheta: %f\n", posTheta);
 
     // Wrap theta
-    if (posTheta > 180)
-      posTheta -= 360;
-    if (posTheta <= -180)
-      posTheta += 360;
+    //if (posTheta > 180)
+    //  posTheta -= 360;
+    //if (posTheta <= -180)
+    //  posTheta += 360;
 
+    float posThetaRad = posTheta * PI / 180;
     // Do the odom math
-    posX += mm * cos(posTheta);
-    posY += mm * sin(posTheta);
+    // printf("xAdd: %f\n", mm * cos(posThetaRad));
+    // printf("yAdd: %f\n", mm * sin(posThetaRad));
+    posX += mm * cos(posThetaRad);
+    posY += mm * sin(posThetaRad);
 
-    delay(5); // Give some other tasks some time
+    print("----------------------------------------\n");
+
+    delay(25); // Give some other tasks some time
   }
 }

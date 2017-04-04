@@ -6,10 +6,14 @@ void operatorControl() {
   setClawMode(0); // Make sure we have claw control
   initClawControl();
   initLift();
+  initOdomScale(4, 15);
 
   setAutonMode(2);
   taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
              (TASK_PRIORITY_DEFAULT));
+
+  delay(1000);
+  odomReset();
 
   autonomous(); // Run auton test
 
@@ -24,10 +28,12 @@ void operatorControl() {
                             0);
     lcdClear(uart2);
 
-    // lcdPrint(uart2, 1, "X:%i T:%i", getOdomPosX(), getOdomTheta());
-    lcdPrint(uart2, 1, "X:%i", getOdomPosX());
-    lcdPrint(uart2, 2, "Y:%i", getOdomPosY());
-
+    lcdPrint(uart2, 1, "X:%d T:%d", getOdomPosX(), getOdomTheta());
+    // lcdPrint(uart2, 1, "X:%d", getOdomPosX());
+    lcdPrint(uart2, 2, "Y:%d G:%d", getOdomPosY(), gyroGet(getGyro()));
+    //lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
+    printf("\nX:%d\n", getOdomPosX());
+    printf("Y:%d\n\n", getOdomPosY());
     delay(20);
     // // Move the lift, using the buttons 5U (Up), 5D (Down), and 7D(Manual
     // down)

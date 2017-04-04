@@ -289,6 +289,8 @@ extern "C" {
 
   int getOdomTheta();
 
+  void odomReset();
+
 #ifdef __cplusplus // end method if
 }
 #endif
