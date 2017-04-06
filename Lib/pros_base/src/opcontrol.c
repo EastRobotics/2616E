@@ -1,6 +1,19 @@
 #include "main.h"
+#include "string.h" // TODO Remove
 
 bool lastLiftButtonDown = false;
+
+// TODO Remove
+void blueListen(char *message) {
+  if (strcmp(message, "pos\r\n") == 0) { // Send position
+    fprintf(uart1, "Robot pos: (%d,%d)\r\n", getOdomPosX(), getOdomPosY());
+  } else if (strcmp(message, "gyro\r\n") == 0) { // Send gyro
+    fprintf(uart1, "Robot gyro: %d\r\n", gyroGet(getGyro()));
+  } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
+    bprint(1, "OMG it has too much give! >:(\r\n");
+  } else // Unknown command
+    fprintf(uart1, "I don't know what \"%s\" means :(", message);
+}
 
 void operatorControl() {
   shutdownPID(); // Make sure no PID is running
@@ -10,6 +23,9 @@ void operatorControl() {
              (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
   delay(100);                          // Give odom some time to start
   odomReset();                         // Clear it, leggo
+
+  // TODO Remove
+  blisten(1, blueListen); // Listen to messages
 
   // setAutonMode(2);
   // autonomous(); // Run auton test
