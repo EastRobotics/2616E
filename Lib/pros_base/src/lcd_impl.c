@@ -18,8 +18,8 @@ void implUpdateLCD(bool userCaused, int page) {
       autonName = "Test mode 3";
       break;
     default: { // Unknown mode
-      char *temp = NULL;
-      snprintf(temp, 17, "Unknown %i", page);
+      char temp[17];
+      snprintf(temp, 17, "Unknown %d", page);
       autonName = temp;
     }
     }

@@ -35,7 +35,7 @@ bool loopActive[PID_LOOP_COUNT]; // whether or not to run the loop
 // bool: whether or not the loop is done
 bool runPID(int index) {
   // get the necessary variables
-  double current = (*valueGetters[index])();
+  double current = (valueGetters[index])();
   double target = targets[index];
   double Kp = pConsts[index];
   double Ki = iConsts[index];
@@ -47,6 +47,11 @@ bool runPID(int index) {
 
   // calculate the error
   double error = current - target;
+
+  printf("index: %d", index);
+  printf("%d \n",error);
+  printf("curr: %d \n",current);
+  printf("targ: %d \n",target);
 
   // if close enough, break out
   if (abs(error) < thresh) {

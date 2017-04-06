@@ -1,5 +1,8 @@
 #include "main.h"
 
+void (*callback)(char *);
+FILE *uFile;
+
 // Init a typical hc05 bluetooth module
 void hc05Init(char uart, bool atMode) {
   FILE *uFile = uart == 1 ? uart1 : uart2;
@@ -20,8 +23,7 @@ void bprint(char uart, const char *message) {
   fprint(message, uFile); // Send a message to bluetooth
 }
 
-void blisten(char uart, void (*callback)(char *)) {
-  FILE *uFile = uart == 1 ? uart1 : uart2;
+void blistenTask(void * ignored) {
   while (true) {
     while (fcount(uFile) < 1) {
       delay(500);
@@ -29,6 +31,13 @@ void blisten(char uart, void (*callback)(char *)) {
     char buffer[100];
     callback(fgets(buffer, 50, uFile));
   }
+}
+
+void blisten(char uart, void (*_callback)(char *)) {
+  uFile = uart == 1 ? uart1 : uart2;
+  callback = _callback;
+  taskCreate(blistenTask, TASK_DEFAULT_STACK_SIZE, NULL,
+             TASK_PRIORITY_DEFAULT);
 }
 
 // Sorry, idk how to pass varargs, so no bprintf atm:

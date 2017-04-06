@@ -10,6 +10,19 @@ void breakpoint() {
     delay(20);
 }
 
+// Setter from the motor speed PID loop with *double parameter*
+void setMotorSpeedPID(double speed) {
+  int speedInt = round(speed);
+  driveRaw(speedInt, speedInt, speedInt, speedInt);
+}
+
+// Shuts off motors *without parameters* to be used with PID Loop
+void shutDownMotors() { driveRaw(0, 0, 0, 0); }
+
+// Gets the encoder value of a specific motor *without parameters*
+// To be used in PID
+double getEncoderValue() { return encoderGet(getEncoderBR()); }
+
 void autonomous() {
   /*
   ** Set up
@@ -27,6 +40,14 @@ void autonomous() {
     bprint(1, "Ran auton two!");
   case 3:
     print("Ran auton three!");
+  case 4:
+    print("Ran auton four!");
+    addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, 2.0, 0.04, 0.0,
+               50.0, 12.0);
+    startPIDLoop(0, 500.0);
+    delay(5000);
+    waitForPid();
+    break;
   default:
     print("Ran auton that wasn't given a case!");
   }

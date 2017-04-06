@@ -1,8 +1,6 @@
 #include "main.h"
 #include "string.h" // TODO Remove
 
-bool lastLiftButtonDown = false;
-
 // TODO Remove
 void blueListen(char *message) {
   if (strcmp(message, "pos\r\n") == 0) { // Send position
@@ -19,18 +17,18 @@ void operatorControl() {
   shutdownPID(); // Make sure no PID is running
 
   initOdomScale(4, 15); // Set up odom for 4 inch wheels with 15 inch diam
-  taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
-             (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
+  //taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
+  //           (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
   delay(100);                          // Give odom some time to start
   odomReset();                         // Clear it, leggo
 
   // TODO Remove
   blisten(1, blueListen); // Listen to messages
 
-  // setAutonMode(2);
-  // autonomous(); // Run auton test
-  // print("Done auton");
-  // shutdownPID(); // Make sure auton PID isn't running
+   setAutonMode(4);
+   autonomous(); // Run auton test
+   print("Done auton");
+   shutdownPID(); // Make sure auton PID isn't running
 
   while (true) { // true cooler than 1
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
@@ -46,8 +44,8 @@ void operatorControl() {
     // lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
 
     // Print odom pos
-    printf("\nX:%d\n", getOdomPosX());
-    printf("Y:%d\n\n", getOdomPosY());
+    //printf("\nX:%d\n", getOdomPosX());
+    //printf("Y:%d\n\n", getOdomPosY());
 
     delay(20);
   }
