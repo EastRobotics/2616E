@@ -291,6 +291,17 @@ extern "C" {
 
   void odomReset();
 
+  /*
+  ** Bluetooth.c
+  */
+
+  void hc05Init(char uart, bool atMode);
+
+  char * bluetoothRead(char uart);
+
+  void bprint(char uart, char * message);
+
+  void blisten(char uart, void( * callback)(char*));
 #ifdef __cplusplus // end method if
 }
 #endif
