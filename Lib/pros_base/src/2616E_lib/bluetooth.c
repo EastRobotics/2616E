@@ -15,7 +15,7 @@ char *bluetoothRead(char uart) {
   return fgets(buffer, 50, uFile);
 }
 
-void bprint(char uart, char *message) {
+void bprint(char uart, const char *message) {
   FILE *uFile = uart == 1 ? uart1 : uart2;
   fprint(message, uFile); // Send a message to bluetooth
 }
