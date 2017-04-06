@@ -7,16 +7,10 @@ Gyro getGyro() { return gyro; }
 
 Encoder encDriveBR;
 Encoder encDriveBL;
-Encoder encClawL;
-Encoder encClawR;
 
 Encoder getEncoderBR() { return encDriveBR; }
 
 Encoder getEncoderBL() { return encDriveBL; }
-
-Encoder getEncoderClawL() { return encClawL; }
-
-Encoder getEncoderClawR() { return encClawR; }
 
 void killDriveEncoders() {
   encoderShutdown(encDriveBL);
@@ -70,10 +64,11 @@ void initialize() {
 
   // Set up the LCD and start it
   print("[Init] Setting up the LCD\n");
-  lcdInitMenu(1, 9, 4); // Min 1, max 8, home 4
+  lcdInitMenu(1, 3, 1); // Min 1, max 3, home 1
   lcdSetUpdater(implUpdateLCD);
   lcdSetMenuBack(implMenuBack);
   lcdSetMenuNext(implMenuNext);
+  lcdSetCycles(true);
 
   // Set up our drive
   print("[Init] Setting up drive motors\n");
@@ -81,12 +76,12 @@ void initialize() {
   driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
   driveSetReverse(MOTOR_DRIVE_FL_REV, MOTOR_DRIVE_BL_REV, MOTOR_DRIVE_FR_REV,
                   MOTOR_DRIVE_BR_REV);
-  // enableSlew(15); // Set slew rate to 25
+  // enableSlew(15); // Set slew rate to 15
 
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
   lcdSetText(uart2, 1, "Init auton...");
-  autonInit(9);
+  autonInit(3); // 3 auton modes
 
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");
@@ -98,11 +93,7 @@ void initialize() {
   print("[Init] Setting up encoders\n");
   lcdSetText(uart2, 1, "Init Encs...");
   initDriveEncoders();
-  // Init right encoder, not reverse
-  encClawR = encoderInit(DIGITAL_ENC_CLAW_R_TOP, DIGITAL_ENC_CLAW_R_BOT, false);
-  // Init left encoder, reversed
-  encClawL = encoderInit(DIGITAL_ENC_CLAW_L_TOP, DIGITAL_ENC_CLAW_L_BOT, true);
-  //initPidControl();
+  // initPidControl();
 
   // Sets communication port for JINX data and start task to parse incoming
   // messages.
@@ -116,6 +107,8 @@ void initialize() {
   // Done init
   print("[Init] Finished, starting LCD menu\n");
   lcdSetText(uart2, 1, "Init menu...");
-  lcdSetCycles(false);
-  // lcdStartMenu();
+  lcdStartMenu();
+
+  // TODO Remove
+  hc05Init(1, false);
 }

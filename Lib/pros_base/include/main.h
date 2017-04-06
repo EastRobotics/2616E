@@ -73,69 +73,8 @@ void implMenuBack(int page);
 Gyro getGyro();
 Encoder getEncoderBR();
 Encoder getEncoderBL();
-Encoder getEncoderClawL();
-Encoder getEncoderClawR();
 void killDriveEncoders();
 void initDriveEncoders();
-
-///////////////////////////////////////////////////////////////////
-//
-//  Claw.c Task Management functions
-//
-///////////////////////////////////////////////////////////////////
-void manageClaw(void *);
-
-void initClawControl();
-
-void suspendClawControl();
-
-void resumeClawControl();
-
-void setClawMode(int mode);
-
-void setClawTarget(int target);
-
-void waitForClaw();
-
-void stopClaw();
-
-void clawClose(int ms);
-
-void resetClaw();
-
-///////////////////////////////////////////////////////////////////
-//
-//  Lift.c functions
-//
-///////////////////////////////////////////////////////////////////
-
-void setMotors(int);
-
-void holdLift(void * params);
-
-void lockLift();
-
-void moveLiftWithLogic(int,bool);
-
-void initLift();
-
-int getLiftStartAngle();
-
-void setLiftStartAngle(int angle);
-
-void setLift(int target, int speed);
-
-void waitForLift();
-
-void waitForLiftTimeout(int ms);
-
-void initLiftTask();
-
-void deleteLiftTask();
-
-void setLiftMotors(int speed);
-
-void setHoldUp(bool holdUp);
 
 // End C++ export structure
 #ifdef __cplusplus
