@@ -4,15 +4,15 @@
 
 // functions to get the current values
 typedef double (*getCurrentValFunction)();
-getCurrentValFunction *valueGetters[PID_LOOP_COUNT];
+getCurrentValFunction valueGetters[PID_LOOP_COUNT];
 
 // functions to send current values to do whatever with them
 typedef void (*setCurrentValFunction)(double);
-setCurrentValFunction *valueSetters[PID_LOOP_COUNT];
+setCurrentValFunction valueSetters[PID_LOOP_COUNT];
 
 // functions to run upon completing loop
 typedef void (*PIDIteratorCallbackFunction)();
-PIDIteratorCallbackFunction *callbacks[PID_LOOP_COUNT];
+PIDIteratorCallbackFunction callbacks[PID_LOOP_COUNT];
 
 double targets[PID_LOOP_COUNT];        // target values
 double pConsts[PID_LOOP_COUNT];        // P multipliers
@@ -35,7 +35,7 @@ bool loopActive[PID_LOOP_COUNT]; // whether or not to run the loop
 // bool: whether or not the loop is done
 bool runPID(int index) {
   // get the necessary variables
-  double current =  (*valueGetters[index])();
+  double current = (*valueGetters[index])();
   double target = targets[index];
   double Kp = pConsts[index];
   double Ki = iConsts[index];
@@ -50,7 +50,7 @@ bool runPID(int index) {
 
   // if close enough, break out
   if (abs(error) < thresh) {
-    (*callbacks[index])();
+    callbacks[index]();
     return true;
   }
 
@@ -78,7 +78,7 @@ bool runPID(int index) {
   double calc = (error * Kp) + (lastI * Ki) + (der * Kd);
 
   // send the value to user defined function
-  (*valueSetters[index])(calc);
+  valueSetters[index](calc);
 
   // has to run again
   return false;
@@ -129,7 +129,7 @@ void stopPIDLoop(unsigned int index, bool runCallback) {
   // run callback
   if (runCallback) {
     // this could be useful say to shut off the motors
-    (*callbacks[index])();
+    callbacks[index]();
   }
 }
 
@@ -158,9 +158,9 @@ int setPIDLoop(unsigned int index, getCurrentValFunction valueGetter,
   if (index < PID_LOOP_COUNT) { // still can create loops (under max)
     // initialize "instance data" (I really like OOP)
     // probably should have used structs, but this should work
-    valueGetters[index] = (*valueGetter)();
-    valueSetters[index] = (*valueSetter)(); // (*valueSetter)();
-    callbacks[index] = (*PIDIteratorCallback)();
+    valueGetters[index] = valueGetter;
+    valueSetters[index] = valueSetter;
+    callbacks[index] = PIDIteratorCallback;
     pConsts[index] = kP;
     iConsts[index] = kI;
     dConsts[index] = kD;
