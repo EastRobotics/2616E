@@ -25,6 +25,7 @@ void operatorControl() {
   // TODO Remove
   blisten(1, blueListen); // Listen to messages
 
+  
    setAutonMode(4);
    autonomous(); // Run auton test
    print("Done auton");

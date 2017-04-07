@@ -21,7 +21,9 @@ void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 
 // Gets the encoder value of a specific motor *without parameters*
 // To be used in PID
-double getEncoderValue() { return encoderGet(getEncoderBR()); }
+double getEncoderValue() {
+  return encoderGet(getEncoderBR());
+}
 
 void autonomous() {
   /*
@@ -34,15 +36,15 @@ void autonomous() {
   */
   switch (getAutonMode()) {
   case 1:
-    print("Ran auton one!");
+    print("Ran auton one!\n");
   case 2:
-    print("Ran auton two!");
+    print("Ran auton two!\n");
     bprint(1, "Ran auton two!");
   case 3:
-    print("Ran auton three!");
+    print("Ran auton three!\n");
   case 4:
-    print("Ran auton four!");
-    addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, 2.0, 0.04, 0.0,
+    print("Ran auton four!\n");
+    addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, 0.5, 0.0, 0.0,
                50.0, 12.0);
     startPIDLoop(0, 500.0);
     delay(5000);

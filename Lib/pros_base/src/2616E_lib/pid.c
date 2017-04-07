@@ -35,7 +35,7 @@ bool loopActive[PID_LOOP_COUNT]; // whether or not to run the loop
 // bool: whether or not the loop is done
 bool runPID(int index) {
   // get the necessary variables
-  double current = (valueGetters[index])();
+  double current = (*valueGetters[index])();
   double target = targets[index];
   double Kp = pConsts[index];
   double Ki = iConsts[index];
@@ -46,12 +46,12 @@ bool runPID(int index) {
   double thresh = accThresh[index];
 
   // calculate the error
-  double error = current - target;
+  double error = target - current;
 
-  printf("index: %d", index);
-  printf("%d \n",error);
-  printf("curr: %d \n",current);
-  printf("targ: %d \n",target);
+  printf("kP: %lf\n", Kp);
+  printf("error: %lf \n", error);
+  printf("curr: %lf \n", current);
+  printf("targ: %lf \n", target);
 
   // if close enough, break out
   if (abs(error) < thresh) {
@@ -81,6 +81,7 @@ bool runPID(int index) {
 
   //                 P       +       I      +      D
   double calc = (error * Kp) + (lastI * Ki) + (der * Kd);
+  printf("-----------------\ncalc: %lf\n\n", calc);
 
   // send the value to user defined function
   valueSetters[index](calc);
@@ -209,6 +210,27 @@ int addPIDLoop(getCurrentValFunction valueGetter,
   return index;
 }
 
+// Resets PID loop to have all zero values
+// To be called by user (public)
+// PARAMETERS:
+//  int: the index of the loop to be reset
+void resetPIDLoop(int index) {
+  targets[index] = 0.0;
+  pConsts[index] = 2.0;
+  iConsts[index] = 0.04;
+  dConsts[index] = 0.0;
+  integralLimits[index] = 50.0;
+  lastIntegral[index] = 0.0;
+  lastError[index] = 0.0;
+  accThresh[index] = 12.0;
+  loopActive[index] = false;
+}
+
+void waitForPID(int index) {
+  while(loopActive[index])
+    delay(100);
+}
+
 // Starts up the PID task, and initializes some variables
 void initPID() {
   print("[ELib] Initializing PID control task\n");
@@ -217,6 +239,7 @@ void initPID() {
     lastError[i] = 0;
     lastIntegral[i] = 0;
     loopActive[i] = false;
+    resetPIDLoop(i);
   }
   if (pidTask == NULL)
     pidTask = taskCreate(pidLoop, TASK_DEFAULT_STACK_SIZE, NULL,

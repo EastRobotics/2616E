@@ -49,10 +49,10 @@ extern "C" {
  #define DIGITAL_BREAKPOINT     1   // Breakpoint button         , digital 1
  #define DIGITAL_ARM_DEPLOY     6   // Arm deploy button         , digital 6
  // Claw
- #define DIGITAL_ENC_CLAW_R_TOP 2   // Encoder claw top     right, digital 2
- #define DIGITAL_ENC_CLAW_R_BOT 3   // Encoder claw bottom  right, digital 3
- #define DIGITAL_ENC_CLAW_L_TOP 4   // Encoder claw top     left,  digital 4
- #define DIGITAL_ENC_CLAW_L_BOT 5   // Encoder claw bottom  left,  digital 5
+ #define DIGITAL_ENC_CLAW_R_TOP 4   // Encoder claw top     right, digital 4
+ #define DIGITAL_ENC_CLAW_R_BOT 5   // Encoder claw bottom  right, digital 5
+ #define DIGITAL_ENC_CLAW_L_TOP 2   // Encoder claw top     left,  digital 2
+ #define DIGITAL_ENC_CLAW_L_BOT 3   // Encoder claw bottom  left,  digital 3
  // Drive
  #define DIGITAL_ENC_DRIVE_BR_TOP 7  // Encoder drive top    right, digital 7
  #define DIGITAL_ENC_DRIVE_BR_BOT 8  // Encoder drive bottom right, digital 8
