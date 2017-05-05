@@ -2,3 +2,7 @@
 	path = Lib/pros_base/src/2616E_lib
 	url = https://github.com/EastRobotics/elib-pros.git
 	branch = master
+[submodule "In The Zone/src/2616E_lib"]
+	path = In The Zone/src/2616E_lib
+	url = https://github.com/EastRobotics/elib-pros.git
+	branch = master
