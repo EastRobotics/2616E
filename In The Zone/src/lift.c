@@ -2,6 +2,17 @@
 #include "math.h"
 
 //------------------------------------------------------------------------------
+// TODO Configure speeds
+/*
+** Constants to represent certain positions
+*/
+#define POSITION_INTAKE_GROUND 1
+#define POSITION_INTAKE_LOADER 2
+#define POSITION_GOAL_STATIC 3
+#define POSITION_GOAL_BASE_INTERNAL 4
+#define POSITION_GOAL_BASE_EXTERNAL 5
+#define POSITION_GOAL_NONE -1
+
 // TODO Configure heights
 /*
 ** Constant heights of goals
@@ -31,6 +42,13 @@
 #define LIFT_BIAS_CORRECT_P 1.5 // P term to use when correcting offset of lift
 #define LIFT_TARGET_THRESH 5    // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P 1.5 // P term to use when setting speed to target
+
+// TODO Configure speeds
+/*
+** Constants to configure resting speeds of lift
+*/
+#define LIFT_SPEED_HOLDING 0
+#define LIFT_SPEED_IDLE 0
 
 //------------------------------------------------------------------------------
 
@@ -62,6 +80,8 @@ int getLiftHeight() {
 }
 
 int getLiftOffset() { return getLiftHeightLeft() - getLiftHeightRight(); }
+
+int getLiftError() { return getLiftHeight() - liftTarget; }
 
 //------------------------------------------------------------------------------
 
@@ -101,6 +121,8 @@ int correctBias(bool side, int speed, bool direction) {
   return speed; // No correction needed, return the speed
 }
 
+//------------------------------------------------------------------------------
+
 // Directly sets lift motor speeds
 // Shouldn't be used unless making control loops
 void setLiftSpeedRaw(int speedLeft, int speedRight) {
@@ -115,4 +137,51 @@ void setLiftSpeed(int speed) {
   bool direction = speed > 0;
   setLiftSpeedRaw(correctBias(DIR_LEFT, speed, direction),
                   correctBias(DIR_RIGHT, speed, direction));
+}
+
+// Sets the value for the lift to try and reach
+void setLiftTarget(int target) {
+  liftTarget = target;
+  // TODO Add anything else needed
+}
+
+//------------------------------------------------------------------------------
+
+// Transforms a goal constant into a height constant
+int getGoalHeight(int goal) {
+  switch (goal) {
+  case POSITION_GOAL_STATIC:
+    return HEIGHT_GOAL_STATC;
+  case POSITION_GOAL_BASE_INTERNAL:
+    return HEIGHT_GOAL_BASE_INTERNAL;
+  case POSITION_GOAL_BASE_EXTERNAL:
+    return HEIGHT_GOAL_BASE_EXTERNAL;
+  case POSITION_GOAL_NONE:
+  default:
+    return liftStart;
+  }
+}
+
+void setLiftTargetSmart(int goal, int cones) {
+  // Sets the lift target to the right height for the goal type and cone count
+  setLiftTarget(getGoalHeight(goal) + (HEIGHT_INCREMENT_CONE * cones));
+}
+
+//------------------------------------------------------------------------------
+
+// Task to handle the control of the lift
+void liftControl(void *ignored) {
+  // If the error is great enough, move lift towards target
+  if (abs(getLiftError()) > LIFT_TARGET_THRESH) {
+    // If lift is higher than target, move down, otherwise up
+    bool correctionDirection =
+        (getLiftHeight() - liftTarget) > 0 ? DIR_DOWN : DIR_UP;
+    // Set lift speed to Kp * error * directionMultiplier
+    setLiftSpeed(LIFT_TARGET_CORRECT_P * abs(getLiftError()) *
+                 (correctionDirection ? -1 : 1));
+  } else { // Otherwise let the lift be still
+    // TODO Determine whether or not to use LIFT_SPEED_HOLDING or
+    //    LIFT_SPEED_IDLE
+    setLiftSpeed(LIFT_SPEED_HOLDING);
+  }
 }
