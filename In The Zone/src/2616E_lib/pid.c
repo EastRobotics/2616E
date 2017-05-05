@@ -3,19 +3,15 @@
 #define PID_LOOP_COUNT 1
 
 // functions to be called upon starting the pid loop
-typedef void (*initFunction)(void);
 initFunction initializers[PID_LOOP_COUNT];
 
 // functions to get the current values
-typedef double (*getCurrentValFunction)();
 getCurrentValFunction valueGetters[PID_LOOP_COUNT];
 
 // functions to send current values to do whatever with them
-typedef void (*setCurrentValFunction)(double);
 setCurrentValFunction valueSetters[PID_LOOP_COUNT];
 
 // functions to run upon completing loop
-typedef void (*PIDIteratorCallbackFunction)(void);
 PIDIteratorCallbackFunction callbacks[PID_LOOP_COUNT];
 
 double targets[PID_LOOP_COUNT];        // target values
@@ -161,7 +157,8 @@ void stopPIDLoop(unsigned int index, bool runCallback) {
 // double: max integral limit before reset
 // double: range of accepted values to terminate loop, should be relatively low,
 // depending on what you are measuring
-int setPIDLoop(unsigned int index, initFunction init, getCurrentValFunction valueGetter,
+int setPIDLoop(unsigned int index, initFunction init,
+               getCurrentValFunction valueGetter,
                setCurrentValFunction valueSetter,
                PIDIteratorCallbackFunction PIDIteratorCallback, double kP,
                double kI, double kD, double integralLimit, double threshold) {
@@ -232,7 +229,7 @@ void resetPIDLoop(int index) {
 }
 
 void waitForPID(int index) {
-  while(loopActive[index])
+  while (loopActive[index])
     delay(100);
 }
 

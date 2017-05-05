@@ -10,6 +10,10 @@ void breakpoint() {
     delay(20);
 }
 
+void initDrivePID() {
+  // TODO Implement
+}
+
 // Setter from the motor speed PID loop with *double parameter*
 void setMotorSpeedPID(double speed) {
   int speedInt = round(speed);
@@ -21,9 +25,7 @@ void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 
 // Gets the encoder value of a specific motor *without parameters*
 // To be used in PID
-double getEncoderValue() {
-  return encoderGet(getEncoderBR());
-}
+double getEncoderValue() { return encoderGet(getEncoderBR()); }
 
 void autonomous() {
   /*
@@ -44,11 +46,11 @@ void autonomous() {
     print("Ran auton three!\n");
   case 4:
     print("Ran auton four!\n");
-    addPIDLoop(getEncoderValue, setMotorSpeedPID, shutDownMotors, 0.5, 0.0, 0.0,
-               50.0, 12.0);
+    addPIDLoop(initDrivePID, getEncoderValue, setMotorSpeedPID, shutDownMotors,
+               0.5, 0.0, 0.0, 50.0, 12.0);
     startPIDLoop(0, 500.0);
     delay(5000);
-    waitForPid();
+    waitForPID(0);
     break;
   default:
     print("Ran auton that wasn't given a case!");

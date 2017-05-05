@@ -237,11 +237,13 @@ extern "C" {
   ** Methods from pid.c
   */
 
-  typedef double( * getCurrentValFunction)();
+  typedef double (*getCurrentValFunction)();
 
-  typedef void( * setCurrentValFunction)(double);
+  typedef void (*setCurrentValFunction)(double);
 
-  typedef void( * PIDIteratorCallbackFunction)();
+  typedef void (*PIDIteratorCallbackFunction)(void);
+
+  typedef void (*initFunction)(void);
 
   bool runPID(int);
 
@@ -251,9 +253,16 @@ extern "C" {
 
   void stopPIDLoop(unsigned int, bool);
 
-  int setPIDLoop(unsigned int, getCurrentValFunction, setCurrentValFunction, PIDIteratorCallbackFunction, double, double, double, double, double);
+  int setPIDLoop(unsigned int index, initFunction init,
+                 getCurrentValFunction valueGetter,
+                 setCurrentValFunction valueSetter,
+                 PIDIteratorCallbackFunction PIDIteratorCallback, double kP,
+                 double kI, double kD, double integralLimit, double threshold);
 
-  int addPIDLoop(getCurrentValFunction, setCurrentValFunction, PIDIteratorCallbackFunction, double, double, double, double, double);
+  int addPIDLoop(initFunction init, getCurrentValFunction valueGetter,
+                 setCurrentValFunction valueSetter,
+                 PIDIteratorCallbackFunction PIDIteratorCallback, double kP,
+                 double kI, double kD, double integralLimit, double threshold);
 
   void initPID();
 
@@ -261,7 +270,11 @@ extern "C" {
 
   void resetPIDLoop(int index);
 
-  void initOdomScale(float wheelDiam, float driveCircum);
+  void waitForPID(int index);
+
+  double distance(double x1, double x2, double y1, double y2);
+
+  void initOdomScale(float wheelDiam, float driveCircum, float wheelEncRatio);
 
   void trackRobotPosition(void *param);
 
