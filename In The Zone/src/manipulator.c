@@ -30,3 +30,5 @@ void waitForManipulator() {
   while (!isManipulatorReady())
     delay(10);
 }
+
+void manipulatorScore() { setLiftTargetSmart(currentGoalType, getConeCount()); }
