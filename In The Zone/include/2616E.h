@@ -6,6 +6,8 @@
 // Setup the auton constants to define the starting position
 #define DIR_RIGHT true
 #define DIR_LEFT false
+#define DIR_UP true
+#define DIR_DOWN false
 #define COLOR_RED true
 #define COLOR_BLUE false
 

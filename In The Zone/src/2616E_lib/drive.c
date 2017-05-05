@@ -1,5 +1,4 @@
 #include "main.h"
-#include "JINX.h"
 
 #define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 15    // Joystick turn threshold
@@ -11,14 +10,14 @@
   15 // The amount the joystick has to move for it to be used in the linear
      // function to calculate RPM
 
-#define PID_SENSOR_INDEX    myEncoder
+#define PID_SENSOR_INDEX myEncoder
 
-#define PID_MOTOR_INDEX     myMotor
-#define PID_MOTOR_SCALE     -1
+#define PID_MOTOR_INDEX myMotor
+#define PID_MOTOR_SCALE -1
 
-#define PID_DRIVE_MAX       80
+#define PID_DRIVE_MAX 80
 
-#define PID_INTEGRAL_LIMIT  50
+#define PID_INTEGRAL_LIMIT 50
 
 #define PID_STRAIGHT_THRESH 4
 

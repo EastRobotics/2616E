@@ -76,6 +76,8 @@ Encoder getEncoderBL();
 void killDriveEncoders();
 void initDriveEncoders();
 
+// Methods from lift.c
+
 // End C++ export structure
 #ifdef __cplusplus
 }
