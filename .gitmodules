@@ -1,3 +1,4 @@
 [submodule "Lib/pros_base/src/2616E_lib"]
 	path = Lib/pros_base/src/2616E_lib
 	url = https://github.com/EastRobotics/elib-pros.git
+	branch = master
