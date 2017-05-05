@@ -53,9 +53,25 @@
 extern "C" {
 #endif
 
-//#define AUTO_DEBUG
+//------------------------------------------------------------------------------
 
-// Prototypes for initialization, operator control and autonomous
+// TODO Configure speeds
+/*
+** Constants to represent certain positions
+*/
+#define POSITION_GOAL_NONE -1
+#define POSITION_INTAKE_GROUND 1
+#define POSITION_INTAKE_LOADER 2
+#define POSITION_GOAL_STATIC 3
+#define POSITION_GOAL_BASE_INTERNAL 4
+#define POSITION_GOAL_BASE_EXTERNAL 5
+#define POSITION_WAITING 6
+
+//------------------------------------------------------------------------------
+
+/*
+** Prototypes for initialization, operator control and autonomous
+*/
 
 void autonomous();
 
@@ -69,6 +85,12 @@ void implUpdateLCD(bool userCaused, int page);
 void implMenuNext(int page);
 void implMenuBack(int page);
 
+//------------------------------------------------------------------------------
+
+/*
+** Sensor accessor methods
+*/
+
 // Holds gyro from the init.c file
 Gyro getGyro();
 Encoder getEncoderBR();
@@ -76,7 +98,57 @@ Encoder getEncoderBL();
 void killDriveEncoders();
 void initDriveEncoders();
 
-// Methods from lift.c
+//------------------------------------------------------------------------------
+
+/*
+** Lift control methods (lift.c)
+*/
+
+// Directly sets lift motor speeds
+// Shouldn't be used unless making control loops
+void setLiftSpeedRaw(int speedLeft, int speedRight);
+
+// Sets lift speed using bias correction
+// Positive speed upward, negative downward
+void setLiftSpeed(int speed);
+
+// Sets the value for the lift to try and reach
+void setLiftTarget(int target);
+
+// Transforms a goal constant into a height constant
+int getGoalHeight(int goal);
+
+// Sets the lift target to the right height for the goal type and cone count
+void setLiftTargetSmart(int goal, int cones);
+
+// Task to handle the control of the lift
+void liftControl(void *ignored);
+
+//------------------------------------------------------------------------------
+
+/*
+** Intake control methods (intake.c)
+*/
+
+// Directly sets intake motor speeds
+// Shouldn't be used unless making control loops
+void setIntakeSpeedRaw(int speedLeft, int speedRight);
+
+// Sets intake speed using bias correction
+// Positive speed upward, negative downward
+void setIntakeSpeed(int speed);
+
+// Sets the value for the intake to try and reach
+void setIntakeTarget(int target);
+
+// Transforms a goal constant into a pos constant
+int getGoalPos(int goal);
+
+// Sets the intake target to the right pos for the goal type
+void setIntakeTargetSmart(int goal);
+
+// Task to handle the control of the intake
+void intakeControl(void *ignored);
 
 // End C++ export structure
 #ifdef __cplusplus

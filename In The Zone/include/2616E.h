@@ -3,18 +3,25 @@
 // This prevents multiple inclusion, which isn't bad for this file but is good practice
 #define LIB2616E_H_
 
-// Setup the auton constants to define the starting position
-#define DIR_RIGHT true
-#define DIR_LEFT false
-#define DIR_UP true
-#define DIR_DOWN false
-#define COLOR_RED true
-#define COLOR_BLUE false
-
 // Allow usage of this file in C++ programs
 #ifdef __cplusplus
 extern "C" {
 #endif // Start method list
+
+//------------------------------------------------------------------------------
+/*
+** Global constants
+*/
+#define DIR_RIGHT true
+#define DIR_LEFT false
+#define DIR_UP true
+#define DIR_DOWN false
+#define DIR_FORWARD true
+#define DIR_BACKWARD false
+#define COLOR_RED true
+#define COLOR_BLUE false
+
+//------------------------------------------------------------------------------
 
 /*
 ** Methods from drive.c
@@ -143,6 +150,8 @@ extern "C" {
   */
   void driveRawSlew(int speedFL, int speedBL, int speedFR, int speedBR);
 
+//------------------------------------------------------------------------------
+
 /*
 ** Methods from autonswitch.c
 */
@@ -166,6 +175,8 @@ extern "C" {
   void setAutonColor(bool);
 
   bool getAutonColor();
+
+//------------------------------------------------------------------------------
 
   /*
   ** Methods from lcd.c
@@ -207,6 +218,8 @@ extern "C" {
 
   void lcdSetUpdater(updateLCDFunction);
 
+//------------------------------------------------------------------------------
+
   /*
   ** Methods from sensors.c
   */
@@ -234,6 +247,8 @@ extern "C" {
   int getLerpedSpeed(int power, int minSpeed, int minPower);
 
   bool sameSign(int one, int two);
+
+//------------------------------------------------------------------------------
 
   /*
   ** Methods from pid.c
@@ -287,6 +302,8 @@ extern "C" {
   int getOdomTheta();
 
   void odomReset();
+
+//------------------------------------------------------------------------------
 
   /*
   ** Bluetooth.c

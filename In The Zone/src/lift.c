@@ -1,18 +1,6 @@
 #include "main.h"
 #include "math.h"
 
-//------------------------------------------------------------------------------
-// TODO Configure speeds
-/*
-** Constants to represent certain positions
-*/
-#define POSITION_INTAKE_GROUND 1
-#define POSITION_INTAKE_LOADER 2
-#define POSITION_GOAL_STATIC 3
-#define POSITION_GOAL_BASE_INTERNAL 4
-#define POSITION_GOAL_BASE_EXTERNAL 5
-#define POSITION_GOAL_NONE -1
-
 // TODO Configure heights
 /*
 ** Constant heights of goals
@@ -162,8 +150,8 @@ int getGoalHeight(int goal) {
   }
 }
 
+// Sets the lift target to the right height for the goal type and cone count
 void setLiftTargetSmart(int goal, int cones) {
-  // Sets the lift target to the right height for the goal type and cone count
   setLiftTarget(getGoalHeight(goal) + (HEIGHT_INCREMENT_CONE * cones));
 }
 
@@ -171,6 +159,7 @@ void setLiftTargetSmart(int goal, int cones) {
 
 // Task to handle the control of the lift
 void liftControl(void *ignored) {
+  // TODO Handle upper and lower bounds
   // If the error is great enough, move lift towards target
   if (abs(getLiftError()) > LIFT_TARGET_THRESH) {
     // If lift is higher than target, move down, otherwise up
