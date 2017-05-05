@@ -96,7 +96,7 @@ char getIntakeBias(bool direction) {
 
 // Fixes malignant bias by slowing the biased side
 // Corrects left side by slowing right and vise versa, keep in mind when reading
-int correctBias(bool side, int speed, bool direction) {
+int corretIntakeBias(bool side, int speed, bool direction) {
   int bias = getIntakeBias(direction); // Get the current bias
   // If bias isn't 0 and the bias is the side we're checking for, return speed
   if (bias != 0 &&
@@ -122,8 +122,8 @@ void setIntakeSpeed(int speed) {
   if (speed == 0)
     setIntakeSpeedRaw(0, 0);
   bool direction = speed > 0;
-  setIntakeSpeedRaw(correctBias(DIR_LEFT, speed, direction),
-                    correctBias(DIR_RIGHT, speed, direction));
+  setIntakeSpeedRaw(corretIntakeBias(DIR_LEFT, speed, direction),
+                    corretIntakeBias(DIR_RIGHT, speed, direction));
 }
 
 // Sets the value for the intake to try and reach

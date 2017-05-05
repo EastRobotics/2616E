@@ -97,7 +97,7 @@ char getLiftBias(bool direction) {
 
 // Fixes malignant bias by slowing the biased side
 // Corrects left side by slowing right and vise versa, keep in mind when reading
-int correctBias(bool side, int speed, bool direction) {
+int corretLiftBias(bool side, int speed, bool direction) {
   int bias = getLiftBias(direction); // Get the current bias
   // If bias isn't 0 and the bias is the side we're checking for, return speed
   if (bias != 0 &&
@@ -123,8 +123,8 @@ void setLiftSpeed(int speed) {
   if (speed == 0)
     setLiftSpeedRaw(0, 0);
   bool direction = speed > 0;
-  setLiftSpeedRaw(correctBias(DIR_LEFT, speed, direction),
-                  correctBias(DIR_RIGHT, speed, direction));
+  setLiftSpeedRaw(corretLiftBias(DIR_LEFT, speed, direction),
+                  corretLiftBias(DIR_RIGHT, speed, direction));
 }
 
 // Sets the value for the lift to try and reach
