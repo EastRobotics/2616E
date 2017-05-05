@@ -155,13 +155,22 @@ void setLiftTargetSmart(int goal, int cones) {
   setLiftTarget(getGoalHeight(goal) + (HEIGHT_INCREMENT_CONE * cones));
 }
 
+// Whether or not the lift is at it's target
+bool isLiftReady() { return abs(getLiftError()) <= LIFT_TARGET_THRESH; }
+
+// Wait until the lift is at it's desired target
+void waitForLift() {
+  while (!isLiftReady())
+    delay(10);
+}
+
 //------------------------------------------------------------------------------
 
 // Task to handle the control of the lift
 void liftControl(void *ignored) {
   // TODO Handle upper and lower bounds
   // If the error is great enough, move lift towards target
-  if (abs(getLiftError()) > LIFT_TARGET_THRESH) {
+  if (!isLiftReady()) {
     // If lift is higher than target, move down, otherwise up
     bool correctionDirection =
         (getLiftHeight() - liftTarget) > 0 ? DIR_DOWN : DIR_UP;

@@ -66,6 +66,17 @@ extern "C" {
 #define POSITION_GOAL_BASE_INTERNAL 4
 #define POSITION_GOAL_BASE_EXTERNAL 5
 #define POSITION_WAITING 6
+#define POSITION_BASE_AVOID 7
+
+//------------------------------------------------------------------------------
+
+// TODO Configure speeds
+/*
+** Constants to represent certain actions
+*/
+#define ACTION_INTAKING 0
+#define ACTION_SCORING 1
+#define ACTION_BASE_AVOID 2
 
 //------------------------------------------------------------------------------
 
@@ -124,6 +135,12 @@ void setLiftTargetSmart(int goal, int cones);
 // Task to handle the control of the lift
 void liftControl(void *ignored);
 
+// Whether or not the lift is at it's target
+bool isLiftReady();
+
+// Wait until the lift is at it's desired target
+void waitForLift();
+
 //------------------------------------------------------------------------------
 
 /*
@@ -149,6 +166,12 @@ void setIntakeTargetSmart(int goal);
 
 // Task to handle the control of the intake
 void intakeControl(void *ignored);
+
+// Whether or not the intake is at it's target
+bool isIntakeReady();
+
+// Wait until the intake is at it's desired target
+void waitForIntake();
 
 // End C++ export structure
 #ifdef __cplusplus

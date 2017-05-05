@@ -150,13 +150,22 @@ int getGoalPos(int goal) {
 // Sets the intake target to the right pos for the goal type
 void setIntakeTargetSmart(int goal) { setIntakeTarget(getGoalPos(goal)); }
 
+// Whether or not the intake is at it's target
+bool isIntakeReady() { return abs(getIntakeError()) <= INTAKE_TARGET_THRESH; }
+
+// Wait until the intake is at it's desired target
+void waitForIntake() {
+  while (!isIntakeReady())
+    delay(10);
+}
+
 //------------------------------------------------------------------------------
 
 // Task to handle the control of the intake
 void intakeControl(void *ignored) {
   // TODO Handle upper and lower bounds
   // If the error is great enough, move intake towards target
-  if (abs(getIntakeError()) > INTAKE_TARGET_THRESH) {
+  if (!isIntakeReady()) {
     // If intake is higher than target, move down, otherwise up
     bool correctionDirection =
         (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
