@@ -17,7 +17,7 @@ We use the Mozilla Public License v2.0. Please read the full text [here](https:/
 * You can sell our source.
 * You can create a sublicense, place warranty, and place patents on **your** parts of the program.
 
-*Note, please read the full license. The above list does not classify as our license.*
+*Note, please read the full license. The above list does not classify as our license and or legal advice.*
 
 ## Usage
 You may use our software in your own robot as long as you follow our license (information above).
