@@ -76,7 +76,7 @@ extern "C" {
 */
 #define ACTION_INTAKING 0
 #define ACTION_SCORING 1
-#define ACTION_BASE_AVOID 2
+#define ACTION_EXTAKING 2
 
 //------------------------------------------------------------------------------
 
@@ -132,6 +132,9 @@ int getGoalHeight(int goal);
 // Sets the lift target to the right height for the goal type and cone count
 void setLiftTargetSmart(int goal, int cones);
 
+// Gets the lift target
+int getLiftTarget();
+
 // Task to handle the control of the lift
 void liftControl(void *ignored);
 
@@ -164,6 +167,9 @@ int getGoalPos(int goal);
 // Sets the intake target to the right pos for the goal type
 void setIntakeTargetSmart(int goal);
 
+// Gets the intake target
+int getIntakeTarget();
+
 // Task to handle the control of the intake
 void intakeControl(void *ignored);
 
@@ -172,6 +178,9 @@ bool isIntakeReady();
 
 // Wait until the intake is at it's desired target
 void waitForIntake();
+
+// Returns whether or not intake is out of way of cones
+bool intakeIsOutOfWay();
 
 // End C++ export structure
 #ifdef __cplusplus

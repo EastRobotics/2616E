@@ -80,7 +80,7 @@ int getLiftError() { return getLiftHeight() - liftTarget; }
 char getLiftBias(bool direction) {
   // If the lift has enough offset to need to be fixed
   if (abs(getLiftOffset()) > LIFT_BIAS_THRESH) {
-    if (DIR_UP) { // If lift is moving upward
+    if (DIR_UP == direction) { // If lift is moving upward
       if (getLiftHeightLeft() > getLiftHeightRight())
         return 1; // Lift is going up, so right is behind (1)
       else
@@ -123,6 +123,7 @@ void setLiftSpeed(int speed) {
   if (speed == 0)
     setLiftSpeedRaw(0, 0);
   bool direction = speed > 0;
+  // TODO Check bounds
   setLiftSpeedRaw(corretLiftBias(DIR_LEFT, speed, direction),
                   corretLiftBias(DIR_RIGHT, speed, direction));
 }
@@ -155,6 +156,10 @@ void setLiftTargetSmart(int goal, int cones) {
   setLiftTarget(getGoalHeight(goal) + (HEIGHT_INCREMENT_CONE * cones));
 }
 
+int getLiftTarget() {
+  return liftTarget;
+}
+
 // Whether or not the lift is at it's target
 bool isLiftReady() { return abs(getLiftError()) <= LIFT_TARGET_THRESH; }
 
@@ -168,18 +173,20 @@ void waitForLift() {
 
 // Task to handle the control of the lift
 void liftControl(void *ignored) {
-  // TODO Handle upper and lower bounds
-  // If the error is great enough, move lift towards target
-  if (!isLiftReady()) {
-    // If lift is higher than target, move down, otherwise up
-    bool correctionDirection =
-        (getLiftHeight() - liftTarget) > 0 ? DIR_DOWN : DIR_UP;
-    // Set lift speed to Kp * error * directionMultiplier
-    setLiftSpeed(LIFT_TARGET_CORRECT_P * abs(getLiftError()) *
-                 (correctionDirection ? -1 : 1));
-  } else { // Otherwise let the lift be still
-    // TODO Determine whether or not to use LIFT_SPEED_HOLDING or
-    //    LIFT_SPEED_IDLE
-    setLiftSpeed(LIFT_SPEED_HOLDING);
+  while(true) {
+    // TODO Handle upper and lower bounds
+    // If the error is great enough, move lift towards target
+    if (!isLiftReady()) {
+      // If lift is higher than target, move down, otherwise up
+      bool correctionDirection =
+          (getLiftHeight() - liftTarget) > 0 ? DIR_DOWN : DIR_UP;
+      // Set lift speed to Kp * error * directionMultiplier
+      setLiftSpeed(LIFT_TARGET_CORRECT_P * abs(getLiftError()) *
+                   (correctionDirection ? -1 : 1));
+    } else { // Otherwise let the lift be still
+      // TODO Determine whether or not to use LIFT_SPEED_HOLDING or
+      //    LIFT_SPEED_IDLE
+      setLiftSpeed(LIFT_SPEED_HOLDING);
+    }
   }
 }

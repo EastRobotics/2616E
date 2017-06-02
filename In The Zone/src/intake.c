@@ -19,7 +19,7 @@
 /*
 ** Constant specials pos
 */
-#define POS_POSITION_WAITING 15 // Pos for waiting for intake to be high enough
+#define POS_POSITION_AVOID 15 // Pos for waiting for intake to be high enough
 
 // TODO Configure values
 /*
@@ -79,7 +79,7 @@ int getIntakeError() { return getIntakePos() - intakeTarget; }
 char getIntakeBias(bool direction) {
   // If the intake has enough offset to need to be fixed
   if (abs(getIntakeOffset()) > INTAKE_BIAS_THRESH) {
-    if (DIR_FORWARD) { // If intake is moving forward
+    if (DIR_FORWARD == direction) { // If intake is moving forward
       if (getIntakePosLeft() > getIntakePosRight())
         return 1; // Intake is going forward, so right is behind (1)
       else
@@ -96,7 +96,7 @@ char getIntakeBias(bool direction) {
 
 // Fixes malignant bias by slowing the biased side
 // Corrects left side by slowing right and vise versa, keep in mind when reading
-int corretIntakeBias(bool side, int speed, bool direction) {
+int correctIntakeBias(bool side, int speed, bool direction) {
   int bias = getIntakeBias(direction); // Get the current bias
   // If bias isn't 0 and the bias is the side we're checking for, return speed
   if (bias != 0 &&
@@ -122,8 +122,8 @@ void setIntakeSpeed(int speed) {
   if (speed == 0)
     setIntakeSpeedRaw(0, 0);
   bool direction = speed > 0;
-  setIntakeSpeedRaw(corretIntakeBias(DIR_LEFT, speed, direction),
-                    corretIntakeBias(DIR_RIGHT, speed, direction));
+  setIntakeSpeedRaw(correctIntakeBias(DIR_LEFT, speed, direction),
+                    correctIntakeBias(DIR_RIGHT, speed, direction));
 }
 
 // Sets the value for the intake to try and reach
@@ -138,9 +138,10 @@ void setIntakeTarget(int target) {
 int getGoalPos(int goal) {
   switch (goal) {
   case POSITION_GOAL_STATIC:
-  case POSITION_GOAL_BASE_INTERNAL:
   case POSITION_GOAL_BASE_EXTERNAL:
     return POS_EXTAKE_EXTERNAL;
+  case POSITION_GOAL_BASE_INTERNAL:
+    return POS_EXTAKE_INTERNAL;
   case POSITION_GOAL_NONE:
   default:
     return getIntakePos();
@@ -149,6 +150,10 @@ int getGoalPos(int goal) {
 
 // Sets the intake target to the right pos for the goal type
 void setIntakeTargetSmart(int goal) { setIntakeTarget(getGoalPos(goal)); }
+
+int getIntakeTarget() {
+  return intakeTarget;
+}
 
 // Whether or not the intake is at it's target
 bool isIntakeReady() { return abs(getIntakeError()) <= INTAKE_TARGET_THRESH; }
@@ -159,22 +164,28 @@ void waitForIntake() {
     delay(10);
 }
 
+bool intakeIsOutOfWay() {
+  return getIntakePos() <= POS_POSITION_AVOID;
+}
+
 //------------------------------------------------------------------------------
 
 // Task to handle the control of the intake
 void intakeControl(void *ignored) {
-  // TODO Handle upper and lower bounds
-  // If the error is great enough, move intake towards target
-  if (!isIntakeReady()) {
-    // If intake is higher than target, move down, otherwise up
-    bool correctionDirection =
-        (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
-    // Set intake speed to Kp * error * directionMultiplier
-    setIntakeSpeed(INTAKE_TARGET_CORRECT_P * abs(getIntakeError()) *
-                   (correctionDirection ? -1 : 1));
-  } else { // Otherwise let the intake be still
-    // TODO Determine whether or not to use INTAKE_SPEED_HOLDING or
-    //    INTAKE_SPEED_IDLE
-    setIntakeSpeed(INTAKE_SPEED_HOLDING);
+  while(true) {
+    // TODO Handle upper and lower bounds
+    // If the error is great enough, move intake towards target
+    if (!isIntakeReady()) {
+      // If intake is higher than target, move down, otherwise up
+      bool correctionDirection =
+          (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
+      // Set intake speed to Kp * error * directionMultiplier
+      setIntakeSpeed(INTAKE_TARGET_CORRECT_P * abs(getIntakeError()) *
+                     (correctionDirection ? -1 : 1));
+    } else { // Otherwise let the intake be still
+      // TODO Determine whether or not to use INTAKE_SPEED_HOLDING or
+      //    INTAKE_SPEED_IDLE
+      setIntakeSpeed(INTAKE_SPEED_HOLDING);
+    }
   }
 }

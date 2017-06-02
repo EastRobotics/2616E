@@ -26,7 +26,7 @@ void operatorControl() {
   blisten(1, blueListen); // Listen to messages
 
   setAutonMode(4);
-  autonomous(); // Run auton test
+  //autonomous(); // Run auton test
   print("Done auton");
   shutdownPID(); // Make sure auton PID isn't running
 
