@@ -145,6 +145,10 @@ int getGoalHeight(int goal) {
     return HEIGHT_GOAL_BASE_INTERNAL;
   case POSITION_GOAL_BASE_EXTERNAL:
     return HEIGHT_GOAL_BASE_EXTERNAL;
+  case POSITION_INTAKE_GROUND:
+    return HEIGHT_INTAKE_GROUND;
+  case POSITION_INTAKE_LOADER:
+    return HEIGHT_INTAKE_LOADER;
   case POSITION_GOAL_NONE:
   default:
     return liftStart;

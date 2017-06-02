@@ -142,6 +142,8 @@ int getGoalPos(int goal) {
     return POS_EXTAKE_EXTERNAL;
   case POSITION_GOAL_BASE_INTERNAL:
     return POS_EXTAKE_INTERNAL;
+  case POSITION_BASE_AVOID:
+    return POS_POSITION_AVOID;
   case POSITION_GOAL_NONE:
   default:
     return getIntakePos();

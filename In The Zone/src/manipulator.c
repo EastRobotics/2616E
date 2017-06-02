@@ -36,7 +36,7 @@ void waitForManipulator() {
     delay(10);
 }
 
-void manipulatorSetCurrentPosition(int action) {
+void setCurrentAction(int action) {
   // If we were scoring, save last target height
   if(currentAction == ACTION_SCORING) {
     previousTarget = getLiftTarget();
@@ -57,11 +57,12 @@ void manipulatorControl(void *ignored) {
         setLiftTargetSmart(currentGoalType, getConeCount());
         // If we are not close enough to move
         if(abs(previousTarget-getLiftTarget()) > MANIPULATOR_AVOID_THRESH) {
-          // set intake to avoiding position
+          setIntakeTargetSmart(POSITION_BASE_AVOID);
         } else {
-          // set intake to scoring position
+          setIntakeTargetSmart(currentGoalType);
+          if(isIntakeReady() && isLiftReady())
+            setCurrentAction(ACTION_EXTAKING);
         }
-        // TODO handle completedAction
       }
       break;
       case ACTION_EXTAKING: {
@@ -75,12 +76,13 @@ void manipulatorControl(void *ignored) {
       break;
       // Synchronizing intake and lift to pick up cone
       case ACTION_INTAKING: {
-        setIntakeTargetSmart(currentIntakePos);
+        setIntakeTargetSmart(currentGoalType);
         // If we are not close enough to move
         if(intakeIsOutOfWay()) {
-          setLiftTarget(getGoalHeight(POSITION_GOAL_NONE));
+          setLiftTarget(getGoalHeight(currentIntakePos));
+          if(isIntakeReady() && isLiftReady())
+            completedAction = true;
         }
-        // TODO handle completedAction
       }
       break;
       default: {
