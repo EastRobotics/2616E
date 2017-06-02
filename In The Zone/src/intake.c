@@ -1,6 +1,8 @@
 #include "main.h"
 #include "math.h"
 
+// TODO Create method to shove intake down
+
 // TODO Configure pos
 /*
 ** Constant pos of intake zones
@@ -189,5 +191,6 @@ void intakeControl(void *ignored) {
       //    INTAKE_SPEED_IDLE
       setIntakeSpeed(INTAKE_SPEED_HOLDING);
     }
+    delay(10);
   }
 }

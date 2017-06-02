@@ -182,6 +182,46 @@ void waitForIntake();
 // Returns whether or not intake is out of way of cones
 bool intakeIsOutOfWay();
 
+//------------------------------------------------------------------------------
+
+/*
+** Manipulator control methods (manipulator.c)
+*/
+
+int getManipulatorIntakePos();
+
+int getGoalType();
+
+int getAction();
+
+// Get how many cones are on the current target goal
+int getConeCount();
+
+void setInternalConeCount(int coneCount);
+
+void setExternalConeCount(int coneCount);
+
+// Whether or not the manipulator is still doing something
+bool isManipulatorReady();
+
+// Wait until the intake is at it's desired target
+void waitForManipulator();
+
+void setCurrentAction(int action);
+
+void manipulatorScore();
+
+void manipulatorIntake();
+
+void setCurrGoalType(int goalType);
+
+void setIntakePos(int intakePos);
+
+int getCurrGoalType();
+
+// Task to handle the control of the manipulator system
+void manipulatorControl(void *ignored);
+
 // End C++ export structure
 #ifdef __cplusplus
 }

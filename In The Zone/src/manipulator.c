@@ -14,7 +14,7 @@ int currentAction = ACTION_SCORING; // What we're doing right now (start folded)
 int previousTarget = 0; // What the last target we scored on was
 bool completedAction = true; // Are we done doing what we want to be doing
 
-int getManipulatorPos() { return currentIntakePos; }
+int getManipulatorIntakePos() { return currentIntakePos; }
 
 int getGoalType() { return currentGoalType; }
 
@@ -27,8 +27,17 @@ int getConeCount() {
   return externalCones;
 }
 
+void setInternalConeCount(int coneCount) {
+  internalCones = coneCount;
+}
+
+void setExternalConeCount(int coneCount) {
+  externalCones = coneCount;
+}
+
 // Whether or not the manipulator is still doing something
-bool isManipulatorReady() { return isLiftReady() && isIntakeReady(); }
+bool isManipulatorReady() { return isLiftReady() && isIntakeReady() &&
+  completedAction; }
 
 // Wait until the intake is at it's desired target
 void waitForManipulator() {
@@ -45,7 +54,25 @@ void setCurrentAction(int action) {
 }
 
 void manipulatorScore() {
-  //setLiftTargetSmart(currentGoalType, getConeCount());
+  completedAction = false;
+  setCurrentAction(ACTION_SCORING);
+}
+
+void manipulatorIntake() {
+  completedAction = false;
+  setCurrentAction(ACTION_INTAKING);
+}
+
+void setCurrGoalType(int goalType) {
+  currentGoalType = goalType;
+}
+
+void setIntakePos(int intakePos) {
+  currentIntakePos = intakePos;
+}
+
+int getCurrGoalType() {
+  return currentGoalType;
 }
 
 // Task to handle the control of the manipulator system
@@ -60,8 +87,13 @@ void manipulatorControl(void *ignored) {
           setIntakeTargetSmart(POSITION_BASE_AVOID);
         } else {
           setIntakeTargetSmart(currentGoalType);
-          if(isIntakeReady() && isLiftReady())
+          if(isIntakeReady() && isLiftReady()) {
             setCurrentAction(ACTION_EXTAKING);
+            if(currentGoalType == POSITION_GOAL_BASE_INTERNAL)
+              internalCones++;
+            else
+              externalCones++;
+          }
         }
       }
       break;
@@ -89,5 +121,6 @@ void manipulatorControl(void *ignored) {
         print("ERROR -- MANIPULATOR HAS NO IDEA WHAT YOU ARE TRYING TO DO \n");
       }
     }
+    delay(50);
   }
 }

@@ -192,5 +192,6 @@ void liftControl(void *ignored) {
       //    LIFT_SPEED_IDLE
       setLiftSpeed(LIFT_SPEED_HOLDING);
     }
+    delay(10);
   }
 }
