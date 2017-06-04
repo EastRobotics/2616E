@@ -32,7 +32,9 @@ void operatorControl() {
   // autonomous(); // Run auton test
   // print("Done auton");
   // shutdownPID(); // Make sure auton PID isn't running
-  bool bumperRightPressed = false;
+
+  // 0: none, up: 1, down: 2
+  int rightBumperState = 0;
 
   while (true) { // true cooler than 1
     /*
@@ -46,41 +48,68 @@ void operatorControl() {
     /*
     ** Handle the main driver's controls
     */
-    // Right bumpers ===========================================================
-    // Since action is state based, only act once per press
-    //// Down
-    if (joystickGetDigital(1, 6, JOY_DOWN)) {
-      if (!bumperRightPressed) { // Only act if first time this press
+    // Right bumpers
+    // =========================================================================
+    // If nothing is pressed
+    if (!joystickGetDigital(1, 6, JOY_DOWN) &&
+        !joystickGetDigital(1, 6, JOY_UP)) {
+      rightBumperState = 0; // Set state to 0
+    } // IF we are just pressing something for the first time
+    else if (rightBumperState == 0 && (joystickGetDigital(1, 6, JOY_DOWN) ||
+                                       joystickGetDigital(1, 6, JOY_UP))) {
+      // Set the state
+      //// Up (dominant)
+      if (joystickGetDigital(1, 6, JOY_UP))
+        rightBumperState = 1;
+      //// Down (recessive)
+      else // Since we know something's pressed, has to be down then
+        rightBumperState = 2;
 
-        switch (getAction()) { // Start of switch ------------------------------
-        case ACTION_INTAKING: {
-          // Currently in intaking pos, so next up is waiting
+      // Start of action handling switch
+      // ---------------------------------------------------------------------
+      switch (getAction()) {
+      // *********************************************************************
+      case ACTION_INTAKING: {
+        // Currently in intaking pos
+        if (rightBumperState == 1) // Up: Wait.
           manipulatorIntakeWait();
-        } break;
-        case ACTION_WAITING: {
-          // Currently in waiting pos, so next up is scoring
+        //  Down: Nothing (Nowhere to go)
+      } break;
+      // *********************************************************************
+      case ACTION_WAITING: {
+        // Currently in waiting pos
+        if (rightBumperState == 1) // Up: Score.
           manipulatorScore();
-        } break;
-        case ACTION_SCORING: {
-          // Currently scoring, so next up is offloading mobile
-          // TODO Set manipulators to allow for pushing out mobile base
-        } break;
-        case ACTION_EXTAKING: {
-          // Currently extaking, so next up is offloading mobile
-          // Could hurt the robot if changing states here, so only act if done
-          if (isManipulatorReady()) {
-            // TODO Set manipulators to allow for pushing out mobile base
-          }
+        else //  Down: Intake
+          manipulatorIntake();
+      } break;
+      // *********************************************************************
+      case ACTION_SCORING: {
+        // Currently in scoring pos
+        if (rightBumperState == 1) // Up: Offload.
+          manipulatorIntakeWait(); // TODO Manipulator to offload base
+        else                       //  Down: Wait
+          manipulatorIntakeWait();
+      } break;
+      // *********************************************************************
+      case ACTION_EXTAKING: {
+        // Could hurt the robot if changing states here, so only act if done
+        if (isManipulatorReady()) {
+          // Currently in extaking pos
+          if (rightBumperState == 1) // Up: Offload.
+            manipulatorIntakeWait(); // TODO Manipulator to offload base
+          else                       //  Down: Wait
+            manipulatorIntakeWait();
         }
-        } // End of the switch -------------------------------------------------
       }
-    } else
-        //// Up
-        if (joystickGetDigital(1, 6, JOY_UP)) {
+        // ***********************************************************************
+        // TODO TODO TODO TODO TODO Case for when offloading base
+        // ***********************************************************************
+      } // End of the switch
+        // ---------------------------------------------------------------------
+    }
 
-    } else
-      bumperRightPressed = false;
-    //==========================================================================
+    // =========================================================================
 
     /*
     ** Handle the alt driver's controls
