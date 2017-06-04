@@ -1,3 +1,5 @@
+#define VERSION "0.0.1"
+
 /** @file main.h
  * @brief Header file for global functions
  *
@@ -77,6 +79,7 @@ extern "C" {
 #define ACTION_INTAKING 0
 #define ACTION_SCORING 1
 #define ACTION_EXTAKING 2
+#define ACTION_WAITING 3
 
 //------------------------------------------------------------------------------
 
@@ -212,6 +215,8 @@ void setCurrentAction(int action);
 void manipulatorScore();
 
 void manipulatorIntake();
+
+void manipulatorIntakeWait();
 
 void setCurrGoalType(int goalType);
 

@@ -11,7 +11,7 @@ int externalCones = 0; // How many cones are on whatever goal we're set to
 int currentIntakePos = POSITION_INTAKE_GROUND;     // Where we're intaking from
 int currentGoalType = POSITION_GOAL_BASE_INTERNAL; // Where we're scoring to
 int currentAction = ACTION_SCORING; // What we're doing right now (start folded)
-int previousTarget = 0; // What the last target we scored on was
+int previousTarget = 0;             // What the last target we scored on was
 bool completedAction = true; // Are we done doing what we want to be doing
 
 int getManipulatorIntakePos() { return currentIntakePos; }
@@ -27,17 +27,14 @@ int getConeCount() {
   return externalCones;
 }
 
-void setInternalConeCount(int coneCount) {
-  internalCones = coneCount;
-}
+void setInternalConeCount(int coneCount) { internalCones = coneCount; }
 
-void setExternalConeCount(int coneCount) {
-  externalCones = coneCount;
-}
+void setExternalConeCount(int coneCount) { externalCones = coneCount; }
 
 // Whether or not the manipulator is still doing something
-bool isManipulatorReady() { return isLiftReady() && isIntakeReady() &&
-  completedAction; }
+bool isManipulatorReady() {
+  return isLiftReady() && isIntakeReady() && completedAction;
+}
 
 // Wait until the intake is at it's desired target
 void waitForManipulator() {
@@ -47,7 +44,7 @@ void waitForManipulator() {
 
 void setCurrentAction(int action) {
   // If we were scoring, save last target height
-  if(currentAction == ACTION_SCORING) {
+  if (currentAction == ACTION_SCORING) {
     previousTarget = getLiftTarget();
   }
   currentAction = action;
@@ -63,63 +60,62 @@ void manipulatorIntake() {
   setCurrentAction(ACTION_INTAKING);
 }
 
-void setCurrGoalType(int goalType) {
-  currentGoalType = goalType;
+void manipulatorIntakeWait() {
+  completedAction = false;
+  setCurrentAction(ACTION_WAITING)
 }
 
-void setIntakePos(int intakePos) {
-  currentIntakePos = intakePos;
-}
+void setCurrGoalType(int goalType) { currentGoalType = goalType; }
 
-int getCurrGoalType() {
-  return currentGoalType;
-}
+void setIntakePos(int intakePos) { currentIntakePos = intakePos; }
+
+int getCurrGoalType() { return currentGoalType; }
 
 // Task to handle the control of the manipulator system
 void manipulatorControl(void *ignored) {
-  while(true) {
-    switch(currentAction) {
-      // Synchronizing intake and lift to score cone
-      case ACTION_SCORING: {
-        setLiftTargetSmart(currentGoalType, getConeCount());
-        // If we are not close enough to move
-        if(abs(previousTarget-getLiftTarget()) > MANIPULATOR_AVOID_THRESH) {
-          setIntakeTargetSmart(POSITION_BASE_AVOID);
-        } else {
-          setIntakeTargetSmart(currentGoalType);
-          if(isIntakeReady() && isLiftReady()) {
-            setCurrentAction(ACTION_EXTAKING);
-            if(currentGoalType == POSITION_GOAL_BASE_INTERNAL)
-              internalCones++;
-            else
-              externalCones++;
-          }
-        }
-      }
-      break;
-      case ACTION_EXTAKING: {
-        // Movement only necessary if scoring on internal goal
-        if(currentGoalType == POSITION_GOAL_BASE_INTERNAL) {
-          // TODO handle extaking motion
-          // TODO handle completedAction
-        } else
-            completedAction = true; // Nothing needs to be done
-      }
-      break;
-      // Synchronizing intake and lift to pick up cone
-      case ACTION_INTAKING: {
+  while (true) {
+    switch (currentAction) {
+    // Synchronizing intake and lift to score cone
+    case ACTION_SCORING: {
+      setLiftTargetSmart(currentGoalType, getConeCount());
+      // If we are not close enough to move
+      if (abs(previousTarget - getLiftTarget()) > MANIPULATOR_AVOID_THRESH) {
+        setIntakeTargetSmart(POSITION_BASE_AVOID);
+      } else {
         setIntakeTargetSmart(currentGoalType);
-        // If we are not close enough to move
-        if(intakeIsOutOfWay()) {
-          setLiftTarget(getGoalHeight(currentIntakePos));
-          if(isIntakeReady() && isLiftReady())
-            completedAction = true;
+        if (isIntakeReady() && isLiftReady()) {
+          setCurrentAction(ACTION_EXTAKING);
+          if (currentGoalType == POSITION_GOAL_BASE_INTERNAL)
+            internalCones++;
+          else
+            externalCones++;
         }
       }
-      break;
-      default: {
-        print("ERROR -- MANIPULATOR HAS NO IDEA WHAT YOU ARE TRYING TO DO \n");
+    } break;
+    case ACTION_EXTAKING: {
+      // Movement only necessary if scoring on internal goal
+      if (currentGoalType == POSITION_GOAL_BASE_INTERNAL) {
+        // TODO handle extaking motion
+        // TODO handle completedAction
+      } else
+        completedAction = true; // Nothing needs to be done
+    } break;
+    // Synchronizing intake and lift to pick up cone
+    case ACTION_WAITING: {
+      setIntakeTargetSmart(currentGoalType);
+      // If we are not close enough to move
+      if (intakeIsOutOfWay()) {
+        setLiftTarget(getGoalHeight(currentIntakePos));
+        if (isIntakeReady() && isLiftReady())
+          completedAction = true;
       }
+    } break;
+    case ACTION_INTAKING: {
+      // TODO Bring the lift down to the ground
+    } break;
+    default: {
+      print("ERROR -- MANIPULATOR HAS NO IDEA WHAT YOU ARE TRYING TO DO \n");
+    }
     }
     delay(50);
   }
