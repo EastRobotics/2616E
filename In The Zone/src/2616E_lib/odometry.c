@@ -18,6 +18,14 @@ int getOdomPosY() { return posY; }
 
 int getOdomTheta() { return posTheta; }
 
+void setOdomPosX(int x) {
+  posX = x;
+}
+
+void setOdomPosY(int y) {
+  posY = y;
+}
+
 void odomReset() {
   posX = 0;
   posY = 0;

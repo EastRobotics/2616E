@@ -10,6 +10,14 @@ void blueListen(char *message) {
     fprintf(uart1, "Robot gyro: %d\r\n", gyroGet(getGyro()));
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
+  } else if (strcmp(message, "cherisse\r\n") == 0) { // Send give complaint
+    bprint(1, "*SIGH*\r\n");
+  } else if (strcmp(message, "cameron\r\n") == 0) { // Send give complaint
+    bprint(1, "oh meine Bruter\r\n");
+  } else if (strcmp(message, "ian\r\n") == 0) { // Send give complaint
+    bprint(1, "*opens android studio*\r\n");
+  } else if (strcmp(message, "michael\r\n") == 0) { // Send give complaint
+    bprint(1, "sorry\r\n");
   } else // Unknown command
     fprintf(uart1, "I don't know what \"%s\" means :(", message);
 }
