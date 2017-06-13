@@ -291,6 +291,12 @@ extern "C" {
 
   double distance(double x1, double x2, double y1, double y2);
 
+  //------------------------------------------------------------------------------
+
+    /*
+    ** Methods from odometry.c
+    */
+
   void initOdomScale(float wheelDiam, float driveCircum, float wheelEncRatio);
 
   void trackRobotPosition(void *param);
@@ -302,6 +308,10 @@ extern "C" {
   int getOdomTheta();
 
   void odomReset();
+
+  void setOdomPosX(int x);
+
+  void setOdomPosY(int y);
 
 //------------------------------------------------------------------------------
 

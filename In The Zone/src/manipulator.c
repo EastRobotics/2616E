@@ -62,7 +62,7 @@ void manipulatorIntake() {
 
 void manipulatorIntakeWait() {
   completedAction = false;
-  setCurrentAction(ACTION_WAITING)
+  setCurrentAction(ACTION_WAITING);
 }
 
 void setCurrGoalType(int goalType) { currentGoalType = goalType; }
