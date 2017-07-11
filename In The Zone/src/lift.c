@@ -38,6 +38,10 @@
 #define LIFT_SPEED_HOLDING 0
 #define LIFT_SPEED_IDLE 0
 
+// TODO Configure values
+#define LIFT_MIN_HEIGHT 0
+#define LIFT_MAX_HEIGHT 1000
+
 //------------------------------------------------------------------------------
 
 /*

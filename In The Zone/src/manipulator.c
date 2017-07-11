@@ -65,6 +65,11 @@ void manipulatorIntakeWait() {
   setCurrentAction(ACTION_WAITING);
 }
 
+void manipulatorOffload() {
+  completedAction = false;
+  setCurrentAction(ACTION_OFFLOADING);
+}
+
 void setCurrGoalType(int goalType) { currentGoalType = goalType; }
 
 void setIntakePos(int intakePos) { currentIntakePos = intakePos; }
@@ -79,7 +84,7 @@ void manipulatorControl(void *ignored) {
     case ACTION_SCORING: {
       setLiftTargetSmart(currentGoalType, getConeCount());
       // If we are not close enough to move
-      if (abs(previousTarget - getLiftTarget()) > MANIPULATOR_AVOID_THRESH) {
+      if (abs(getLiftTarget() - getLiftHeight()) > MANIPULATOR_AVOID_THRESH) {
         setIntakeTargetSmart(POSITION_BASE_AVOID);
       } else {
         setIntakeTargetSmart(currentGoalType);
@@ -112,6 +117,11 @@ void manipulatorControl(void *ignored) {
     } break;
     case ACTION_INTAKING: {
       // TODO Bring the lift down to the ground
+    } break;
+    case ACTION_OFFLOADING: {
+      setLiftTargetSmart(POSITION_GOAL_BASE_INTERNAL, getConeCount() + 1);
+      setIntakeTargetSmart(POSITION_BASE_AVOID);
+
     } break;
     default: {
       print("ERROR -- MANIPULATOR HAS NO IDEA WHAT YOU ARE TRYING TO DO \n");

@@ -10,13 +10,13 @@ void blueListen(char *message) {
     fprintf(uart1, "Robot gyro: %d\r\n", gyroGet(getGyro()));
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
-  } else if (strcmp(message, "cherisse\r\n") == 0) { // Send give complaint
+  } else if (strcmp(message, "cherisse\r\n") == 0) { // Send a sign of disinterest
     bprint(1, "*SIGH*\r\n");
-  } else if (strcmp(message, "cameron\r\n") == 0) { // Send give complaint
+  } else if (strcmp(message, "cameron\r\n") == 0) { // Send a signal of comradery
     bprint(1, "oh meine Bruter\r\n");
-  } else if (strcmp(message, "ian\r\n") == 0) { // Send give complaint
+  } else if (strcmp(message, "ian\r\n") == 0) { // Send a message of IDE loyalty
     bprint(1, "*opens android studio*\r\n");
-  } else if (strcmp(message, "michael\r\n") == 0) { // Send give complaint
+  } else if (strcmp(message, "michael\r\n") == 0) { // Send an apology
     bprint(1, "sorry\r\n");
   } else // Unknown command
     fprintf(uart1, "I don't know what \"%s\" means :(", message);
@@ -53,6 +53,14 @@ void operatorControl() {
     driveHolonomicWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
                             0);
 
+    if(joystickGetDigital(1, 6, JOY_UP)) {
+      setLiftSpeed(127);
+    } else if(joystickGetDigital(1, 6, JOY_DOWN)) {
+      setLiftSpeed(-127);
+    } else {
+      setLiftSpeed(0);
+    }
+    continue;
     /*
     ** Handle the main driver's controls
     */
@@ -95,7 +103,7 @@ void operatorControl() {
       case ACTION_SCORING: {
         // Currently in scoring pos
         if (rightBumperState == 1) // Up: Offload.
-          manipulatorIntakeWait(); // TODO Manipulator to offload base
+          manipulatorOffload();
         else                       //  Down: Wait
           manipulatorIntakeWait();
       } break;
@@ -105,10 +113,16 @@ void operatorControl() {
         if (isManipulatorReady()) {
           // Currently in extaking pos
           if (rightBumperState == 1) // Up: Offload.
-            manipulatorIntakeWait(); // TODO Manipulator to offload base
+            manipulatorOffload();
           else                       //  Down: Wait
             manipulatorIntakeWait();
         }
+      } break;
+      // *********************************************************************
+      case ACTION_OFFLOADING: {
+        // Currently in offloading pos
+        if(rightBumperState == 2)
+          manipulatorIntake();
       }
         // ***********************************************************************
         // TODO TODO TODO TODO TODO Case for when offloading base
@@ -137,6 +151,10 @@ void operatorControl() {
     // Print odom pos
     // printf("\nX:%d\n", getOdomPosX());
     // printf("Y:%d\n\n", getOdomPosY());
+
+    // update the position on any external trackers
+    blueListen("pos");
+    blueListen("gyro");
 
     delay(20);
   }

@@ -39,11 +39,14 @@ void autonomous() {
   switch (getAutonMode()) {
   case 1:
     print("Ran auton one!\n");
+    break;
   case 2:
     print("Ran auton two!\n");
     bprint(1, "Ran auton two!");
+    break;
   case 3:
     print("Ran auton three!\n");
+    break;
   case 4:
     print("Ran auton four!\n");
     addPIDLoop(initDrivePID, getEncoderValue, setMotorSpeedPID, shutDownMotors,

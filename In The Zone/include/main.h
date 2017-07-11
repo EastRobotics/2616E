@@ -80,6 +80,7 @@ extern "C" {
 #define ACTION_SCORING 1
 #define ACTION_EXTAKING 2
 #define ACTION_WAITING 3
+#define ACTION_OFFLOADING 4
 
 //------------------------------------------------------------------------------
 
@@ -128,6 +129,8 @@ void setLiftSpeed(int speed);
 
 // Sets the value for the lift to try and reach
 void setLiftTarget(int target);
+
+int getLiftHeight();
 
 // Transforms a goal constant into a height constant
 int getGoalHeight(int goal);
@@ -217,6 +220,8 @@ void manipulatorScore();
 void manipulatorIntake();
 
 void manipulatorIntakeWait();
+
+void manipulatorOffload();
 
 void setCurrGoalType(int goalType);
 
