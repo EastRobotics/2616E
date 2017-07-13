@@ -5,14 +5,16 @@
 // Listen to bluetooth commands from an external controller and respond
 void blueListen(char *message) {
   if (strcmp(message, "pos\r\n") == 0) { // Send position
-    fprintf(uart1, "Robot pos: (%d,%d)\r\n", getOdomPosX(), getOdomPosY());
+    fprintf(uart1, "Robot pos: (%d,%d) >\r\n", getOdomPosX(), getOdomPosY());
   } else if (strcmp(message, "gyro\r\n") == 0) { // Send gyro
-    fprintf(uart1, "Robot gyro: %d\r\n", gyroGet(getGyro()));
+    fprintf(uart1, "Robot gyro: %d\r\n >", gyroGet(getGyro()));
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
-  } else if (strcmp(message, "cherisse\r\n") == 0) { // Send a sign of disinterest
+  } else if (strcmp(message, "cherisse\r\n") ==
+             0) { // Send a sign of disinterest
     bprint(1, "*SIGH*\r\n");
-  } else if (strcmp(message, "cameron\r\n") == 0) { // Send a signal of comradery
+  } else if (strcmp(message, "cameron\r\n") ==
+             0) { // Send a signal of comradery
     bprint(1, "oh meine Bruter\r\n");
   } else if (strcmp(message, "ian\r\n") == 0) { // Send a message of IDE loyalty
     bprint(1, "*opens android studio*\r\n");
@@ -27,10 +29,10 @@ void operatorControl() {
 
   initOdomScale(4, 15, 1); // Set up odom for 4 inch wheels with 15 inch diam
   // Start odometry
-  // taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
-  //           (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
-  delay(50);   // Give odom some time to start
-  odomReset(); // Clear it, leggo
+  taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
+             (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
+  delay(50);                           // Give odom some time to start
+  odomReset();                         // Clear it, leggo
 
   // TODO Remove
   // Initialize the bluetooth listener
@@ -53,14 +55,14 @@ void operatorControl() {
     driveHolonomicWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
                             0);
 
-    if(joystickGetDigital(1, 6, JOY_UP)) {
+    if (joystickGetDigital(1, 6, JOY_UP)) {
       setLiftSpeed(127);
-    } else if(joystickGetDigital(1, 6, JOY_DOWN)) {
+    } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
       setLiftSpeed(-127);
     } else {
       setLiftSpeed(0);
     }
-    continue;
+    // continue;
     /*
     ** Handle the main driver's controls
     */
@@ -104,7 +106,7 @@ void operatorControl() {
         // Currently in scoring pos
         if (rightBumperState == 1) // Up: Offload.
           manipulatorOffload();
-        else                       //  Down: Wait
+        else //  Down: Wait
           manipulatorIntakeWait();
       } break;
       // *********************************************************************
@@ -114,14 +116,14 @@ void operatorControl() {
           // Currently in extaking pos
           if (rightBumperState == 1) // Up: Offload.
             manipulatorOffload();
-          else                       //  Down: Wait
+          else //  Down: Wait
             manipulatorIntakeWait();
         }
       } break;
       // *********************************************************************
       case ACTION_OFFLOADING: {
         // Currently in offloading pos
-        if(rightBumperState == 2)
+        if (rightBumperState == 2)
           manipulatorIntake();
       }
         // ***********************************************************************
@@ -153,8 +155,8 @@ void operatorControl() {
     // printf("Y:%d\n\n", getOdomPosY());
 
     // update the position on any external trackers
-    blueListen("pos");
-    blueListen("gyro");
+    blueListen("pos\r\n");
+    blueListen("gyro\r\n");
 
     delay(20);
   }

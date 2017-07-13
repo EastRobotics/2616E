@@ -18,13 +18,9 @@ int getOdomPosY() { return posY; }
 
 int getOdomTheta() { return posTheta; }
 
-void setOdomPosX(int x) {
-  posX = x;
-}
+void setOdomPosX(int x) { posX = x; }
 
-void setOdomPosY(int y) {
-  posY = y;
-}
+void setOdomPosY(int y) { posY = y; }
 
 void odomReset() {
   posX = 0;
@@ -33,8 +29,9 @@ void odomReset() {
 }
 
 void initOdomScale(float wheelDiam, float driveCircum, float wheelEncRatio) {
-  scale = (wheelDiam * PI * IN_TO_MM * wheelEncRatio) / TICKS_PER_REV; // 1 in = 25.4 mm
-  turnScale = (hypot(15,13)/wheelDiam)/**1.76*/;
+  scale = (wheelDiam * PI * IN_TO_MM * wheelEncRatio) /
+          TICKS_PER_REV; // 1 in = 25.4 mm
+  turnScale = (hypot(11.5, 5) / wheelDiam) /**1.76*/;
 }
 
 // Based off https://github.com/VTOW/BCI/tree/master/Modules odometry
@@ -52,7 +49,7 @@ void trackRobotPosition(void *param) {
     leftCurr = encoderGet(getEncoderBL());
     rightCurr = encoderGet(getEncoderBR());
 
-    //print("----------------------------------------\n");
+    // print("----------------------------------------\n");
     // printf("LCurr: %d\n", leftCurr);
     // printf("RCurr: %d\n", rightCurr);
     // printf("LLast: %ld\n", lastLeft);
@@ -78,16 +75,16 @@ void trackRobotPosition(void *param) {
     mm = (leftMM + rightMM) / 2.0;
 
     // Get theta
-    //if ((rightMM-leftMM) != 0) {
+    // if ((rightMM-leftMM) != 0) {
     //  posTheta += (rightMM - leftMM) / turnScale; // May be broken
     //}
     posTheta = gyroGet(getGyro());
     // printf("posTheta: %f\n", posTheta);
 
     // Wrap theta
-    //if (posTheta > 180)
+    // if (posTheta > 180)
     //  posTheta -= 360;
-    //if (posTheta <= -180)
+    // if (posTheta <= -180)
     //  posTheta += 360;
 
     float posThetaRad = posTheta * PI / 180;
@@ -97,7 +94,7 @@ void trackRobotPosition(void *param) {
     posX -= mm * sin(posThetaRad);
     posY += mm * cos(posThetaRad);
 
-    //print("----------------------------------------\n");
+    // print("----------------------------------------\n");
 
     delay(25); // Give some other tasks some time
   }

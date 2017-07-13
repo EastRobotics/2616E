@@ -112,8 +112,10 @@ void lcdAutoRefresh(void *param) {
 void lcdManager(void *param) {
   bool buttonReleased = true;
   unsigned char highestCombination = 0;
+  printf("[Init] Starting LCD Buttons\n");
   while (true) {
     if (lcdReadButtons(uart2) == 0) { // A button wasn't pressed
+      // printf("1:%d\n", highestCombination);
       if (buttonReleased ==
           false) { // Button was pressed then released. Let's handle presses
         // lcdEndHold(); // Update our last held count
@@ -142,6 +144,7 @@ void lcdManager(void *param) {
         // Only run stuff if not paused or disabled
         if (!paused && isEnabled()) {
           if (highestCombination == 1) { // Left button pressed
+            printf("Cameron is going to read this, I know it");
             lcdLastPage();
             buttonReleased = false;
           } else if (highestCombination == 2) { // Center button pressed
