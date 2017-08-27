@@ -106,10 +106,11 @@ void implMenuBack(int page);
 ** Sensor accessor methods
 */
 
-// Holds gyro from the init.c file
-Gyro getGyro();
+Gyro getGyro(); // Holds gyro from the init.c file
 Encoder getEncoderBR();
 Encoder getEncoderBL();
+Encoder getEncoderChain();
+Encoder getEncoderLift();
 void killDriveEncoders();
 void initDriveEncoders();
 

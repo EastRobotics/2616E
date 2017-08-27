@@ -6,9 +6,13 @@ Gyro getGyro() { return gyro; }
 
 Encoder encDriveBR;
 Encoder encDriveBL;
+Encoder encChain;
+Encoder encLift;
 
 Encoder getEncoderBR() { return encDriveBR; }
 Encoder getEncoderBL() { return encDriveBL; }
+Encoder getEncoderChain() { return encChain; }
+Encoder getEncoderLift() { return encLift; }
 
 void killDriveEncoders() {
   encoderShutdown(encDriveBL);
