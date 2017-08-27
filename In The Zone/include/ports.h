@@ -48,13 +48,13 @@ extern "C" {
 ** (1-12) - Although not sure with PROS
 */
   // Auton
-  #define DIGITAL_BREAKPOINT     1   // Breakpoint button          , digital 1
-  #define DIGITAL_LIFT_ALIGN     6   // Lift deploy sensor         , digital 6
+  #define DIGITAL_BREAKPOINT     1   // Breakpoint button,           digital 1
+  #define DIGITAL_LIFT_ALIGN     6   // Lift deploy sensor,          digital 6
   // Claw
-  #define DIGITAL_ENC_CHAIN_TOP 2   // Encoder chain top     right, digital 2
-  #define DIGITAL_ENC_CHAIN_BOT 3   // Encoder chain bottom  right, digital 3
-  #define DIGITAL_ENC_LIFT_TOP 4    // Encoder lift  top     left,  digital 4
-  #define DIGITAL_ENC_LIFT_BOT 5    // Encoder lift  bottom  left,  digital 5
+  #define DIGITAL_ENC_CHAIN_TOP 2   // Encoder chain top     right,  digital 2
+  #define DIGITAL_ENC_CHAIN_BOT 3   // Encoder chain bottom  right,  digital 3
+  #define DIGITAL_ENC_LIFT_TOP 4    // Encoder lift  top     left,   digital 4
+  #define DIGITAL_ENC_LIFT_BOT 5    // Encoder lift  bottom  left,   digital 5
   // Drive
   #define DIGITAL_ENC_DRIVE_BR_TOP 7  // Encoder drive top    right, digital 7
   #define DIGITAL_ENC_DRIVE_BR_BOT 8  // Encoder drive bottom right, digital 8
@@ -62,7 +62,7 @@ extern "C" {
   #define DIGITAL_ENC_DRIVE_BL_BOT 12 // Encoder drive bottom left,  digital 12
 
 /*
-** I2C
+** I2C (WARNING: STATIC SHOCK)
 ** (0-IME_ADDR_MAX, AKA 0x1F)
 */
 

@@ -159,7 +159,7 @@ void waitForLift();
 
 // Directly sets intake motor speeds
 // Shouldn't be used unless making control loops
-void setIntakeSpeedRaw(int speedLeft, int speedRight);
+void setIntakeSpeedRaw(int speed);
 
 // Sets intake speed using bias correction
 // Positive speed upward, negative downward

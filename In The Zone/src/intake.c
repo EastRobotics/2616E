@@ -49,13 +49,15 @@ int intakeTarget = 0; // Delta from start for the intake to reach
 
 //------------------------------------------------------------------------------
 
-int getIntakePosLeft() {
-  return 0; // TODO Use actual sensor value
-}
+// =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
+// int getIntakePosLeft() {
+//   return 0; // TODO Use actual sensor value
+// }
 
-int getIntakePosRight() {
-  return 0; // TODO Use actual sensor value
-}
+// =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
+// int getIntakePosRight() {
+//   return 0; // TODO Use actual sensor value
+// }
 
 /*
 ** Gets the averaged pos of the two intake sensors
@@ -64,11 +66,14 @@ int getIntakePosRight() {
 **    int: The averaged pos of the two sensors w/out filter
 */
 int getIntakePos() {
-  return floor((((double)getIntakePosLeft() / getIntakePosRight()) / 2.0) +
-               0.5);
+  // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
+  // return floor((((double)getIntakePosLeft() / getIntakePosRight()) / 2.0) +
+  //              0.5);
+  return 0; // TODO Use actual sensor value
 }
 
-int getIntakeOffset() { return getIntakePosLeft() - getIntakePosRight(); }
+// =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
+// int getIntakeOffset() { return getIntakePosLeft() - getIntakePosRight(); }
 
 int getIntakeError() { return getIntakePos() - intakeTarget; }
 
@@ -78,54 +83,60 @@ int getIntakeError() { return getIntakePos() - intakeTarget; }
 // -1: Left is behind
 // 0: No correction needed
 // 1: Right is behind
-char getIntakeBias(bool direction) {
-  // If the intake has enough offset to need to be fixed
-  if (abs(getIntakeOffset()) > INTAKE_BIAS_THRESH) {
-    if (DIR_FORWARD == direction) { // If intake is moving forward
-      if (getIntakePosLeft() > getIntakePosRight())
-        return 1; // Intake is going forward, so right is behind (1)
-      else
-        return -1; // Intake is going forward, so left  is behind (-1)
-    } else {       // If intake is moving downward
-      if (getIntakePosLeft() > getIntakePosRight())
-        return -1; // Intake is going backward, so left  is behind (-1)
-      else
-        return 1; // Intake is going backward, so right is behind (1)
-    }
-  }
-  return 0; // Intake sides don't need correction, return 0
-}
+// =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
+// char getIntakeBias(bool direction) {
+//   // If the intake has enough offset to need to be fixed
+//   if (abs(getIntakeOffset()) > INTAKE_BIAS_THRESH) {
+//     if (DIR_FORWARD == direction) { // If intake is moving forward
+//       if (getIntakePosLeft() > getIntakePosRight())
+//         return 1; // Intake is going forward, so right is behind (1)
+//       else
+//         return -1; // Intake is going forward, so left  is behind (-1)
+//     } else {       // If intake is moving downward
+//       if (getIntakePosLeft() > getIntakePosRight())
+//         return -1; // Intake is going backward, so left  is behind (-1)
+//       else
+//         return 1; // Intake is going backward, so right is behind (1)
+//     }
+//   }
+//   return 0; // Intake sides don't need correction, return 0
+// }
 
 // Fixes malignant bias by slowing the biased side
 // Corrects left side by slowing right and vise versa, keep in mind when reading
-int correctIntakeBias(bool side, int speed, bool direction) {
-  int bias = getIntakeBias(direction); // Get the current bias
-  // If bias isn't 0 and the bias is the side we're checking for, return speed
-  if (bias != 0 &&
-      ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT))) {
-    // If going up, negative speed to dampen. Vice versa for down
-    return speed + (INTAKE_BIAS_CORRECT_P * abs(getIntakeOffset()) *
-                    (direction ? -1 : 1));
-  }
-  return speed; // No correction needed, return the speed
-}
+// =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
+// int correctIntakeBias(bool side, int speed, bool direction) {
+//   int bias = getIntakeBias(direction); // Get the current bias
+//   // If bias isn't 0 and the bias is the side we're checking for, return speed
+//   if (bias != 0 &&
+//       ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT))) {
+//     // If going up, negative speed to dampen. Vice versa for down
+//     return speed + (INTAKE_BIAS_CORRECT_P * abs(getIntakeOffset()) *
+//                     (direction ? -1 : 1));
+//   }
+//   return speed; // No correction needed, return the speed
+// }
 
 //------------------------------------------------------------------------------
 
 // Directly sets intake motor speeds
 // Shouldn't be used unless making control loops
-void setIntakeSpeedRaw(int speedLeft, int speedRight) {
+// COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
+//void setIntakeSpeedRaw(int speedLeft, int speedRight) {
+void setIntakeSpeedRaw(int speed) {
   // TODO Directly set intake motors
 }
 
 // Sets intake speed using bias correction
 // Positive speed upward, negative downward
 void setIntakeSpeed(int speed) {
-  if (speed == 0)
-    setIntakeSpeedRaw(0, 0);
-  bool direction = speed > 0;
-  setIntakeSpeedRaw(correctIntakeBias(DIR_LEFT, speed, direction),
-                    correctIntakeBias(DIR_RIGHT, speed, direction));
+  // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
+  // if (speed == 0)
+  //   setIntakeSpeedRaw(0, 0);
+  // bool direction = speed > 0;
+  // setIntakeSpeedRaw(correctIntakeBias(DIR_LEFT, speed, direction),
+  //                   correctIntakeBias(DIR_RIGHT, speed, direction));
+  setIntakeSpeedRaw(speed);
 }
 
 // Sets the value for the intake to try and reach
