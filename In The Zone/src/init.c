@@ -8,7 +8,6 @@ Encoder encDriveBR;
 Encoder encDriveBL;
 
 Encoder getEncoderBR() { return encDriveBR; }
-
 Encoder getEncoderBL() { return encDriveBL; }
 
 void killDriveEncoders() {
@@ -99,6 +98,7 @@ void initialize() {
   lcdSetText(uart2, 1, "Init menu...");
   lcdStartMenu();
 
+  // Init bluetooth
   // TODO Remove
   hc05Init(1, false);
 }
