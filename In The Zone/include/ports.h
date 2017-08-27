@@ -24,9 +24,9 @@ extern "C" {
   #define MOTOR_DRIVE_BL_REV false // Back  right drive motor, motor 9
 
   // Lift
-  #define MOTOR_LIFT_R1 4  // Lift 1, motor 4
-  #define MOTOR_LIFT_R2 5  // Lift 2, motor 5
-  #define MOTOR_LIFT_L2 6  // Lift 3, motor 6
+  #define MOTOR_LIFT_1 4  // Lift 1, motor 4
+  #define MOTOR_LIFT_2 5  // Lift 2, motor 5
+  #define MOTOR_LIFT_3 6  // Lift 3, motor 6
 
   // Chain bar
   #define MOTOR_CHAIN_BAR 1  // Right claw, motor 1

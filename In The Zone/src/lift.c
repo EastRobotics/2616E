@@ -127,7 +127,9 @@ int getLiftError() { return getLiftHeight() - liftTarget; }
 // COMMENTED OUT BECAUSE LIFT HAS ONE SIDE
 //void setLiftSpeedRaw(int speedLeft, int speedRight) {
 void setLiftSpeedRaw(int speed) {
-  // TODO Directly set lift motors
+  motorSet(MOTOR_LIFT_1, speed);
+  motorSet(MOTOR_LIFT_2, speed);
+  motorSet(MOTOR_LIFT_3, speed);
 }
 
 // Sets lift speed using bias correction
@@ -140,6 +142,8 @@ void setLiftSpeed(int speed) {
   // // TODO Check bounds
   // setLiftSpeedRaw(corretLiftBias(DIR_LEFT, speed, direction),
   //                 corretLiftBias(DIR_RIGHT, speed, direction));
+
+  // TODO Check bounds
   setLiftSpeedRaw(speed);
 }
 

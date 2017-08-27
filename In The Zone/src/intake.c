@@ -136,6 +136,8 @@ void setIntakeSpeed(int speed) {
   // bool direction = speed > 0;
   // setIntakeSpeedRaw(correctIntakeBias(DIR_LEFT, speed, direction),
   //                   correctIntakeBias(DIR_RIGHT, speed, direction));
+  
+  // TODO Check bounds
   setIntakeSpeedRaw(speed);
 }
 
