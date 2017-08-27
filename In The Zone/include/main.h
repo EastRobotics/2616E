@@ -122,7 +122,7 @@ void initDriveEncoders();
 
 // Directly sets lift motor speeds
 // Shouldn't be used unless making control loops
-void setLiftSpeedRaw(int speedLeft, int speedRight);
+void setLiftSpeedRaw(int speed);
 
 // Sets lift speed using bias correction
 // Positive speed upward, negative downward

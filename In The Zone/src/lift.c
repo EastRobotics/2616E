@@ -52,13 +52,15 @@ int liftTarget = 0; // Delta from start for the lift to reach
 
 //------------------------------------------------------------------------------
 
-int getLiftHeightLeft() {
-  return 0; // TODO Use actual sensor value
-}
+// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
+// int getLiftHeightLeft() {
+//   return 0; // TODO Use actual sensor value
+// }
 
-int getLiftHeightRight() {
-  return 0; // TODO Use actual sensor value
-}
+// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
+// int getLiftHeightRight() {
+//   return 0; // TODO Use actual sensor value
+// }
 
 /*
 ** Gets the averaged height of the two lift sensors
@@ -67,11 +69,14 @@ int getLiftHeightRight() {
 **    int: The averaged height of the two sensors w/out filter
 */
 int getLiftHeight() {
-  return floor((((double)getLiftHeightLeft() / getLiftHeightRight()) / 2.0) +
-               0.5);
+  // COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM
+  // return floor((((double)getLiftHeightLeft() / getLiftHeightRight()) / 2.0) +
+  //              0.5);
+  return encoderGet(getEncoderLift());
 }
 
-int getLiftOffset() { return getLiftHeightLeft() - getLiftHeightRight(); }
+// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
+// int getLiftOffset() { return getLiftHeightLeft() - getLiftHeightRight(); }
 
 int getLiftError() { return getLiftHeight() - liftTarget; }
 
@@ -81,55 +86,61 @@ int getLiftError() { return getLiftHeight() - liftTarget; }
 // -1: Left is behind
 // 0: No correction needed
 // 1: Right is behind
-char getLiftBias(bool direction) {
-  // If the lift has enough offset to need to be fixed
-  if (abs(getLiftOffset()) > LIFT_BIAS_THRESH) {
-    if (DIR_UP == direction) { // If lift is moving upward
-      if (getLiftHeightLeft() > getLiftHeightRight())
-        return 1; // Lift is going up, so right is behind (1)
-      else
-        return -1; // Lift is going up, so left  is behind (-1)
-    } else {       // If lift is moving downward
-      if (getLiftHeightLeft() > getLiftHeightRight())
-        return -1; // Lift is going down, so left  is behind (-1)
-      else
-        return 1; // Lift is going down, so right is behind (1)
-    }
-  }
-  return 0; // Lift sides don't need correction, return 0
-}
+// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
+// char getLiftBias(bool direction) {
+//   // If the lift has enough offset to need to be fixed
+//   if (abs(getLiftOffset()) > LIFT_BIAS_THRESH) {
+//     if (DIR_UP == direction) { // If lift is moving upward
+//       if (getLiftHeightLeft() > getLiftHeightRight())
+//         return 1; // Lift is going up, so right is behind (1)
+//       else
+//         return -1; // Lift is going up, so left  is behind (-1)
+//     } else {       // If lift is moving downward
+//       if (getLiftHeightLeft() > getLiftHeightRight())
+//         return -1; // Lift is going down, so left  is behind (-1)
+//       else
+//         return 1; // Lift is going down, so right is behind (1)
+//     }
+//   }
+//   return 0; // Lift sides don't need correction, return 0
+// }
 
 // Fixes malignant bias by slowing the biased side
 // Corrects left side by slowing right and vise versa, keep in mind when reading
-int corretLiftBias(bool side, int speed, bool direction) {
-  int bias = getLiftBias(direction); // Get the current bias
-  // If bias isn't 0 and the bias is the side we're checking for, return speed
-  if (bias != 0 &&
-      ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT))) {
-    // If going up, negative speed to dampen. Vice versa for down
-    return speed +
-           (LIFT_BIAS_CORRECT_P * abs(getLiftOffset()) * (direction ? -1 : 1));
-  }
-  return speed; // No correction needed, return the speed
-}
+// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
+// int corretLiftBias(bool side, int speed, bool direction) {
+//   int bias = getLiftBias(direction); // Get the current bias
+//   // If bias isn't 0 and the bias is the side we're checking for, return speed
+//   if (bias != 0 &&
+//       ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT))) {
+//     // If going up, negative speed to dampen. Vice versa for down
+//     return speed +
+//            (LIFT_BIAS_CORRECT_P * abs(getLiftOffset()) * (direction ? -1 : 1));
+//   }
+//   return speed; // No correction needed, return the speed
+// }
 
 //------------------------------------------------------------------------------
 
 // Directly sets lift motor speeds
 // Shouldn't be used unless making control loops
-void setLiftSpeedRaw(int speedLeft, int speedRight) {
+// COMMENTED OUT BECAUSE LIFT HAS ONE SIDE
+//void setLiftSpeedRaw(int speedLeft, int speedRight) {
+void setLiftSpeedRaw(int speed) {
   // TODO Directly set lift motors
 }
 
 // Sets lift speed using bias correction
 // Positive speed upward, negative downward
 void setLiftSpeed(int speed) {
-  if (speed == 0)
-    setLiftSpeedRaw(0, 0);
-  bool direction = speed > 0;
-  // TODO Check bounds
-  setLiftSpeedRaw(corretLiftBias(DIR_LEFT, speed, direction),
-                  corretLiftBias(DIR_RIGHT, speed, direction));
+  // COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM
+  // if (speed == 0)
+  //   setLiftSpeedRaw(0, 0);
+  // bool direction = speed > 0;
+  // // TODO Check bounds
+  // setLiftSpeedRaw(corretLiftBias(DIR_LEFT, speed, direction),
+  //                 corretLiftBias(DIR_RIGHT, speed, direction));
+  setLiftSpeedRaw(speed);
 }
 
 // Sets the value for the lift to try and reach

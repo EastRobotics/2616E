@@ -69,7 +69,7 @@ int getIntakePos() {
   // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
   // return floor((((double)getIntakePosLeft() / getIntakePosRight()) / 2.0) +
   //              0.5);
-  return 0; // TODO Use actual sensor value
+  return encoderGet(getEncoderChain());
 }
 
 // =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
@@ -124,7 +124,7 @@ int getIntakeError() { return getIntakePos() - intakeTarget; }
 // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
 //void setIntakeSpeedRaw(int speedLeft, int speedRight) {
 void setIntakeSpeedRaw(int speed) {
-  // TODO Directly set intake motors
+  motorSet(MOTOR_CHAIN_BAR, speed); // TODO SLew?
 }
 
 // Sets intake speed using bias correction
