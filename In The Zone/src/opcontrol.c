@@ -52,9 +52,35 @@ void operatorControl() {
     */
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
     // and 0 for strafe
-    driveHolonomicWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
-                            0);
+    // TODO Fix
+    //driveHolonomicWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
+    //                        0);
 
+    // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    if(joystickGetDigital(1, 5, JOY_UP)) {
+              motorSet(2, 127);
+              motorSet(3, 127);
+    } else if(joystickGetDigital(1, 5, JOY_DOWN)) {
+        motorSet(2, -127);
+        motorSet(3, -127);
+    } else {
+        motorSet(2, 0);
+        motorSet(3, 0);
+    }
+
+    if(joystickGetDigital(1, 6, JOY_UP)) {
+        motorSet(8, 127);
+        motorSet(9, 127);
+    } else if(joystickGetDigital(1, 6, JOY_DOWN)) {
+        motorSet(8, -127);
+        motorSet(9, -127);
+    } else {
+        motorSet(8, 0);
+        motorSet(9, 0);
+    }
+    // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    continue;
+    
     if (joystickGetDigital(1, 6, JOY_UP)) {
       setLiftSpeed(127);
     } else if (joystickGetDigital(1, 6, JOY_DOWN)) {

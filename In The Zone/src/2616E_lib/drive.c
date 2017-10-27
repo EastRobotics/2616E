@@ -6,9 +6,6 @@
 #define INITIAL_DRIVE_POWER                                                    \
   25 // The power that drive with logic will start it's linear function at for
      // drive power
-#define JOYSTICK_MOVEMENT_THRESHOLD                                            \
-  15 // The amount the joystick has to move for it to be used in the linear
-     // function to calculate RPM
 
 #define PID_SENSOR_INDEX myEncoder
 
@@ -25,6 +22,9 @@ unsigned char driveFL, driveBL, driveFR, driveBR;
 char lastDriveFL, lastDriveBL, lastDriveFR, lastDriveBR;
 bool driveFLReverse, driveBLReverse, driveFRReverse, driveBRReverse;
 bool slewRate = 0;
+
+char valuesLeft[127];
+char valuesRight[127];
 
 /*
 ** Sets the drive motors we're using. This makes it so we don't need to provide
@@ -80,7 +80,7 @@ void driveSetReverse(bool _driveFLReverse, bool _driveBLReverse,
 void driveIfValid(unsigned char motor, int speed,
                   const char *string) { // Eventually want default for this, but
                                         // causing errors
-  if (motor != NULL)
+  if (motor)
     motorSet(motor, speed);
   else
     printf(
@@ -208,21 +208,24 @@ void driveHolonomic(int speedForward, int speedTurn, int speedStrafe) {
 //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
 //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
+void driveWithLogic(int speedForward, int speedTurn, int speedStrafe) {
   int multipliedSpeedForward =
       speedForward; // ((float) speedForward)*forwardMultiplier;
   int multipliedSpeedTurn = speedTurn; //((float) speedTurn)*turnMultiplier;
   int multipliedSpeedStrafe =
       speedStrafe; //((float) speedStrafe)*strafeMultiplier;
 
+  // Save sign for the speeds
   char forwardMult = (multipliedSpeedForward < 0) ? -1 : 1;
   char turnMult = (multipliedSpeedTurn < 0) ? -1 : 1;
   char strafeMult = (multipliedSpeedStrafe < 0) ? -1 : 1;
 
+  // Abs the speeds
   multipliedSpeedForward = abs(multipliedSpeedForward);
   multipliedSpeedTurn = abs(multipliedSpeedTurn);
   multipliedSpeedStrafe = abs(multipliedSpeedStrafe);
 
+  // Check threshold
   if (abs(multipliedSpeedForward) <= DRIVE_THRESHOLD_FORWARD)
     multipliedSpeedForward = 0;
   if (abs(multipliedSpeedTurn) <= DRIVE_THRESHOLD_TURN)
@@ -230,28 +233,17 @@ void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe) {
   if (abs(multipliedSpeedStrafe) <= DRIVE_THRESHOLD_STRAFE)
     multipliedSpeedStrafe = 0;
 
-  if (abs(multipliedSpeedForward) <= JOYSTICK_MOVEMENT_THRESHOLD)
-    multipliedSpeedForward = 0;
-  if (abs(multipliedSpeedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD)
-    multipliedSpeedTurn = 0;
-  if (abs(multipliedSpeedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD)
-    multipliedSpeedStrafe = 0;
-
   // Uses linear interpolation/lerp to fix the logarithmic nature of a motor's
   //  RPM to motor speed ratio into linear growth
-  multipliedSpeedForward = getLerpedSpeed(
+  if (multipliedSpeedForward)
+    multipliedSpeedForward = getLerpedSpeed(
       multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
-  multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn, INITIAL_DRIVE_POWER,
-                                       DRIVE_THRESHOLD_TURN);
-  multipliedSpeedStrafe = getLerpedSpeed(
+  if (multipliedSpeedTurn)
+    multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn,
+      INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
+  if (multipliedSpeedStrafe)
+    multipliedSpeedStrafe = getLerpedSpeed(
       multipliedSpeedStrafe, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
-
-  if (abs(speedForward) <= JOYSTICK_MOVEMENT_THRESHOLD)
-    multipliedSpeedForward = 0;
-  if (abs(speedTurn) <= JOYSTICK_MOVEMENT_THRESHOLD)
-    multipliedSpeedTurn = 0;
-  if (abs(speedStrafe) <= JOYSTICK_MOVEMENT_THRESHOLD)
-    multipliedSpeedStrafe = 0;
 
   multipliedSpeedForward *= forwardMult;
   multipliedSpeedTurn *= turnMult;
