@@ -47,6 +47,13 @@ void operatorControl() {
   int rightBumperState = 0;
 
   while (true) { // true cooler than 1
+    if (joystickGetDigital(1, 8, JOY_UP)) {
+      setIntakePos(100); // Placing
+    } else if (joystickGetDigital(1, 8, JOY_DOWN)) {
+      setIntakePos(0);
+    } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
+      setIntakePos(75); // Offset Placing
+    }
     /*
     ** Handle the main driver's joysticks
     */
@@ -80,7 +87,7 @@ void operatorControl() {
     }
     // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
     continue;
-    
+
     if (joystickGetDigital(1, 6, JOY_UP)) {
       setLiftSpeed(127);
     } else if (joystickGetDigital(1, 6, JOY_DOWN)) {

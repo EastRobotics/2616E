@@ -95,6 +95,8 @@ void initialize() {
   print("[Init] Setting up encoders\n");
   lcdSetText(uart2, 1, "Init Encs...");
   initDriveEncoders();
+  encChain =
+      encoderInit(DIGITAL_ENC_CHAIN_TOP, DIGITAL_ENC_CHAIN_BOT, true);
   // initPidControl();
 
   // Done init
