@@ -129,7 +129,6 @@ int getLiftError() { return getLiftHeight() - liftTarget; }
 void setLiftSpeedRaw(int speed) {
   motorSet(MOTOR_LIFT_1, speed);
   motorSet(MOTOR_LIFT_2, speed);
-  motorSet(MOTOR_LIFT_3, speed);
 }
 
 // Sets lift speed using bias correction

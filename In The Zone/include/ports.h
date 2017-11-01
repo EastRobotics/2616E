@@ -12,24 +12,26 @@ extern "C" {
 ** (1-10)
 */
   // Drive motors
-  #define MOTOR_DRIVE_FR 2 // Front right drive motor, motor 2
-  #define MOTOR_DRIVE_BR 3 // Back  right drive motor, motor 3
-  #define MOTOR_DRIVE_FL 8 // Front left  drive motor, motor 8
-  #define MOTOR_DRIVE_BL 9 // Back  left  drive motor, motor 9
+  #define MOTOR_DRIVE_R 2 // Front right drive motor, motor 2
+  #define MOTOR_DRIVE_L 9 // Back  left  drive motor, motor 9
 
   // Drive directions
-  #define MOTOR_DRIVE_FR_REV true  // Front right drive motor, motor 2
-  #define MOTOR_DRIVE_BR_REV true  // Back  right drive motor, motor 3
-  #define MOTOR_DRIVE_FL_REV false // Front left  drive motor, motor 8
-  #define MOTOR_DRIVE_BL_REV false // Back  right drive motor, motor 9
+  #define MOTOR_DRIVE_R_REV true  // Front right drive motor, motor 2
+  #define MOTOR_DRIVE_L_REV false // Back  right drive motor, motor 9
 
   // Lift
   #define MOTOR_LIFT_1 4  // Lift 1, motor 4
-  #define MOTOR_LIFT_2 5  // Lift 2, motor 5
-  #define MOTOR_LIFT_3 6  // Lift 3, motor 6
+  #define MOTOR_LIFT_2 7  // Lift 2, motor 7
 
   // Chain bar
   #define MOTOR_CHAIN_BAR 1  // Right claw, motor 1
+
+  // MoGo Intake
+  #define MOTOR_MOGO_L 5 // Left mogo intake,  motor 5
+  #define MOTOR_MOGO_R 6 // Right mogo intake, motor 6
+
+  // Claw
+  #define MOTOR_CLAW 3 // Claw, motor 3
 
 /*
 ** Analog
