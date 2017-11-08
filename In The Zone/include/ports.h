@@ -31,6 +31,9 @@ extern "C" {
   // Chain bar
   #define MOTOR_CHAIN_BAR 1  // Right claw, motor 1
 
+  // Claw
+  #define MOTOR_CLAW 7 // Claw motor, motor 7
+
 /*
 ** Analog
 ** (1-8)

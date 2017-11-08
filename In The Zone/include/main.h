@@ -189,6 +189,12 @@ void waitForIntake();
 // Returns whether or not intake is out of way of cones
 bool intakeIsOutOfWay();
 
+// Sets up the claw to open
+void openClaw();
+
+// Sets up the claw to close
+void closeClaw();
+
 //------------------------------------------------------------------------------
 
 /*
