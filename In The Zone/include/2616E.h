@@ -108,7 +108,7 @@ extern "C" {
   **   int: The speed/rate to turn,   -127 (left)     to 127 (right)
   **   int: The speed/rate to strafe, -127 (left)     to 127 (right)
   */
-  void driveHolonomic(int speedForward, int speedTurn, int speedStrafe);
+  void driveWithLogic(int speedForward, int speedTurn, int speedStrafe);
 
   // Drive with checks to rule out errors with joystick controls
   // NOTES:
@@ -121,7 +121,7 @@ extern "C" {
   //	float: What to reduce forward/backward speed to (0.7 -> 70% of input)
   //	float: What to reduce left/right turn speed to (0.7 -> 70% of input)
   //	float: What to reduce left/right strafe speed to (0.7 -> 70% of input)
-  void driveHolonomicWithLogic(int speedForward, int speedTurn, int speedStrafe);
+  void driveWithLogic(int speedForward, int speedTurn, int speedStrafe);
 
   // Enables slew rate, limiting speed change to _slewRate every update cycle
   // PARAMETERS:
