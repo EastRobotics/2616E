@@ -75,9 +75,8 @@ void initialize() {
   // Set up our drive
   print("[Init] Setting up drive motors\n");
   lcdSetText(uart2, 1, "Init drive...");
-  driveInit(MOTOR_DRIVE_FL, MOTOR_DRIVE_BL, MOTOR_DRIVE_FR, MOTOR_DRIVE_BR);
-  driveSetReverse(MOTOR_DRIVE_FL_REV, MOTOR_DRIVE_BL_REV, MOTOR_DRIVE_FR_REV,
-                  MOTOR_DRIVE_BR_REV);
+  driveInit(MOTOR_DRIVE_L, 0, MOTOR_DRIVE_R, 0);
+  driveSetReverse(MOTOR_DRIVE_L_REV, false, MOTOR_DRIVE_R_REV, 0);
   // enableSlew(15); // Set slew rate to 15
 
   // Set up our autonomous to these modes
@@ -95,6 +94,8 @@ void initialize() {
   print("[Init] Setting up encoders\n");
   lcdSetText(uart2, 1, "Init Encs...");
   initDriveEncoders();
+  encChain =
+      encoderInit(DIGITAL_ENC_CHAIN_TOP, DIGITAL_ENC_CHAIN_BOT, true);
   // initPidControl();
 
   // Done init

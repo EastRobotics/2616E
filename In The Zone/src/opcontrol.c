@@ -1,7 +1,6 @@
 #include "main.h"
 #include "string.h" // TODO Remove
 
-// TODO Remove
 // Listen to bluetooth commands from an external controller and respond
 void blueListen(char *message) {
   if (strcmp(message, "pos\r\n") == 0) { // Send position
@@ -25,38 +24,45 @@ void blueListen(char *message) {
 }
 
 void operatorControl() {
-  shutdownPID(); // Make sure no PID subtask is running
-
-  initOdomScale(4, 15, 1); // Set up odom for 4 inch wheels with 15 inch diam
-  // Start odometry
-  taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
-             (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
-  delay(50);                           // Give odom some time to start
-  odomReset();                         // Clear it, leggo
-
-  // TODO Remove
-  // Initialize the bluetooth listener
-  blisten(1, blueListen); // Listen to messages
-
   // setAutonMode(4);
   // autonomous(); // Run auton test
   // print("Done auton");
   // shutdownPID(); // Make sure auton PID isn't running
 
+  // Cleanup
+  shutdownPID(); // Make sure no PID subtask is running
+
+  // Setup & start odometry
+  initOdomScale(4, 15, 1); // Set up odom for 4 inch wheels with 15 inch diam
+  taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
+             (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
+  delay(50);                           // Give odom some time to start
+  odomReset();                         // Clear it, leggo
+
+  // TODO Disable during comp
+  // Initialize the bluetooth listener
+  blisten(1, blueListen); // Listen to messages
+
+  // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  // Start chainbar task
+  taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+             (TASK_PRIORITY_DEFAULT));
+  // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
   // 0: none, up: 1, down: 2
   int rightBumperState = 0;
-
   while (true) { // true cooler than 1
-    /*
-    ** Handle the main driver's joysticks
-    */
-    // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
-    // and 0 for strafe
-    // TODO Fix
-    //driveHolonomicWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
-    //                        0);
-
     // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+    // Test chainbar code
+    if (joystickGetDigital(1, 8, JOY_UP)) {
+      setIntakePos(100); // Placing
+    } else if (joystickGetDigital(1, 8, JOY_DOWN)) {
+      setIntakePos(0);
+    } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
+      setIntakePos(75); // Offset Placing
+    }
+
+    // Test other things
     if(joystickGetDigital(1, 5, JOY_UP)) {
               motorSet(2, 127);
               motorSet(3, 127);
@@ -79,16 +85,17 @@ void operatorControl() {
         motorSet(9, 0);
     }
     // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    continue;
-    
-    if (joystickGetDigital(1, 6, JOY_UP)) {
-      setLiftSpeed(127);
-    } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
-      setLiftSpeed(-127);
-    } else {
-      setLiftSpeed(0);
-    }
-    // continue;
+
+    /*
+    ** Handle the main driver's joysticks
+    */
+    // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
+    // and 0 for strafe
+    driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
+                           0);
+
+    continue; // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
     /*
     ** Handle the main driver's controls
     */
@@ -158,27 +165,6 @@ void operatorControl() {
       } // End of the switch
         // ---------------------------------------------------------------------
     }
-
-    // =========================================================================
-
-    /*
-    ** Handle the alt driver's controls
-    */
-
-    /*
-    ** Boiler
-    */
-
-    // TODO Add lcd page for these
-    // lcdClear(uart2);
-    // lcdPrint(uart2, 1, "X:%d T:%d", getOdomPosX(), getOdomTheta());
-    // lcdPrint(uart2, 1, "X:%d", getOdomPosX());
-    // lcdPrint(uart2, 2, "Y:%d G:%d", getOdomPosY(), gyroGet(getGyro()));
-    // lcdPrint(uart2, 2, "Y:%d", getOdomPosY());
-
-    // Print odom pos
-    // printf("\nX:%d\n", getOdomPosX());
-    // printf("Y:%d\n\n", getOdomPosY());
 
     // update the position on any external trackers
     blueListen("pos\r\n");
