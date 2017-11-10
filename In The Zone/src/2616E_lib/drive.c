@@ -3,9 +3,8 @@
 #define DRIVE_THRESHOLD_FORWARD 15 // Joystick forward threshold
 #define DRIVE_THRESHOLD_TURN 15    // Joystick turn threshold
 #define DRIVE_THRESHOLD_STRAFE 15  // Joystick strafe threshold
-#define INITIAL_DRIVE_POWER                                                    \
-  25 // The power that drive with logic will start it's linear function at for
-     // drive power
+#define INITIAL_DRIVE_POWER 25     // The power that drive with logic will start
+                                   // it's linear function at for drive power
 
 #define PID_SENSOR_INDEX myEncoder
 
@@ -82,10 +81,11 @@ void driveIfValid(unsigned char motor, int speed,
                                         // causing errors
   if (motor)
     motorSet(motor, speed);
-  else
-    printf(
-        "[ELib] Tried to set motor speed, but motor wasn't initialized! [%s]\n",
-        string);
+  // TODO Uncomment, but avoid spamming, because only 2 motor ports are used
+  // else
+  // printf(
+  //    "[ELib] Tried to set motor speed, but motor wasn't initialized! [%s]\n",
+  //    string);
 }
 
 /*
@@ -237,13 +237,13 @@ void driveWithLogic(int speedForward, int speedTurn, int speedStrafe) {
   //  RPM to motor speed ratio into linear growth
   if (multipliedSpeedForward)
     multipliedSpeedForward = getLerpedSpeed(
-      multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
+        multipliedSpeedForward, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_FORWARD);
   if (multipliedSpeedTurn)
-    multipliedSpeedTurn = getLerpedSpeed(multipliedSpeedTurn,
-      INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
+    multipliedSpeedTurn = getLerpedSpeed(
+        multipliedSpeedTurn, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_TURN);
   if (multipliedSpeedStrafe)
     multipliedSpeedStrafe = getLerpedSpeed(
-      multipliedSpeedStrafe, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
+        multipliedSpeedStrafe, INITIAL_DRIVE_POWER, DRIVE_THRESHOLD_STRAFE);
 
   multipliedSpeedForward *= forwardMult;
   multipliedSpeedTurn *= turnMult;

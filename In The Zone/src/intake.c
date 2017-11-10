@@ -7,32 +7,32 @@
 /*
 ** Constant pos of intake zones
 */
-#define POS_INTAKE_GROUND 15 // Pos of intaking from the ground
-#define POS_INTAKE_LOADER 30 // Pos of intaking off  the loader
+#define POS_INTAKE_GROUND 0 // Pos of intaking from the ground
+#define POS_INTAKE_LOADER 0 // Pos of intaking off  the loader
 
 // TODO Configure pos
 /*
 ** Constant pos of release zones
 */
-#define POS_EXTAKE_EXTERNAL 15 // Pos of offloading outside bot
-#define POS_EXTAKE_INTERNAL 30 // Pos of offloading inside bot
+#define POS_EXTAKE_EXTERNAL 0    // Pos of offloading outside bot
+#define POS_EXTAKE_INTERNAL 1130 // Pos of offloading inside bot
 
 // TODO Configure pos
 /*
 ** Constant specials pos
 */
-#define POS_POSITION_AVOID 15 // Pos for waiting for intake to be high enough
+#define POS_POSITION_AVOID 950 // Pos for waiting for intake to be high enough
 
 // TODO Configure values
 /*
 ** Constants to configure movement of intake
 */
-#define INTAKE_BIAS_THRESH 5        // How far sides need to be off to correct
-#define INTAKE_BIAS_CORRECT_P 1.5   // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 5      // How far from target to try go to it
-#define INTAKE_TARGET_CORRECT_P 1.5 // P term to use when setting speed
-#define CLAW_MOVEMENT_TIME 200      // The amount of time the claw needs to open
-#define CLAW_MOVEMENT_SPEED 127     // Movement speed of the claw
+#define INTAKE_BIAS_THRESH 5         // How far sides need to be off to correct
+#define INTAKE_BIAS_CORRECT_P 1.5    // P term to use when correcting offset
+#define INTAKE_TARGET_THRESH 15      // How far from target to try go to it
+#define INTAKE_TARGET_CORRECT_P 0.75 // P term to use when setting speed
+#define CLAW_MOVEMENT_TIME 200  // The amount of time the claw needs to open
+#define CLAW_MOVEMENT_SPEED 127 // Movement speed of the claw
 
 // TODO Configure speeds
 /*
@@ -40,7 +40,7 @@
 */
 #define INTAKE_SPEED_HOLDING 0
 #define INTAKE_SPEED_IDLE 0
-#define CLAW_SPEED_IDLE 10
+#define CLAW_SPEED_IDLE 0
 
 //------------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ void openClaw() {
     // Shorten the movement of the claw if it is still moving in the other
     // direction for example if the claw just started closing for 10 ms, and is
     // told to open then it should not open for the full amount of time.
-    if (clawInMotion)
+    if (clawInMotion && !clawOpenTarget)
       clawMovementTime = CLAW_MOVEMENT_TIME - clawMovementTime;
     clawOpenTarget = true;
   }
@@ -210,11 +210,13 @@ void closeClaw() {
     // Shorten the movement of the claw if it is still moving in the other
     // direction for example if the claw just started opening for 10 ms, and is
     // told to close then it should not close for the full amount of time.
-    if (clawInMotion)
+    if (clawInMotion && clawOpenTarget)
       clawMovementTime = CLAW_MOVEMENT_TIME - clawMovementTime;
     clawOpenTarget = false;
   }
 }
+
+bool isClawReady() { return !clawInMotion; }
 
 //------------------------------------------------------------------------------
 
@@ -241,6 +243,7 @@ void intakeControl(void *ignored) {
     */
 
     // If the claw is not at the position it is trying to reach
+    // Since there is no encoder just boolean values compared so no thresholds
     if (clawOpen != clawOpenTarget) {
       // If the claw is not already in motion
       if (!clawInMotion) {
@@ -248,17 +251,17 @@ void intakeControl(void *ignored) {
         clawInMotion = true;
       }
 
-      // If the claw should open
-      if (clawOpenTarget)
-        motorSet(MOTOR_CLAW, CLAW_MOVEMENT_SPEED);
-      else
-        motorSet(MOTOR_CLAW, CLAW_MOVEMENT_SPEED * -1);
+      // Move at proper speed in direction based on open or close direction
+      motorSet(MOTOR_CLAW, CLAW_MOVEMENT_SPEED * ((clawOpenTarget) ? 1 : -1));
 
       // If the claw has reached the end of its movement
       if (clawMovementTime >= CLAW_MOVEMENT_TIME) {
-        clawOpen = clawOpenTarget;
+        clawOpen = clawOpenTarget; // set current position to the target,
+                                   // because it has finished moving
         clawInMotion = false;
         clawMovementTime = 0;
+
+        // Run the claw at a low speed to hold it in place
         if (clawOpen)
           motorSet(MOTOR_CLAW, CLAW_SPEED_IDLE);
         else

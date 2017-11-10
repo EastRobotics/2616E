@@ -89,6 +89,7 @@ void manipulatorControl(void *ignored) {
       } else {
         setIntakeTargetSmart(currentGoalType);
         if (isIntakeReady() && isLiftReady()) {
+          openClaw();
           setCurrentAction(ACTION_EXTAKING);
           if (currentGoalType == POSITION_GOAL_BASE_INTERNAL)
             internalCones++;
@@ -99,10 +100,11 @@ void manipulatorControl(void *ignored) {
     } break;
     case ACTION_EXTAKING: {
       // Movement only necessary if scoring on internal goal
-      if (currentGoalType == POSITION_GOAL_BASE_INTERNAL) {
-        // TODO handle extaking motion
-        // TODO handle completedAction
-      } else
+      if (isClawReady() && (currentGoalType == POSITION_GOAL_BASE_INTERNAL)) {
+        setIntakeTargetSmart(POSITION_GOAL_BASE_EXTERNAL);
+        if (intakeIsOutOfWay())
+          completedAction = true;
+      } else if (isClawReady())
         completedAction = true; // Nothing needs to be done
     } break;
     // Synchronizing intake and lift to pick up cone
@@ -116,7 +118,18 @@ void manipulatorControl(void *ignored) {
       }
     } break;
     case ACTION_INTAKING: {
-      // TODO Bring the lift down to the ground
+      openClaw();
+      if (intakeIsOutOfWay()) {
+        setLiftTargetSmart(POSITION_INTAKE_GROUND, 0);
+        if (isIntakeReady() && isLiftReady()) {
+          closeClaw();
+          if (isClawReady()) {
+            completedAction = true;
+          }
+        }
+      } else {
+        setIntakeTarget(POSITION_GOAL_BASE_EXTERNAL);
+      }
     } break;
     case ACTION_OFFLOADING: {
       setLiftTargetSmart(POSITION_GOAL_BASE_INTERNAL, getConeCount() + 1);

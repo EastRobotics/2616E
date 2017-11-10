@@ -157,6 +157,9 @@ void waitForLift();
 ** Intake control methods (intake.c)
 */
 
+// Returns the encoder position of the chain bar
+int getIntakePos();
+
 // Directly sets intake motor speeds
 // Shouldn't be used unless making control loops
 void setIntakeSpeedRaw(int speed);
@@ -194,6 +197,9 @@ void openClaw();
 
 // Sets up the claw to close
 void closeClaw();
+
+// Checks if the claw is done it's movement
+bool isClawReady();
 
 //------------------------------------------------------------------------------
 
