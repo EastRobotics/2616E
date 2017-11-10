@@ -12,6 +12,8 @@ void blueListen(char *message) {
     fprintf(uart1, "Robot pos: (%d,%d) >\r\n", getOdomPosX(), getOdomPosY());
   } else if (strcmp(message, "gyro\r\n") == 0) { // Send gyro
     fprintf(uart1, "Robot gyro: %d\r\n >", gyroGet(getGyro()));
+  } else if (strcmp(message, "rpm\r\n") == 0) {
+    rpmTest();
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
   } else if (strcmp(message, "cherisse\r\n") ==

@@ -326,6 +326,15 @@ extern "C" {
   void bprint(char uart, const char * message);
 
   void blisten(char uart, void( * callback)(char*));
+
+//------------------------------------------------------------------------------
+
+  /*
+  ** Reshape.c
+  */
+
+  void rpmTest();
+
 #ifdef __cplusplus // end method if
 }
 #endif
