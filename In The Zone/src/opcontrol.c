@@ -20,7 +20,7 @@ void blueListen(char *message) {
              0) { // Send a sign of disinterest
     bprint(1, "*SIGH*\r\n");
   } else if (strcmp(message, "cameron\r\n") ==
-             0) { // Send a signal of comradery
+             0) { // Send a signa l of comradery
     bprint(1, "oh meine Bruter\r\n");
   } else if (strcmp(message, "ian\r\n") == 0) { // Send a message of IDE loyalty
     bprint(1, "*opens android studio*\r\n");
