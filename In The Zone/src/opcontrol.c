@@ -40,9 +40,9 @@ void manualControl() {
     setIntakeTargetSmart(POSITION_BASE_AVOID); // Offset Placing
   }
 
-  if (joystickGetDigital(1, 7, JOY_UP)) {
+  if (joystickGetDigital(1, 7, JOY_LEFT)) {
     openClaw();
-  } else if (joystickGetDigital(1, 8, JOY_UP)) {
+  } else if (joystickGetDigital(1, 7, JOY_RIGHT)) {
     closeClaw();
   }
 
@@ -144,12 +144,11 @@ void automaticControl() {
 
 void swapControlState() {
   if (isManualControl) {
-    taskResume(intakeCont);
     taskResume(liftCont);
   } else {
-    taskSuspend(intakeCont);
     taskSuspend(liftCont);
   }
+
   isManualControl = !isManualControl;
 }
 
@@ -177,8 +176,8 @@ void operatorControl() {
   // Start chainbar task
   intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
                           (TASK_PRIORITY_DEFAULT));
-  liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                        (TASK_PRIORITY_DEFAULT));
+  // liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                      (TASK_PRIORITY_DEFAULT));
   // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   while (true) { // true cooler than 1
@@ -192,8 +191,7 @@ void operatorControl() {
 
     fprintf(uart1, "Lift Position: %d\r\n", getLiftHeight());
 
-    if (joystickGetDigital(1, 7, JOY_LEFT) &&
-        joystickGetDigital(1, 7, JOY_DOWN))
+    if (joystickGetDigital(1, 7, JOY_DOWN))
       swapControlState();
 
     if (isManualControl) {

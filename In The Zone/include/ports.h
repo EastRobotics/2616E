@@ -19,12 +19,13 @@ extern "C" {
   #define MOTOR_DRIVE_R_REV true  // Front right drive motor, motor 2
   #define MOTOR_DRIVE_L_REV false // Back  right drive motor, motor 9
 
+
   // Lift
   #define MOTOR_LIFT_1 4  // Lift 1, motor 4
   #define MOTOR_LIFT_2 7  // Lift 2, motor 7
 
   // Chain bar
-  #define MOTOR_CHAIN_BAR 8  // Right claw, motor 1
+  #define MOTOR_CHAIN_BAR 8  // Right claw, moto
 
   // MoGo Intake
   #define MOTOR_MOGO_L 5 // Left mogo intake,  motor 5
@@ -48,6 +49,7 @@ extern "C" {
 /*
 ** Digital
 ** (1-12) - Although not sure with PROS
+** Can't use 4 & 10 together because interrupts
 */
   // Auton
   #define DIGITAL_BREAKPOINT     1   // Breakpoint button,           digital 1

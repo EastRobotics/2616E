@@ -31,8 +31,8 @@
 #define INTAKE_BIAS_CORRECT_P 1.5    // P term to use when correcting offset
 #define INTAKE_TARGET_THRESH 15      // How far from target to try go to it
 #define INTAKE_TARGET_CORRECT_P 0.75 // P term to use when setting speed
-#define CLAW_MOVEMENT_TIME 200  // The amount of time the claw needs to open
-#define CLAW_MOVEMENT_SPEED 127 // Movement speed of the claw
+#define CLAW_MOVEMENT_TIME 300   // The amount of time the claw needs to open
+#define CLAW_MOVEMENT_SPEED -127 // Movement speed of the claw
 
 // TODO Configure speeds
 /*
