@@ -157,6 +157,9 @@ void waitForLift();
 ** Intake control methods (intake.c)
 */
 
+// Returns the raw encoder value for intake position
+int getIntakePos();
+
 // Directly sets intake motor speeds
 // Shouldn't be used unless making control loops
 void setIntakeSpeedRaw(int speed);

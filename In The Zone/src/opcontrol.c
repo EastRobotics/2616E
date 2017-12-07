@@ -94,6 +94,8 @@ void operatorControl() {
     driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1),
                            0);
 
+    // REMOVE
+    fprintf(uart1, "Chain Bar: %d\r\n >", getIntakePos());
     continue; // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
     /*

@@ -82,10 +82,11 @@ void driveIfValid(unsigned char motor, int speed,
                                         // causing errors
   if (motor)
     motorSet(motor, speed);
-  else
-    printf(
-        "[ELib] Tried to set motor speed, but motor wasn't initialized! [%s]\n",
-        string);
+  //else
+    //TODO Uncomment error message while also avoiding spam from BL and BR
+    //printf(
+    //    "[ELib] Tried to set motor speed, but motor wasn't initialized! [%s]\n",
+    //    string);
 }
 
 /*
