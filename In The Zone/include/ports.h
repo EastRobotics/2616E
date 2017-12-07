@@ -53,17 +53,17 @@ extern "C" {
 */
   // Auton
   #define DIGITAL_BREAKPOINT     1   // Breakpoint button,           digital 1
-  #define DIGITAL_LIFT_ALIGN     6   // Lift deploy sensor,          digital 6
   // Claw
-  #define DIGITAL_ENC_CHAIN_TOP 2   // Encoder chain top     right,  digital 2
-  #define DIGITAL_ENC_CHAIN_BOT 3   // Encoder chain bottom  right,  digital 3
-  #define DIGITAL_ENC_LIFT_TOP 4    // Encoder lift  top     left,   digital 4
-  #define DIGITAL_ENC_LIFT_BOT 5    // Encoder lift  bottom  left,   digital 5
+  #define DIGITAL_ENC_LIFT_TOP 2    // Encoder lift  top     left,   digital 2
+  #define DIGITAL_ENC_LIFT_BOT 3    // Encoder lift  bottom  left,   digital 3
+  #define DIGITAL_LIM_CLAW     4    // Encoder limit claw,           digital 4
   // Drive
-  #define DIGITAL_ENC_DRIVE_BR_TOP 7  // Encoder drive top    right, digital 7
-  #define DIGITAL_ENC_DRIVE_BR_BOT 8  // Encoder drive bottom right, digital 8
-  #define DIGITAL_ENC_DRIVE_BL_TOP 11 // Encoder drive top    left,  digital 11
-  #define DIGITAL_ENC_DRIVE_BL_BOT 12 // Encoder drive bottom left,  digital 12
+  #define DIGITAL_ENC_DRIVE_BR_TOP 5  // Encoder drive top    right, digital 5
+  #define DIGITAL_ENC_DRIVE_BR_BOT 6  // Encoder drive bottom right, digital 6
+  #define DIGITAL_ENC_DRIVE_BL_TOP 7 // Encoder drive top      left, digital 7
+  #define DIGITAL_ENC_DRIVE_BL_BOT 8 // Encoder drive bottom   left, digital 8
+  // #define DO_NOT_USE 10
+
 
 /*
 ** I2C (WARNING: STATIC SHOCK)
