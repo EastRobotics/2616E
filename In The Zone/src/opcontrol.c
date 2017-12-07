@@ -35,11 +35,11 @@ void blueListen(char *message) {
 // Manual control of the robot
 void manualControl() {
   if(joystickGetDigital(1, 8, JOY_UP)) {
-    motorSet(MOTOR_CHAIN_BAR, 127);
+    motorSet(MOTOR_FOUR_BAR, ((digitalRead(DIGITAL_LIM_CLAW)) ? 10 : 127));
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    motorSet(MOTOR_CHAIN_BAR, -127);
+    motorSet(MOTOR_FOUR_BAR, -127);
   } else {
-    motorSet(MOTOR_CHAIN_BAR, 0);
+    motorSet(MOTOR_FOUR_BAR, 0);
   }
 
   // Test other things

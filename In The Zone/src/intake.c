@@ -137,7 +137,7 @@ int getIntakeError() { return getIntakePos() - intakeTarget; }
 // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
 // void setIntakeSpeedRaw(int speedLeft, int speedRight) {
 void setIntakeSpeedRaw(int speed) {
-  motorSet(MOTOR_CHAIN_BAR, speed); // TODO SLew?
+  motorSet(MOTOR_FOUR_BAR, speed); // TODO SLew?
 }
 
 // Sets intake speed using bias correction
