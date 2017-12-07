@@ -19,12 +19,13 @@ extern "C" {
   #define MOTOR_DRIVE_R_REV true  // Front right drive motor, motor 2
   #define MOTOR_DRIVE_L_REV false // Back  right drive motor, motor 9
 
+
   // Lift
   #define MOTOR_LIFT_1 4  // Lift 1, motor 4
   #define MOTOR_LIFT_2 7  // Lift 2, motor 7
 
   // Chain bar
-  #define MOTOR_CHAIN_BAR 1  // Right claw, motor 1
+  #define MOTOR_CHAIN_BAR 8  // Right claw, moto
 
   // MoGo Intake
   #define MOTOR_MOGO_L 5 // Left mogo intake,  motor 5
@@ -48,20 +49,21 @@ extern "C" {
 /*
 ** Digital
 ** (1-12) - Although not sure with PROS
+** Can't use 4 & 10 together because interrupts
 */
   // Auton
   #define DIGITAL_BREAKPOINT     1   // Breakpoint button,           digital 1
-  #define DIGITAL_LIFT_ALIGN     6   // Lift deploy sensor,          digital 6
   // Claw
-  #define DIGITAL_ENC_CHAIN_TOP 2   // Encoder chain top     right,  digital 2
-  #define DIGITAL_ENC_CHAIN_BOT 3   // Encoder chain bottom  right,  digital 3
-  #define DIGITAL_ENC_LIFT_TOP 4    // Encoder lift  top     left,   digital 4
-  #define DIGITAL_ENC_LIFT_BOT 5    // Encoder lift  bottom  left,   digital 5
+  #define DIGITAL_ENC_LIFT_TOP 2    // Encoder lift  top     left,   digital 2
+  #define DIGITAL_ENC_LIFT_BOT 3    // Encoder lift  bottom  left,   digital 3
+  #define DIGITAL_LIM_CLAW     4    // Encoder limit claw,           digital 4
   // Drive
-  #define DIGITAL_ENC_DRIVE_BR_TOP 7  // Encoder drive top    right, digital 7
-  #define DIGITAL_ENC_DRIVE_BR_BOT 8  // Encoder drive bottom right, digital 8
-  #define DIGITAL_ENC_DRIVE_BL_TOP 11 // Encoder drive top    left,  digital 11
-  #define DIGITAL_ENC_DRIVE_BL_BOT 12 // Encoder drive bottom left,  digital 12
+  #define DIGITAL_ENC_DRIVE_BR_TOP 5  // Encoder drive top    right, digital 5
+  #define DIGITAL_ENC_DRIVE_BR_BOT 6  // Encoder drive bottom right, digital 6
+  #define DIGITAL_ENC_DRIVE_BL_TOP 7 // Encoder drive top      left, digital 7
+  #define DIGITAL_ENC_DRIVE_BL_BOT 8 // Encoder drive bottom   left, digital 8
+  // #define DO_NOT_USE 10
+
 
 /*
 ** I2C (WARNING: STATIC SHOCK)

@@ -108,7 +108,7 @@ extern "C" {
   **   int: The speed/rate to turn,   -127 (left)     to 127 (right)
   **   int: The speed/rate to strafe, -127 (left)     to 127 (right)
   */
-  void driveHolonomic(int speedForward, int speedTurn, int speedStrafe);
+  void driveWithLogic(int speedForward, int speedTurn, int speedStrafe);
 
   // Drive with checks to rule out errors with joystick controls
   // NOTES:
@@ -326,6 +326,15 @@ extern "C" {
   void bprint(char uart, const char * message);
 
   void blisten(char uart, void( * callback)(char*));
+
+//------------------------------------------------------------------------------
+
+  /*
+  ** Reshape.c
+  */
+
+  void rpmTest();
+
 #ifdef __cplusplus // end method if
 }
 #endif

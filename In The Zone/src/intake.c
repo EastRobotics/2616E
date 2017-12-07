@@ -7,30 +7,32 @@
 /*
 ** Constant pos of intake zones
 */
-#define POS_INTAKE_GROUND 15 // Pos of intaking from the ground
-#define POS_INTAKE_LOADER 30 // Pos of intaking off  the loader
+#define POS_INTAKE_GROUND 0 // Pos of intaking from the ground
+#define POS_INTAKE_LOADER 0 // Pos of intaking off  the loader
 
 // TODO Configure pos
 /*
 ** Constant pos of release zones
 */
-#define POS_EXTAKE_EXTERNAL 15 // Pos of offloading outside bot
-#define POS_EXTAKE_INTERNAL 30 // Pos of offloading inside bot
+#define POS_EXTAKE_EXTERNAL 0    // Pos of offloading outside bot
+#define POS_EXTAKE_INTERNAL 1130 // Pos of offloading inside bot
 
 // TODO Configure pos
 /*
 ** Constant specials pos
 */
-#define POS_POSITION_AVOID 15 // Pos for waiting for intake to be high enough
+#define POS_POSITION_AVOID 950 // Pos for waiting for intake to be high enough
 
 // TODO Configure values
 /*
 ** Constants to configure movement of intake
 */
-#define INTAKE_BIAS_THRESH 5        // How far sides need to be off to correct
-#define INTAKE_BIAS_CORRECT_P 1.5   // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 5      // How far from target to try go to it
-#define INTAKE_TARGET_CORRECT_P 1.5 // P term to use when setting speed
+#define INTAKE_BIAS_THRESH 5         // How far sides need to be off to correct
+#define INTAKE_BIAS_CORRECT_P 1.5    // P term to use when correcting offset
+#define INTAKE_TARGET_THRESH 15      // How far from target to try go to it
+#define INTAKE_TARGET_CORRECT_P 0.75 // P term to use when setting speed
+#define CLAW_MOVEMENT_TIME 300   // The amount of time the claw needs to open
+#define CLAW_MOVEMENT_SPEED -127 // Movement speed of the claw
 
 // TODO Configure speeds
 /*
@@ -38,6 +40,7 @@
 */
 #define INTAKE_SPEED_HOLDING 0
 #define INTAKE_SPEED_IDLE 0
+#define CLAW_SPEED_IDLE 0
 
 //------------------------------------------------------------------------------
 
@@ -46,6 +49,14 @@
 */
 int intakeStart = 0;  // The position of sensor where the intake started
 int intakeTarget = 0; // Delta from start for the intake to reach
+
+/*
+** Variables used to track the claw position
+*/
+bool clawOpen = false;       // Whether or not the claw is opened
+bool clawOpenTarget = false; // Whether or not the claw should be opening
+bool clawInMotion = false;   // Whether or not the claw is in motion
+int clawMovementTime = 0;    // The amount of time the claw has been in motion
 
 //------------------------------------------------------------------------------
 
@@ -107,9 +118,11 @@ int getIntakeError() { return getIntakePos() - intakeTarget; }
 // =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
 // int correctIntakeBias(bool side, int speed, bool direction) {
 //   int bias = getIntakeBias(direction); // Get the current bias
-//   // If bias isn't 0 and the bias is the side we're checking for, return speed
+//   // If bias isn't 0 and the bias is the side we're checking for, return
+//   speed
 //   if (bias != 0 &&
-//       ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT))) {
+//       ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT)))
+//       {
 //     // If going up, negative speed to dampen. Vice versa for down
 //     return speed + (INTAKE_BIAS_CORRECT_P * abs(getIntakeOffset()) *
 //                     (direction ? -1 : 1));
@@ -122,9 +135,9 @@ int getIntakeError() { return getIntakePos() - intakeTarget; }
 // Directly sets intake motor speeds
 // Shouldn't be used unless making control loops
 // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
-//void setIntakeSpeedRaw(int speedLeft, int speedRight) {
+// void setIntakeSpeedRaw(int speedLeft, int speedRight) {
 void setIntakeSpeedRaw(int speed) {
-  motorSet(MOTOR_CHAIN_BAR, speed); // TODO SLew?
+  motorSet(MOTOR_FOUR_BAR, speed); // TODO SLew?
 }
 
 // Sets intake speed using bias correction
@@ -136,7 +149,7 @@ void setIntakeSpeed(int speed) {
   // bool direction = speed > 0;
   // setIntakeSpeedRaw(correctIntakeBias(DIR_LEFT, speed, direction),
   //                   correctIntakeBias(DIR_RIGHT, speed, direction));
-  
+
   // TODO Check bounds
   setIntakeSpeedRaw(speed);
 }
@@ -168,9 +181,7 @@ int getGoalPos(int goal) {
 // Sets the intake target to the right pos for the goal type
 void setIntakeTargetSmart(int goal) { setIntakeTarget(getGoalPos(goal)); }
 
-int getIntakeTarget() {
-  return intakeTarget;
-}
+int getIntakeTarget() { return intakeTarget; }
 
 // Whether or not the intake is at it's target
 bool isIntakeReady() { return abs(getIntakeError()) <= INTAKE_TARGET_THRESH; }
@@ -181,15 +192,37 @@ void waitForIntake() {
     delay(10);
 }
 
-bool intakeIsOutOfWay() {
-  return getIntakePos() <= POS_POSITION_AVOID;
+bool intakeIsOutOfWay() { return getIntakePos() <= POS_POSITION_AVOID; }
+
+void openClaw() {
+  if (!clawOpen) {
+    // Shorten the movement of the claw if it is still moving in the other
+    // direction for example if the claw just started closing for 10 ms, and is
+    // told to open then it should not open for the full amount of time.
+    if (clawInMotion && !clawOpenTarget)
+      clawMovementTime = CLAW_MOVEMENT_TIME - clawMovementTime;
+    clawOpenTarget = true;
+  }
 }
+
+void closeClaw() {
+  if (clawOpen) {
+    // Shorten the movement of the claw if it is still moving in the other
+    // direction for example if the claw just started opening for 10 ms, and is
+    // told to close then it should not close for the full amount of time.
+    if (clawInMotion && clawOpenTarget)
+      clawMovementTime = CLAW_MOVEMENT_TIME - clawMovementTime;
+    clawOpenTarget = false;
+  }
+}
+
+bool isClawReady() { return !clawInMotion; }
 
 //------------------------------------------------------------------------------
 
 // Task to handle the control of the intake
 void intakeControl(void *ignored) {
-  while(true) {
+  while (true) {
     // TODO Handle upper and lower bounds
     // If the error is great enough, move intake towards target
     if (!isIntakeReady()) {
@@ -203,6 +236,39 @@ void intakeControl(void *ignored) {
       // TODO Determine whether or not to use INTAKE_SPEED_HOLDING or
       //    INTAKE_SPEED_IDLE
       setIntakeSpeed(INTAKE_SPEED_HOLDING);
+    }
+
+    /*
+    ** Claw Control
+    */
+
+    // If the claw is not at the position it is trying to reach
+    // Since there is no encoder just boolean values compared so no thresholds
+    if (clawOpen != clawOpenTarget) {
+      // If the claw is not already in motion
+      if (!clawInMotion) {
+        clawMovementTime = 0;
+        clawInMotion = true;
+      }
+
+      // Move at proper speed in direction based on open or close direction
+      motorSet(MOTOR_CLAW, CLAW_MOVEMENT_SPEED * ((clawOpenTarget) ? 1 : -1));
+
+      // If the claw has reached the end of its movement
+      if (clawMovementTime >= CLAW_MOVEMENT_TIME) {
+        clawOpen = clawOpenTarget; // set current position to the target,
+                                   // because it has finished moving
+        clawInMotion = false;
+        clawMovementTime = 0;
+
+        // Run the claw at a low speed to hold it in place
+        if (clawOpen)
+          motorSet(MOTOR_CLAW, CLAW_SPEED_IDLE);
+        else
+          motorSet(MOTOR_CLAW, CLAW_SPEED_IDLE * -1);
+      } else {
+        clawMovementTime += 10;
+      }
     }
     delay(10);
   }

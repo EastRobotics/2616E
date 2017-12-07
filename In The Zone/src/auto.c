@@ -1,6 +1,10 @@
 #include "main.h"
 #include "math.h"
 
+#define KP_DRIVE 0.75
+#define P_LOOP_DRIVE_THRESHOLD 10
+#define P_LOOP_STOP_COUNT 10
+
 // KEEP IN MIND, AFTER AUTON, IF WE'RE PLUGGED IN SOME SENSORS WILL SHUT DOWN
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
@@ -13,6 +17,8 @@ void breakpoint() {
 void initDrivePID() {
   // TODO Implement
 }
+
+///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
 
 // Setter from the motor speed PID loop with *double parameter*
 void setMotorSpeedPID(double speed) {
@@ -27,6 +33,40 @@ void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 // To be used in PID
 double getEncoderValue() { return encoderGet(getEncoderBR()); }
 
+///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
+
+void pLoopDriveStraight(int tickDiff) {
+  int leftInit = encoderGet(getEncoderBL());  // Initial left value
+  int rightInit = encoderGet(getEncoderBR()); // Initial right value
+  int errorL;                                 // Error in the left side
+  int errorR;                                 // Error in the right side
+  int error;                                  // Averaged Error
+  int speed;                                  // Calculated speed to drive at
+  int stopCount = 0; // Amount of time spent within threshold
+  while (true) {
+    errorL = tickDiff - (encoderGet(getEncoderBL()) - leftInit);
+    errorR = tickDiff - (encoderGet(getEncoderBR()) - rightInit);
+    error = round((errorL + errorR) / 2);
+    speed = error * KP_DRIVE;
+    speed = (speed > 127) ? 127 : speed;
+    speed = (speed < 25) ? 25 : speed;
+
+    driveRaw(speed, speed, speed, speed);
+
+    if (error < P_LOOP_DRIVE_THRESHOLD) {
+      stopCount++;
+      if (stopCount >= P_LOOP_STOP_COUNT)
+        break;
+    }
+
+    delay(20);
+  }
+
+  driveRaw(-speed, -speed, -speed, -speed); // Slam the breaks
+  delay(10);
+  driveRaw(0, 0, 0, 0);
+}
+
 void autonomous() {
   /*
   ** Set up
@@ -39,6 +79,7 @@ void autonomous() {
   switch (getAutonMode()) {
   case 1:
     print("Ran auton one!\n");
+
     break;
   case 2:
     print("Ran auton two!\n");
