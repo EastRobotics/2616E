@@ -5,6 +5,8 @@
 #define P_LOOP_DRIVE_THRESHOLD 10
 #define P_LOOP_STOP_COUNT 10
 
+int initialGyroValue = 0;
+
 // KEEP IN MIND, AFTER AUTON, IF WE'RE PLUGGED IN SOME SENSORS WILL SHUT DOWN
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
@@ -23,6 +25,7 @@ void initDrivePID() {
 // Setter from the motor speed PID loop with *double parameter*
 void setMotorSpeedPID(double speed) {
   int speedInt = round(speed);
+
   driveRaw(speedInt, speedInt, speedInt, speedInt);
 }
 

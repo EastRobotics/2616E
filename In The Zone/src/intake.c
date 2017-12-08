@@ -40,7 +40,7 @@
 */
 #define INTAKE_SPEED_HOLDING 0
 #define INTAKE_SPEED_IDLE 0
-#define CLAW_SPEED_IDLE 0
+#define CLAW_SPEED_IDLE -10
 
 //------------------------------------------------------------------------------
 
@@ -264,8 +264,8 @@ void intakeControl(void *ignored) {
         // Run the claw at a low speed to hold it in place
         if (clawOpen)
           motorSet(MOTOR_CLAW, CLAW_SPEED_IDLE);
-        else
-          motorSet(MOTOR_CLAW, CLAW_SPEED_IDLE * -1);
+        // else
+        // motorSet(MOTOR_CLAW, CLAW_SPEED_IDLE * -1);
       } else {
         clawMovementTime += 10;
       }
