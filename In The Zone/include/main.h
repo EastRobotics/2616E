@@ -158,6 +158,7 @@ void waitForLift();
 */
 
 // Returns the encoder position of the chain bar
+
 int getIntakePos();
 
 // Directly sets intake motor speeds

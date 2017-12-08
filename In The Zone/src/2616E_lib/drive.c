@@ -81,6 +81,7 @@ void driveIfValid(unsigned char motor, int speed,
                                         // causing errors
   if (motor)
     motorSet(motor, speed);
+
   // TODO Uncomment, but avoid spamming, because only 2 motor ports are used
   // else
   // printf(

@@ -14,13 +14,15 @@ void blueListen(char *message) {
     fprintf(uart1, "Robot gyro: %d\r\n >", gyroGet(getGyro()));
   } else if (strcmp(message, "rpm\r\n") == 0) {
     rpmTest();
+  } else if (strcmp(message, "sensortest\r\n")) {
+    fprintf(uart1, "Lift Enc: %d\r\n", encoderGet(getEncoderLift()));
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
   } else if (strcmp(message, "cherisse\r\n") ==
              0) { // Send a sign of disinterest
     bprint(1, "*SIGH*\r\n");
   } else if (strcmp(message, "cameron\r\n") ==
-             0) { // Send a signa l of comradery
+             0) { // Send a signal of comradery
     bprint(1, "oh meine Bruter\r\n");
   } else if (strcmp(message, "ian\r\n") == 0) { // Send a message of IDE loyalty
     bprint(1, "*opens android studio*\r\n");
@@ -32,41 +34,24 @@ void blueListen(char *message) {
 
 // Manual control of the robot
 void manualControl() {
-  if (joystickGetDigital(1, 8, JOY_UP)) {
-    setIntakeTargetSmart(POSITION_GOAL_BASE_INTERNAL); // Placing
-  } else if (joystickGetDigital(1, 8, JOY_DOWN)) {
-    setIntakeTargetSmart(POSITION_GOAL_BASE_EXTERNAL);
+  if(joystickGetDigital(1, 8, JOY_UP)) {
+    motorSet(MOTOR_FOUR_BAR, ((digitalRead(DIGITAL_LIM_CLAW)) ? 10 : 127));
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    setIntakeTargetSmart(POSITION_BASE_AVOID); // Offset Placing
-  }
-
-  if (joystickGetDigital(1, 7, JOY_LEFT)) {
-    openClaw();
-  } else if (joystickGetDigital(1, 7, JOY_RIGHT)) {
-    closeClaw();
+    motorSet(MOTOR_FOUR_BAR, -127);
+  } else {
+    motorSet(MOTOR_FOUR_BAR, 0);
   }
 
   // Test other things
-  if (joystickGetDigital(1, 5, JOY_UP)) {
+  if (joystickGetDigital(1, 7, JOY_UP)) {
     motorSet(MOTOR_LIFT_1, 127);
     motorSet(MOTOR_LIFT_2, -127);
-  } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+  } else if (joystickGetDigital(1, 7, JOY_RIGHT)) {
     motorSet(MOTOR_LIFT_1, -127);
     motorSet(MOTOR_LIFT_2, 127);
   } else {
     motorSet(MOTOR_LIFT_1, 0);
     motorSet(MOTOR_LIFT_2, 0);
-  }
-
-  if (joystickGetDigital(1, 6, JOY_UP)) {
-    motorSet(MOTOR_MOGO_L, 127);
-    motorSet(MOTOR_MOGO_R, -127);
-  } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
-    motorSet(MOTOR_MOGO_L, -127);
-    motorSet(MOTOR_MOGO_R, 127);
-  } else {
-    motorSet(MOTOR_MOGO_L, 0);
-    motorSet(MOTOR_MOGO_R, 0);
   }
 }
 
@@ -191,6 +176,7 @@ void operatorControl() {
 
     fprintf(uart1, "Lift Position: %d\r\n", getLiftHeight());
 
+
     if (joystickGetDigital(1, 7, JOY_DOWN))
       swapControlState();
 
@@ -198,6 +184,25 @@ void operatorControl() {
       manualControl();
     } else {
       automaticControl();
+    }
+
+    if (joystickGetDigital(1, 6, JOY_UP)) {
+      motorSet(MOTOR_CLAW, -127);
+    } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
+      motorSet(MOTOR_CLAW, 127);
+    } else {
+      motorSet(MOTOR_CLAW, 0);
+    }
+
+    if (joystickGetDigital(1, 5, JOY_UP)) {
+      motorSet(MOTOR_MOGO_L, 127);
+      motorSet(MOTOR_MOGO_R, -127);
+    } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+      motorSet(MOTOR_MOGO_L, -127);
+      motorSet(MOTOR_MOGO_R, 127);
+    } else {
+      motorSet(MOTOR_MOGO_L, 0);
+      motorSet(MOTOR_MOGO_R, 0);
     }
 
     // update the position on any external trackers
