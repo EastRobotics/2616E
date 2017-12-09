@@ -25,7 +25,7 @@ extern "C" {
   #define MOTOR_LIFT_2 7  // Lift 2, motor 7
 
   // Chain bar
-  #define MOTOR_CHAIN_BAR 8  // Right claw, moto
+  #define MOTOR_FOUR_BAR 8  // Right claw, moto
 
   // MoGo Intake
   #define MOTOR_MOGO_L 5 // Left mogo intake,  motor 5
