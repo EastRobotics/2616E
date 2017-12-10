@@ -4,6 +4,7 @@
 bool isManualControl = true; // Whether or not to use manual controls
 bool clawClosed = false;     // Whether or not the claw is closed
 bool fourBarUp = false;
+bool runAuton = false;
 int rightBumperState = 0; // 0: none, up: 1, down: 2
 TaskHandle intakeCont;    // intake control task
 TaskHandle liftCont;      // lift control task
@@ -21,6 +22,8 @@ void blueListen(char *message) {
     fprintf(uart1, "Left  Enc: %d\r\n", encoderGet(getEncoderBL()));
     fprintf(uart1, "Right Enc: %d\r\n", encoderGet(getEncoderBR()));
     fprintf(uart1, "Claw  Lim: %d\r\n", digitalRead(DIGITAL_LIM_CLAW));
+  } else if (strcmp(message, "startauton\r\n") == 0) {
+    runAuton = true;
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
   } else if (strcmp(message, "cherisse\r\n") ==
@@ -56,9 +59,11 @@ void manualControl() {
   if (joystickGetDigital(1, 7, JOY_UP)) {
     motorSet(MOTOR_LIFT_1, 127);
     motorSet(MOTOR_LIFT_2, -127);
-  } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
-    motorSet(MOTOR_LIFT_1, -127);
-    motorSet(MOTOR_LIFT_2, 127);
+  } else if (joystickGetDigital(1, 7, JOY_LEFT) &&
+             (encoderGet(getEncoderLift()) > 0)) {
+    int liftSpeed = encoderGet(getEncoderLift()) * 0.2;
+    motorSet(MOTOR_LIFT_1, -liftSpeed);
+    motorSet(MOTOR_LIFT_2, liftSpeed);
   } else {
     motorSet(MOTOR_LIFT_1, 0);
     motorSet(MOTOR_LIFT_2, 0);
@@ -176,6 +181,12 @@ void operatorControl() {
   // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   while (true) { // true cooler than 1
+
+    if (runAuton) {
+      setAutonMode(2);
+      autonomous();
+      runAuton = false;
+    }
 
     /*
     ** Handle the main driver's joysticks
