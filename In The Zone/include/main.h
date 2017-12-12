@@ -88,6 +88,8 @@ extern "C" {
 ** Prototypes for initialization, operator control and autonomous
 */
 
+void deploy();
+
 void autonomous();
 
 void initializeIO();

@@ -23,9 +23,9 @@ void initDriveEncoders() {
   // Init right encoder, reverse
   encDriveBR =
       encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, true);
-  // Init left encoder, reverse
+  // Init left encoder, not reversed
   encDriveBL =
-      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, true);
+      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, false);
 }
 
 /*
@@ -83,6 +83,7 @@ void initialize() {
   print("[Init] Setting up autonomous modes\n");
   lcdSetText(uart2, 1, "Init auton...");
   autonInit(4); // 3 auton modes
+  setAutonMode(2);
 
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");
@@ -94,7 +95,7 @@ void initialize() {
   print("[Init] Setting up encoders\n");
   lcdSetText(uart2, 1, "Init Encs...");
   initDriveEncoders();
-  encLift = encoderInit(DIGITAL_ENC_LIFT_TOP, DIGITAL_ENC_LIFT_BOT, true);
+  encLift = encoderInit(DIGITAL_ENC_LIFT_TOP, DIGITAL_ENC_LIFT_BOT, false);
   // initPidControl();
 
   // Done init

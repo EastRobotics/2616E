@@ -2,9 +2,12 @@
 #include "string.h" // TODO Remove
 
 bool isManualControl = true; // Whether or not to use manual controls
-int rightBumperState = 0;    // 0: none, up: 1, down: 2
-TaskHandle intakeCont;       // intake control task
-TaskHandle liftCont;         // lift control task
+bool clawClosed = false;     // Whether or not the claw is closed
+bool fourBarUp = false;
+bool runAuton = false;
+int rightBumperState = 0; // 0: none, up: 1, down: 2
+TaskHandle intakeCont;    // intake control task
+TaskHandle liftCont;      // lift control task
 
 // Listen to bluetooth commands from an external controller and respond
 void blueListen(char *message) {
@@ -14,8 +17,13 @@ void blueListen(char *message) {
     fprintf(uart1, "Robot gyro: %d\r\n >", gyroGet(getGyro()));
   } else if (strcmp(message, "rpm\r\n") == 0) {
     rpmTest();
-  } else if (strcmp(message, "sensortest\r\n")) {
-    fprintf(uart1, "Lift Enc: %d\r\n", encoderGet(getEncoderLift()));
+  } else if (strcmp(message, "sensortest\r\n") == 0) {
+    fprintf(uart1, "Lift  Enc: %d\r\n", encoderGet(getEncoderLift()));
+    fprintf(uart1, "Left  Enc: %d\r\n", encoderGet(getEncoderBL()));
+    fprintf(uart1, "Right Enc: %d\r\n", encoderGet(getEncoderBR()));
+    fprintf(uart1, "Claw  Lim: %d\r\n", digitalRead(DIGITAL_LIM_CLAW));
+  } else if (strcmp(message, "startauton\r\n") == 0) {
+    runAuton = true;
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
   } else if (strcmp(message, "cherisse\r\n") ==
@@ -34,21 +42,28 @@ void blueListen(char *message) {
 
 // Manual control of the robot
 void manualControl() {
-  if(joystickGetDigital(1, 8, JOY_UP)) {
-    motorSet(MOTOR_FOUR_BAR, ((digitalRead(DIGITAL_LIM_CLAW)) ? 10 : 127));
+  if (joystickGetDigital(1, 8, JOY_UP)) {
+    motorSet(MOTOR_FOUR_BAR,
+             ((digitalRead(DIGITAL_LIM_CLAW))
+                  ? ((joystickGetDigital(1, 7, JOY_DOWN)) ? 50 : 127)
+                  : ((joystickGetDigital(1, 7, JOY_DOWN)) ? 50 : 10)));
+    fourBarUp = true;
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    motorSet(MOTOR_FOUR_BAR, -127);
+    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_DOWN)) ? -50 : -127);
+    fourBarUp = false;
   } else {
-    motorSet(MOTOR_FOUR_BAR, 0);
+    motorSet(MOTOR_FOUR_BAR, (fourBarUp) ? 10 : 0);
   }
 
   // Test other things
   if (joystickGetDigital(1, 7, JOY_UP)) {
     motorSet(MOTOR_LIFT_1, 127);
     motorSet(MOTOR_LIFT_2, -127);
-  } else if (joystickGetDigital(1, 7, JOY_RIGHT)) {
-    motorSet(MOTOR_LIFT_1, -127);
-    motorSet(MOTOR_LIFT_2, 127);
+  } else if (joystickGetDigital(1, 7, JOY_LEFT) &&
+             (encoderGet(getEncoderLift()) > 0)) {
+    int liftSpeed = encoderGet(getEncoderLift()) * 0.2;
+    motorSet(MOTOR_LIFT_1, -liftSpeed);
+    motorSet(MOTOR_LIFT_2, liftSpeed);
   } else {
     motorSet(MOTOR_LIFT_1, 0);
     motorSet(MOTOR_LIFT_2, 0);
@@ -159,13 +174,24 @@ void operatorControl() {
 
   // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // Start chainbar task
-  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                          (TASK_PRIORITY_DEFAULT));
+  // intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                        (TASK_PRIORITY_DEFAULT));
   // liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
   //                      (TASK_PRIORITY_DEFAULT));
   // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
   while (true) { // true cooler than 1
+
+    if (runAuton) {
+      setAutonMode(2);
+      autonomous();
+      runAuton = false;
+    }
+
+    if (joystickGetDigital(1, 8, JOY_DOWN) &&
+        joystickGetDigital(1, 8, JOY_LEFT)) {
+      deploy();
+    }
 
     /*
     ** Handle the main driver's joysticks
@@ -174,11 +200,10 @@ void operatorControl() {
     // and 0 for strafe
     driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
 
-    fprintf(uart1, "Lift Position: %d\r\n", getLiftHeight());
+    // fprintf(uart1, "Lift Position: %d\r\n", getLiftHeight());
 
-
-    if (joystickGetDigital(1, 7, JOY_DOWN))
-      swapControlState();
+    // if (joystickGetDigital(1, 7, JOY_DOWN))
+    //  swapControlState();
 
     if (isManualControl) {
       manualControl();
@@ -186,12 +211,16 @@ void operatorControl() {
       automaticControl();
     }
 
-    if (joystickGetDigital(1, 6, JOY_UP)) {
-      motorSet(MOTOR_CLAW, -127);
-    } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
-      motorSet(MOTOR_CLAW, 127);
-    } else {
-      motorSet(MOTOR_CLAW, 0);
+    if (isClawReady()) {
+      if (joystickGetDigital(1, 6, JOY_UP)) {
+        clawClosed = true;
+        motorSet(MOTOR_CLAW, -127);
+      } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
+        clawClosed = false;
+        motorSet(MOTOR_CLAW, 127);
+      } else {
+        motorSet(MOTOR_CLAW, (clawClosed) ? -10 : 0);
+      }
     }
 
     if (joystickGetDigital(1, 5, JOY_UP)) {
@@ -206,8 +235,8 @@ void operatorControl() {
     }
 
     // update the position on any external trackers
-    blueListen("pos\r\n");
-    blueListen("gyro\r\n");
+    // blueListen("pos\r\n");
+    // blueListen("gyro\r\n");
 
     delay(20);
   }
