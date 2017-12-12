@@ -46,7 +46,7 @@ void manualControl() {
     motorSet(MOTOR_FOUR_BAR,
              ((digitalRead(DIGITAL_LIM_CLAW))
                   ? ((joystickGetDigital(1, 7, JOY_DOWN)) ? 50 : 127)
-                  : 10));
+                  : ((joystickGetDigital(1, 7, JOY_DOWN)) ? 50 : 10)));
     fourBarUp = true;
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
     motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_DOWN)) ? -50 : -127);
@@ -186,6 +186,11 @@ void operatorControl() {
       setAutonMode(2);
       autonomous();
       runAuton = false;
+    }
+
+    if (joystickGetDigital(1, 8, JOY_DOWN) &&
+        joystickGetDigital(1, 8, JOY_LEFT)) {
+      deploy();
     }
 
     /*

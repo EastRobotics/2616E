@@ -3,11 +3,12 @@
 
 #define KP_DRIVE 0.1
 #define KP_DRIVE_TURN 1.25
+#define KP_GYRO_CORRECT 10
 #define P_LOOP_DRIVE_THRESHOLD 10
-#define P_LOOP_DRIVE_TURN_THRESHOLD 10
+#define P_LOOP_DRIVE_TURN_THRESHOLD 1
 #define P_LOOP_STOP_COUNT 25
 #define P_LOOP_TURN_STOP_COUNT 10
-#define P_LOOP_GYRO_STAIGHTEN_SPEED_MODIF 5
+#define P_LOOP_GYRO_STAIGHTEN_SPEED_MODIF 10
 #define P_LOOP_GYRO_CORRECTION_ANGLE 2
 
 // KEEP IN MIND, AFTER AUTON, IF WE'RE PLUGGED IN SOME SENSORS WILL SHUT DOWN
@@ -44,7 +45,7 @@ void deploy() {
   delay(350);
   motorSet(MOTOR_FOUR_BAR, 100);
   delay(350);
-  motorSet(MOTOR_CLAW, 15);
+  motorSet(MOTOR_CLAW, -20);
   motorSet(MOTOR_FOUR_BAR, 10);
   motorSet(MOTOR_MOGO_L, 127);
   motorSet(MOTOR_MOGO_R, -127);
@@ -97,15 +98,10 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
     speed = (speed < 25) ? 25 : speed;
 
     angleOffset = gyroGet(getGyro()) - initGyro;
-    if (abs(angleOffset) >= P_LOOP_GYRO_CORRECTION_ANGLE) {
-      speedModif =
-          P_LOOP_GYRO_STAIGHTEN_SPEED_MODIF * (angleOffset > 0) ? 1 : -1;
-    } else {
-      speedModif = 0;
-    }
+    speedModif = angleOffset * KP_GYRO_CORRECT;
 
-    driveRaw(speed - speedModif, speed - speedModif, speed + speedModif,
-             speed + speedModif);
+    driveRaw(speed + speedModif, speed + speedModif, speed - speedModif,
+             speed - speedModif);
 
     if (error < P_LOOP_DRIVE_THRESHOLD) {
       stopCount++;
@@ -165,9 +161,44 @@ void autonomous() {
     print("Ran auton two!\n");
     bprint(1, "Ran auton two!");
     deploy();
+    motorSet(MOTOR_FOUR_BAR, 100);
+    delay(100);
+    motorSet(MOTOR_MOGO_L, -127);
+    motorSet(MOTOR_MOGO_R, 127);
+    delay(500);
+    motorSet(MOTOR_MOGO_L, 0);
+    motorSet(MOTOR_MOGO_R, 0);
+    while (digitalRead(DIGITAL_LIM_CLAW))
+      delay(10);
+    motorSet(MOTOR_FOUR_BAR, 10);
+    motorSet(MOTOR_LIFT_1, 127);
+    motorSet(MOTOR_LIFT_2, -127);
+    while (encoderGet(getEncoderLift()) < 1500)
+      delay(10);
+    motorSet(MOTOR_LIFT_1, 0);
+    motorSet(MOTOR_LIFT_2, 0);
+    motorSet(MOTOR_FOUR_BAR, 100);
+    while (digitalRead(DIGITAL_LIM_CLAW))
+      delay(10);
+    motorSet(MOTOR_FOUR_BAR, 10);
+    motorSet(MOTOR_MOGO_L, -127);
+    motorSet(MOTOR_MOGO_R, 127);
+    delay(150);
+    motorSet(MOTOR_MOGO_L, 0);
+    motorSet(MOTOR_MOGO_R, 0);
+    pLoopTurnPoint(0);
+    pLoopDriveStraight(575, false);
+    delay(250);
+    motorSet(MOTOR_CLAW, 100);
+    delay(100);
+    motorSet(MOTOR_CLAW, 0);
+    driveRaw(-50, -50, -50, -50);
+    delay(100);
+    driveRaw(0, 0, 0, 0);
     break;
   case 3:
     print("Ran auton three!\n");
+    pLoopDriveStraight(2700, false);
     break;
   case 4:
     print("Ran auton four!\n");
