@@ -2,12 +2,12 @@
 #include "math.h"
 
 #define KP_DRIVE 0.1
-#define KP_DRIVE_TURN 1.25
+#define KP_DRIVE_TURN 0.80
 #define KP_GYRO_CORRECT 10
 #define P_LOOP_DRIVE_THRESHOLD 10
-#define P_LOOP_DRIVE_TURN_THRESHOLD 1
+#define P_LOOP_DRIVE_TURN_THRESHOLD 3
 #define P_LOOP_STOP_COUNT 25
-#define P_LOOP_TURN_STOP_COUNT 10
+#define P_LOOP_TURN_STOP_COUNT 25
 #define P_LOOP_GYRO_STAIGHTEN_SPEED_MODIF 10
 #define P_LOOP_GYRO_CORRECTION_ANGLE 2
 
@@ -94,8 +94,8 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
     errorR = tickDiff - (encoderGet(getEncoderBR()) - rightInit);
     error = errorL; // round((errorL + errorR) / 2);
     speed = error * KP_DRIVE;
-    speed = (speed > 127) ? 127 : speed;
-    speed = (speed < 25) ? 25 : speed;
+    speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
+    speed = (abs(speed) < 25) ? (speed < 0) ? -25 : 25 : speed;
 
     angleOffset = gyroGet(getGyro()) - initGyro;
     speedModif = angleOffset * KP_GYRO_CORRECT;
@@ -124,12 +124,14 @@ void pLoopTurnPoint(int angleTarget) {
   while (true) {
     error = angleTarget - gyroGet(getGyro());
     speed = error * KP_DRIVE_TURN;
-    speed = (speed > 127) ? 127 : speed;
-    speed = (speed < 25) ? 25 : speed;
+    speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
+    speed = (abs(speed) < 30) ? (speed < 0) ? -30 : 30 : speed;
 
     driveRaw(-speed, -speed, speed, speed);
+    fprintf(uart1, "speed: %d\r\n", speed);
+    fprintf(uart1, "error: %d\r\n", error);
 
-    if (error < P_LOOP_DRIVE_TURN_THRESHOLD) {
+    if (abs(error) < P_LOOP_DRIVE_TURN_THRESHOLD) {
       stopCount++;
       if (stopCount >= P_LOOP_TURN_STOP_COUNT)
         break;
@@ -198,7 +200,7 @@ void autonomous() {
     break;
   case 3:
     print("Ran auton three!\n");
-    pLoopDriveStraight(2700, false);
+    pLoopTurnPoint(90);
     break;
   case 4:
     print("Ran auton four!\n");

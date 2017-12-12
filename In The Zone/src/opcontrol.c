@@ -22,6 +22,7 @@ void blueListen(char *message) {
     fprintf(uart1, "Left  Enc: %d\r\n", encoderGet(getEncoderBL()));
     fprintf(uart1, "Right Enc: %d\r\n", encoderGet(getEncoderBR()));
     fprintf(uart1, "Claw  Lim: %d\r\n", digitalRead(DIGITAL_LIM_CLAW));
+    fprintf(uart1, "Cart  Pot: %d\r\n", analogRead(ANALOG_POT_FOUR_BAR));
   } else if (strcmp(message, "startauton\r\n") == 0) {
     runAuton = true;
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
@@ -182,8 +183,14 @@ void operatorControl() {
 
   while (true) { // true cooler than 1
 
+    if(joystickGetDigital(1, 8, JOY_DOWN) && joystickGetDigital(1, 8, JOY_LEFT)) {
+      runAuton = true;
+      setAutonMode(3);
+    }
+
     if (runAuton) {
-      setAutonMode(2);
+      setAutonMode(3);
+      delay(250);
       autonomous();
       runAuton = false;
     }

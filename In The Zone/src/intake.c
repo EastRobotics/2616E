@@ -15,7 +15,7 @@
 ** Constant pos of release zones
 */
 #define POS_EXTAKE_EXTERNAL 0    // Pos of offloading outside bot
-#define POS_EXTAKE_INTERNAL 1130 // Pos of offloading inside bot
+#define POS_EXTAKE_INTERNAL 1600 // Pos of offloading inside bot
 
 // TODO Configure pos
 /*
