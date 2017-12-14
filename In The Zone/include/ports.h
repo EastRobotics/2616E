@@ -45,7 +45,7 @@ extern "C" {
   #define ANALOG_LINE_RIGHT_FRONT 5 // Line Sensor Right,  analog 5
   #define ANALOG_LINE_LEFT_BACK  7  // Line Sensor Left,   analog 7
   #define ANALOG_LINE_RIGHT_BACK 6  // Line Sensor Right,  analog 6
-  #define ANALOG_POT_FOUR_BAR 8     // Cart potentiometer, analog 8
+  #define ANALOG_POT_FOUR_BAR 8     // Cart potentiometer, analog 8 
 
 /*
 ** Digital

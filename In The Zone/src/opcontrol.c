@@ -185,11 +185,11 @@ void operatorControl() {
 
     if(joystickGetDigital(1, 8, JOY_DOWN) && joystickGetDigital(1, 8, JOY_LEFT)) {
       runAuton = true;
-      setAutonMode(3);
+      setAutonMode(2);
     }
 
     if (runAuton) {
-      setAutonMode(3);
+      setAutonMode(2);
       delay(250);
       autonomous();
       runAuton = false;
