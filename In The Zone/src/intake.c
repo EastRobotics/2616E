@@ -27,18 +27,21 @@
 /*
 ** Constants to configure movement of intake
 */
-#define INTAKE_BIAS_THRESH 5         // How far sides need to be off to correct
-#define INTAKE_BIAS_CORRECT_P 1.5    // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 15      // How far from target to try go to it
-#define INTAKE_TARGET_CORRECT_P 0.75 // P term to use when setting speed
-#define CLAW_MOVEMENT_TIME 300   // The amount of time the claw needs to open
-#define CLAW_MOVEMENT_SPEED -127 // Movement speed of the claw
+#define INTAKE_BIAS_THRESH 5      // How far sides need to be off to correct
+#define INTAKE_BIAS_CORRECT_P 1.5 // P term to use when correcting offset
+#define INTAKE_TARGET_THRESH 75   // How far from target to try go to it
+#define INTAKE_TARGET_CORRECT_P_UP 0.1 // P term to use when setting speed up
+#define INTAKE_TARGET_CORRECT_P_DOWN                                           \
+  0.11                          // P term to use when setting speed down
+#define INTAKE_MINIMUM_SPEED 35 // Minimum speed for the intake to move at
+#define CLAW_MOVEMENT_TIME 300  // The amount of time the claw needs to open
+#define CLAW_MOVEMENT_SPEED 127 // Movement speed of the claw
 
 // TODO Configure speeds
 /*
 ** Constants to configure resting speeds of intake
 */
-#define INTAKE_SPEED_HOLDING 0
+#define INTAKE_SPEED_HOLDING 15
 #define INTAKE_SPEED_IDLE 0
 #define CLAW_SPEED_IDLE 0
 
@@ -47,8 +50,9 @@
 /*
 ** Variables used to track intake position
 */
-int intakeStart = 0;  // The position of sensor where the intake started
-int intakeTarget = 0; // Delta from start for the intake to reach
+int intakeStart = 0; // The position of sensor where the intake started
+int intakeTarget =
+    POS_INTAKE_EXTERNAL; // Delta from start for the intake to reach
 
 /*
 ** Variables used to track the claw position
@@ -80,7 +84,7 @@ int getIntakePos() {
   // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
   // return floor((((double)getIntakePosLeft() / getIntakePosRight()) / 2.0) +
   //              0.5);
-  return encoderGet(getEncoderChain());
+  return analogRead(ANALOG_POT_FOUR_BAR);
 }
 
 // =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
@@ -192,7 +196,9 @@ void waitForIntake() {
     delay(10);
 }
 
-bool intakeIsOutOfWay() { return getIntakePos() <= POS_POSITION_AVOID; }
+bool intakeIsOutOfWay() { return getIntakePos() >= POS_INTAKE_AVOID_DOWN; }
+
+void setClawOpen(bool isOpen) { clawOpen = isOpen; }
 
 void openClaw() {
   if (!clawOpen) {
@@ -227,11 +233,17 @@ void intakeControl(void *ignored) {
     // If the error is great enough, move intake towards target
     if (!isIntakeReady()) {
       // If intake is higher than target, move down, otherwise up
+      // NOTE: This is opposite of what it should be
       bool correctionDirection =
           (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
       // Set intake speed to Kp * error * directionMultiplier
-      setIntakeSpeed(INTAKE_TARGET_CORRECT_P * abs(getIntakeError()) *
-                     (correctionDirection ? -1 : 1));
+      int speed = (correctionDirection ? INTAKE_TARGET_CORRECT_P_DOWN
+                                       : INTAKE_TARGET_CORRECT_P_UP) *
+                  abs(getIntakeError());
+      speed =
+          (abs(speed) < INTAKE_MINIMUM_SPEED) ? INTAKE_MINIMUM_SPEED : speed;
+      speed *= (correctionDirection ? -1 : 1);
+      setIntakeSpeed(speed);
     } else { // Otherwise let the intake be still
       // TODO Determine whether or not to use INTAKE_SPEED_HOLDING or
       //    INTAKE_SPEED_IDLE

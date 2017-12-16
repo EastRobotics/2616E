@@ -70,6 +70,19 @@ extern "C" {
 #define POSITION_WAITING 6
 #define POSITION_BASE_AVOID 7
 
+/*
+** Position values for auto stacking
+** All lift values assume that 0 is bottom of lift (set by driver)
+*/
+#define POS_INTAKE_INTERNAL 740
+#define POS_INTAKE_EXTERNAL 2606
+#define POS_INTAKE_AVOID_UP 2238
+#define POS_INTAKE_AVOID_DOWN 2135
+#define POS_LIFT_GROUND 0
+#define POS_LIFT_INTERNAL 0
+#define THRESH_LIFT_AVOID 50
+#define HEIGHT_INCREMENT_CONE 225 // Height to add to goal per cone
+
 //------------------------------------------------------------------------------
 
 // TODO Configure speeds
@@ -153,6 +166,9 @@ bool isLiftReady();
 // Wait until the lift is at it's desired target
 void waitForLift();
 
+int getLiftTarget();
+
+
 //------------------------------------------------------------------------------
 
 /*
@@ -194,6 +210,9 @@ void waitForIntake();
 
 // Returns whether or not intake is out of way of cones
 bool intakeIsOutOfWay();
+
+// Sets claw to open or closed
+void setClawOpen(bool isOpen);
 
 // Sets up the claw to open
 void openClaw();

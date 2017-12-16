@@ -170,19 +170,19 @@ void autonomous() {
     delay(500);
     motorSet(MOTOR_MOGO_L, 0);
     motorSet(MOTOR_MOGO_R, 0);
-    //while (digitalRead(DIGITAL_LIM_CLAW))
+    // while (digitalRead(DIGITAL_LIM_CLAW))
     //  delay(10);
     // TODO UNCOMMENT ABOVE CODE!!!
     motorSet(MOTOR_FOUR_BAR, 10);
     motorSet(MOTOR_LIFT_1, 127);
     motorSet(MOTOR_LIFT_2, -127);
-    //while (encoderGet(getEncoderLift()) < 1500)
+    // while (encoderGet(getEncoderLift()) < 1500)
     //  delay(10);
     // TODO UNCOMMENT ABOVE CODE
     motorSet(MOTOR_LIFT_1, 0);
     motorSet(MOTOR_LIFT_2, 0);
     motorSet(MOTOR_FOUR_BAR, 100);
-    //while (digitalRead(DIGITAL_LIM_CLAW))
+    // while (digitalRead(DIGITAL_LIM_CLAW))
     //  delay(10);
     // TODO UNCOMMENT ABOVE CODE
     motorSet(MOTOR_FOUR_BAR, 10);
@@ -197,17 +197,17 @@ void autonomous() {
     delay(100);
     motorSet(MOTOR_CLAW, 0);
     // Drive half way back
-    pLoopDriveStraight((50 - (encoderGet(getEncoderBL())))/2, true);
+    pLoopDriveStraight((50 - (encoderGet(getEncoderBL()))) / 2, true);
     pLoopTurnPoint(135);
     pLoopDriveStraight(650, true);
     pLoopTurnPoint(90);
     break;
   case 3:
     print("Ran auton three!\n");
-    pLoopDriveStraight(1500, true);
+    motorSet(MOTOR_FOUR_BAR, 20);
+    setLiftTarget(800);
+    waitForLift();
     delay(1000);
-    fprintf(uart1, "%d\r\n", (encoderGet(getEncoderBL())));
-    pLoopDriveStraight(encoderGet(getEncoderBL()) * -1, true);
     break;
   case 4:
     print("Ran auton four!\n");

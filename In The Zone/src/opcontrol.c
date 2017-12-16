@@ -1,13 +1,29 @@
 #include "main.h"
 #include "string.h" // TODO Remove
 
+#define MANIPULATOR_AVOID_THRESH 15
+
 bool isManualControl = true; // Whether or not to use manual controls
 bool clawClosed = false;     // Whether or not the claw is closed
 bool fourBarUp = false;
 bool runAuton = false;
+bool canAutoScore = false;
+bool driverSetLiftStart = false;
+bool sevenDReleased = true;
+bool eightRReleased = true;
+bool eightDReleased = true;
+int scoringMode = 0;      // 0: Not scoring, 1: scoring, 2: resetting
+int conesStacked = 0;     // The amount of cones stacked on the internal goal
 int rightBumperState = 0; // 0: none, up: 1, down: 2
 TaskHandle intakeCont;    // intake control task
 TaskHandle liftCont;      // lift control task
+
+// For autostacking preloading purposes
+int gameloadLiftVal = 100;
+int gameloadIntakeVal = 1600;
+bool gameloadStacking = false;
+bool hasDelayedLiftDrop =
+    false; // If the lift has already waited to drop in autostack
 
 // Listen to bluetooth commands from an external controller and respond
 void blueListen(char *message) {
@@ -41,16 +57,89 @@ void blueListen(char *message) {
     fprintf(uart1, "I don't know what \"%s\" means :(", message);
 }
 
+void swapControlState() {
+  if (isManualControl) {
+    taskResume(liftCont);
+    taskResume(intakeCont);
+    if (!driverSetLiftStart)
+      encoderReset(getEncoderLift());
+  } else {
+    taskSuspend(liftCont);
+    taskSuspend(intakeCont);
+  }
+  if (!gameloadStacking) {
+    motorSet(MOTOR_LIFT_1, 0);
+    motorSet(MOTOR_LIFT_2, 0);
+    motorSet(MOTOR_FOUR_BAR, 0);
+  }
+  isManualControl = !isManualControl;
+}
+
+// Score the cone automatically
+void score() {
+  bprint(1, "1");
+  setLiftTargetSmart(POS_LIFT_INTERNAL, conesStacked);
+  // If we are not close enough to move
+  if (abs(getLiftTarget() - getLiftHeight()) > THRESH_LIFT_AVOID) {
+    bprint(1, "2");
+    setIntakeTarget(POS_INTAKE_AVOID_UP);
+  } else {
+    bprint(1, "3");
+    setIntakeTarget(POS_INTAKE_INTERNAL);
+    if (isIntakeReady() && isLiftReady()) {
+      bprint(1, "4");
+      openClaw();
+      conesStacked++;
+      if (isClawReady()) {
+        delay(400);
+        setLiftTarget(encoderGet(getEncoderLift()) + 75);
+        hasDelayedLiftDrop = false;
+        scoringMode = 2;
+      }
+    }
+  }
+}
+
+// Reset the position of the lift/chainbar
+void resetLift() {
+  openClaw();
+  if (isClawReady()) {
+    if (!joystickGetDigital(1, 7, JOY_UP)) {
+      if (intakeIsOutOfWay() && isIntakeReady()) {
+        if (!hasDelayedLiftDrop) {
+          delay(300);
+          hasDelayedLiftDrop = true;
+        }
+        if (!gameloadStacking)
+          setLiftTargetSmart(POS_LIFT_GROUND, 0);
+        else
+          setLiftTarget(gameloadLiftVal);
+        if (isIntakeReady() && isLiftReady()) {
+          fprintf(uart1, "intake:%d\r\n", gameloadStacking);
+          setIntakeTarget((!gameloadStacking) ? POS_INTAKE_EXTERNAL
+                                              : gameloadIntakeVal);
+          scoringMode = 0;
+        }
+      } else {
+        setIntakeTarget(POS_INTAKE_AVOID_DOWN);
+      }
+    } else {
+      swapControlState();
+    }
+  }
+}
+
 // Manual control of the robot
 void manualControl() {
   if (joystickGetDigital(1, 8, JOY_UP)) {
     motorSet(MOTOR_FOUR_BAR,
              ((digitalRead(DIGITAL_LIM_CLAW))
-                  ? ((joystickGetDigital(1, 7, JOY_DOWN)) ? 50 : 127)
-                  : ((joystickGetDigital(1, 7, JOY_DOWN)) ? 50 : 10)));
+                  ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127)
+                  : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 10)));
     fourBarUp = true;
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_DOWN)) ? -50 : -127);
+    motorSet(MOTOR_FOUR_BAR,
+             (joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127);
     fourBarUp = false;
   } else {
     motorSet(MOTOR_FOUR_BAR, (fourBarUp) ? 10 : 0);
@@ -69,88 +158,66 @@ void manualControl() {
     motorSet(MOTOR_LIFT_1, 0);
     motorSet(MOTOR_LIFT_2, 0);
   }
+
+  if (joystickGetDigital(1, 8, JOY_DOWN)) {
+    if (eightDReleased) {
+      if (!gameloadStacking) {
+        gameloadIntakeVal = analogRead(ANALOG_POT_FOUR_BAR);
+        gameloadLiftVal = encoderGet(getEncoderLift());
+        setIntakeTarget(analogRead(ANALOG_POT_FOUR_BAR));
+        setLiftTarget(encoderGet(getEncoderLift()));
+      }
+      gameloadStacking = !gameloadStacking;
+      eightDReleased = false;
+    }
+  } else {
+    eightDReleased = true;
+  }
 }
 
 void automaticControl() {
   /*
   ** Handle the main driver's controls
   */
-  // Right bumpers
-  // =========================================================================
-  // If nothing is pressed
-  if (!joystickGetDigital(1, 6, JOY_DOWN) &&
-      !joystickGetDigital(1, 6, JOY_UP)) {
-    rightBumperState = 0; // Set state to 0
-  } // IF we are just pressing something for the first time
-  else if (rightBumperState == 0 && (joystickGetDigital(1, 6, JOY_DOWN) ||
-                                     joystickGetDigital(1, 6, JOY_UP))) {
-    // Set the state
-    //// Up (dominant)
-    if (joystickGetDigital(1, 6, JOY_UP))
-      rightBumperState = 1;
-    //// Down (recessive)
-    else // Since we know something's pressed, has to be down then
-      rightBumperState = 2;
+  switch (scoringMode) {
+  case 0: {
+    // Do Nothing Special
+  } break;
+  case 1: {
+    score();
+  } break;
+  case 2: {
+    resetLift();
+  } break;
+  default: {
+    printf("AUTO CONTROL IS LITERALLY FREAKING OUT RIGHT NOW... WDYM???\n");
+  }
+  }
 
-    // Start of action handling switch
-    // ---------------------------------------------------------------------
-    switch (getAction()) {
-    // *********************************************************************
-    case ACTION_INTAKING: {
-      // Currently in intaking pos
-      if (rightBumperState == 1) // Up: Wait.
-        manipulatorIntakeWait();
-      //  Down: Nothing (Nowhere to go)
-    } break;
-    // *********************************************************************
-    case ACTION_WAITING: {
-      // Currently in waiting pos
-      if (rightBumperState == 1) // Up: Score.
-        manipulatorScore();
-      else //  Down: Intake
-        manipulatorIntake();
-    } break;
-    // *********************************************************************
-    case ACTION_SCORING: {
-      // Currently in scoring pos
-      if (rightBumperState == 1) // Up: Offload.
-        manipulatorOffload();
-      else //  Down: Wait
-        manipulatorIntakeWait();
-    } break;
-    // *********************************************************************
-    case ACTION_EXTAKING: {
-      // Could hurt the robot if changing states here, so only act if done
-      if (isManipulatorReady()) {
-        // Currently in extaking pos
-        if (rightBumperState == 1) // Up: Offload.
-          manipulatorOffload();
-        else //  Down: Wait
-          manipulatorIntakeWait();
-      }
-    } break;
-    // *********************************************************************
-    case ACTION_OFFLOADING: {
-      // Currently in offloading pos
-      if (rightBumperState == 2)
-        manipulatorIntake();
+  if (joystickGetDigital(1, 7, JOY_UP)) {
+    closeClaw();
+    setClawOpen(false);
+    scoringMode = 1;
+  }
+
+  if (joystickGetDigital(1, 8, JOY_UP)) {
+    conesStacked = 0;
+  }
+
+  if (joystickGetDigital(1, 8, JOY_RIGHT)) {
+    if (eightRReleased) {
+      conesStacked--;
     }
-      // ***********************************************************************
-      // TODO TODO TODO TODO TODO Case for when offloading base
-      // ***********************************************************************
-    } // End of the switch
-      // ---------------------------------------------------------------------
-  }
-}
-
-void swapControlState() {
-  if (isManualControl) {
-    taskResume(liftCont);
+    eightRReleased = false;
   } else {
-    taskSuspend(liftCont);
+    eightRReleased = true;
   }
 
-  isManualControl = !isManualControl;
+  // if (gameloadStacking && (scoringMode == 0)) {
+  //   closeClaw();
+  //   if (isClawReady())
+  //     scoringMode = 1;
+  // }
 }
 
 void operatorControl() {
@@ -173,25 +240,45 @@ void operatorControl() {
   // Initialize the bluetooth listener
   blisten(1, blueListen); // Listen to messages
 
-  // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
   // Start chainbar task
-  // intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-  //                        (TASK_PRIORITY_DEFAULT));
-  // liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-  //                      (TASK_PRIORITY_DEFAULT));
-  // TODO REMOVE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                          (TASK_PRIORITY_DEFAULT));
+  liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                        (TASK_PRIORITY_DEFAULT));
+
+  setIntakeTarget(POS_INTAKE_EXTERNAL);
+  setLiftTarget(POS_LIFT_GROUND);
+
+  if (isManualControl) {
+    taskSuspend(intakeCont);
+    taskSuspend(liftCont);
+  }
 
   while (true) { // true cooler than 1
 
-    if(joystickGetDigital(1, 8, JOY_DOWN) && joystickGetDigital(1, 8, JOY_LEFT)) {
+    /*if (joystickGetDigital(1, 8, JOY_DOWN) &&
+        joystickGetDigital(1, 8, JOY_LEFT)) {
       runAuton = true;
-      setAutonMode(2);
-    }
+      setAutonMode(3);
+    }*/
 
     if (runAuton) {
-      setAutonMode(2);
+      setAutonMode(3);
+
+      if (isManualControl) {
+        taskResume(intakeCont);
+        taskResume(liftCont);
+      }
+
       delay(250);
+      setLiftTarget(800);
       autonomous();
+
+      if (isManualControl) {
+        taskSuspend(intakeCont);
+        taskSuspend(liftCont);
+      }
+
       runAuton = false;
     }
 
@@ -209,8 +296,14 @@ void operatorControl() {
 
     // fprintf(uart1, "Lift Position: %d\r\n", getLiftHeight());
 
-    // if (joystickGetDigital(1, 7, JOY_DOWN))
-    //  swapControlState();
+    if (joystickGetDigital(1, 7, JOY_DOWN)) {
+      if (sevenDReleased) {
+        swapControlState();
+      }
+      sevenDReleased = false;
+    } else {
+      sevenDReleased = true;
+    }
 
     if (isManualControl) {
       manualControl();
@@ -219,14 +312,17 @@ void operatorControl() {
     }
 
     if (isClawReady()) {
-      if (joystickGetDigital(1, 6, JOY_UP)) {
-        clawClosed = true;
-        motorSet(MOTOR_CLAW, -127);
-      } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
-        clawClosed = false;
-        motorSet(MOTOR_CLAW, 127);
-      } else {
-        motorSet(MOTOR_CLAW, (clawClosed) ? -10 : 0);
+      if (!(joystickGetDigital(1, 6, JOY_UP) &&
+            joystickGetDigital(1, 6, JOY_DOWN))) {
+        if (joystickGetDigital(1, 6, JOY_UP)) {
+          clawClosed = true;
+          motorSet(MOTOR_CLAW, -127);
+        } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
+          clawClosed = false;
+          motorSet(MOTOR_CLAW, 127);
+        } else {
+          motorSet(MOTOR_CLAW, (clawClosed) ? -10 : 0);
+        }
       }
     }
 
