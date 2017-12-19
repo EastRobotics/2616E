@@ -13,6 +13,8 @@ Encoder getEncoderBR() { return encDriveBR; }
 Encoder getEncoderBL() { return encDriveBL; }
 Encoder getEncoderChain() { return encChain; }
 Encoder getEncoderLift() { return encLift; }
+TaskHandle intakeCont;
+TaskHandle liftCont;
 
 void killDriveEncoders() {
   encoderShutdown(encDriveBL);
@@ -28,18 +30,24 @@ void initDriveEncoders() {
       encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, false);
 }
 
+TaskHandle getLiftCont() { return liftCont; }
+TaskHandle getIntakeCont() { return intakeCont; }
+
 /*
- * Runs pre-initialization code. This function will be started in kernel mode
+ * Runs pre-initialization code. This function will be started in kernel
+ * mode
  * one time while the
  * VEX Cortex is starting up. As the scheduler is still paused, most API
  * functions will fail.
  *
  * The purpose of this function is solely to set the default pin modes
  * (pinMode()) and port
- * states (digitalWrite()) of limit switches, push buttons, and solenoids. It
+ * states (digitalWrite()) of limit switches, push buttons, and solenoids.
+ * It
  * can also safely
  * configure a UART port (usartOpen()) but cannot set up an LCD (lcdInit()).
  */
+
 void initializeIO() {}
 
 /*
@@ -97,6 +105,12 @@ void initialize() {
   initDriveEncoders();
   encLift = encoderInit(DIGITAL_ENC_LIFT_TOP, DIGITAL_ENC_LIFT_BOT, false);
   // initPidControl();
+
+  // Lift and claw control
+  // intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                         (TASK_PRIORITY_DEFAULT));
+  // liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                       (TASK_PRIORITY_DEFAULT));
 
   // Done init
   print("[Init] Finished, starting LCD menu\n");

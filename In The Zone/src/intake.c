@@ -29,11 +29,11 @@
 */
 #define INTAKE_BIAS_THRESH 5      // How far sides need to be off to correct
 #define INTAKE_BIAS_CORRECT_P 1.5 // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 75   // How far from target to try go to it
+#define INTAKE_TARGET_THRESH 85   // How far from target to try go to it
 #define INTAKE_TARGET_CORRECT_P_UP 0.1 // P term to use when setting speed up
 #define INTAKE_TARGET_CORRECT_P_DOWN                                           \
   0.11                          // P term to use when setting speed down
-#define INTAKE_MINIMUM_SPEED 35 // Minimum speed for the intake to move at
+#define INTAKE_MINIMUM_SPEED 40 // Minimum speed for the intake to move at
 #define CLAW_MOVEMENT_TIME 300  // The amount of time the claw needs to open
 #define CLAW_MOVEMENT_SPEED 127 // Movement speed of the claw
 
@@ -41,7 +41,7 @@
 /*
 ** Constants to configure resting speeds of intake
 */
-#define INTAKE_SPEED_HOLDING 15
+#define INTAKE_SPEED_HOLDING 10
 #define INTAKE_SPEED_IDLE 0
 #define CLAW_SPEED_IDLE 0
 
@@ -161,6 +161,7 @@ void setIntakeSpeed(int speed) {
 // Sets the value for the intake to try and reach
 void setIntakeTarget(int target) {
   intakeTarget = target;
+  fprintf(uart1, "\r\nIntake Targ: %d\r\n", target);
   // TODO Add anything else needed
 }
 

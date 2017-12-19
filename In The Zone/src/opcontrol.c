@@ -24,6 +24,8 @@ int gameloadIntakeVal = 1600;
 bool gameloadStacking = false;
 bool hasDelayedLiftDrop =
     false; // If the lift has already waited to drop in autostack
+bool hasDelayedConeDrop = false;
+int autostackingBreakoutTime = 0;
 
 // Listen to bluetooth commands from an external controller and respond
 void blueListen(char *message) {
@@ -59,13 +61,13 @@ void blueListen(char *message) {
 
 void swapControlState() {
   if (isManualControl) {
-    taskResume(liftCont);
-    taskResume(intakeCont);
+    // taskResume(liftCont);
+    // taskResume(intakeCont);
     if (!driverSetLiftStart)
       encoderReset(getEncoderLift());
   } else {
-    taskSuspend(liftCont);
-    taskSuspend(intakeCont);
+    // taskSuspend(liftCont);
+    // taskSuspend(intakeCont);
   }
   if (!gameloadStacking) {
     motorSet(MOTOR_LIFT_1, 0);
@@ -88,12 +90,18 @@ void score() {
     setIntakeTarget(POS_INTAKE_INTERNAL);
     if (isIntakeReady() && isLiftReady()) {
       bprint(1, "4");
+      if (!hasDelayedConeDrop) {
+        delay(150);
+        hasDelayedConeDrop = true;
+      }
       openClaw();
       conesStacked++;
       if (isClawReady()) {
         delay(400);
-        setLiftTarget(encoderGet(getEncoderLift()) + 75);
+        setLiftTarget(encoderGet(getEncoderLift()) + 150);
         hasDelayedLiftDrop = false;
+        hasDelayedConeDrop = false;
+        autostackingBreakoutTime = 0;
         scoringMode = 2;
       }
     }
@@ -104,8 +112,11 @@ void score() {
 void resetLift() {
   openClaw();
   if (isClawReady()) {
+    bprint(1, "5");
     if (!joystickGetDigital(1, 7, JOY_UP)) {
-      if (intakeIsOutOfWay() && isIntakeReady()) {
+      if ((intakeIsOutOfWay() && isIntakeReady() && isLiftReady()) ||
+          (autostackingBreakoutTime >= 2000)) {
+        bprint(1, "6");
         if (!hasDelayedLiftDrop) {
           delay(300);
           hasDelayedLiftDrop = true;
@@ -115,13 +126,16 @@ void resetLift() {
         else
           setLiftTarget(gameloadLiftVal);
         if (isIntakeReady() && isLiftReady()) {
+          bprint(1, "7");
           fprintf(uart1, "intake:%d\r\n", gameloadStacking);
           setIntakeTarget((!gameloadStacking) ? POS_INTAKE_EXTERNAL
                                               : gameloadIntakeVal);
           scoringMode = 0;
         }
       } else {
+        bprint(1, "8");
         setIntakeTarget(POS_INTAKE_AVOID_DOWN);
+        autostackingBreakoutTime += 20;
       }
     } else {
       swapControlState();
@@ -259,11 +273,11 @@ void operatorControl() {
     /*if (joystickGetDigital(1, 8, JOY_DOWN) &&
         joystickGetDigital(1, 8, JOY_LEFT)) {
       runAuton = true;
-      setAutonMode(3);
+      setAutonMode(2);
     }*/
 
     if (runAuton) {
-      setAutonMode(3);
+      setAutonMode(2);
 
       if (isManualControl) {
         taskResume(intakeCont);
