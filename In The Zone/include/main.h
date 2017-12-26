@@ -57,43 +57,7 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
-// TODO Configure speeds
-/*
-** Constants to represent certain positions
-*/
-#define POSITION_GOAL_NONE -1
-#define POSITION_INTAKE_GROUND 1
-#define POSITION_INTAKE_LOADER 2
-#define POSITION_GOAL_STATIC 3
-#define POSITION_GOAL_BASE_INTERNAL 4
-#define POSITION_GOAL_BASE_EXTERNAL 5
-#define POSITION_WAITING 6
-#define POSITION_BASE_AVOID 7
-
-/*
-** Position values for auto stacking
-** All lift values assume that 0 is bottom of lift (set by driver)
-*/
-#define POS_INTAKE_INTERNAL 700
-#define POS_INTAKE_EXTERNAL 2650
-#define POS_INTAKE_AVOID_UP 2260
-#define POS_INTAKE_AVOID_DOWN 2135
-#define POS_LIFT_GROUND 0
-#define POS_LIFT_INTERNAL 0
-#define THRESH_LIFT_AVOID 50
-#define HEIGHT_INCREMENT_CONE 225 // Height to add to goal per cone
-
 //------------------------------------------------------------------------------
-
-// TODO Configure speeds
-/*
-** Constants to represent certain actions
-*/
-#define ACTION_INTAKING 0
-#define ACTION_SCORING 1
-#define ACTION_EXTAKING 2
-#define ACTION_WAITING 3
-#define ACTION_OFFLOADING 4
 
 //------------------------------------------------------------------------------
 

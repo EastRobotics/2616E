@@ -1,28 +1,6 @@
 #include "main.h"
 #include "math.h"
 
-// TODO Create method to shove intake down
-
-// TODO Configure pos
-/*
-** Constant pos of intake zones
-*/
-#define POS_INTAKE_GROUND 0 // Pos of intaking from the ground
-#define POS_INTAKE_LOADER 0 // Pos of intaking off  the loader
-
-// TODO Configure pos
-/*
-** Constant pos of release zones
-*/
-#define POS_EXTAKE_EXTERNAL 0    // Pos of offloading outside bot
-#define POS_EXTAKE_INTERNAL 1600 // Pos of offloading inside bot
-
-// TODO Configure pos
-/*
-** Constant specials pos
-*/
-#define POS_POSITION_AVOID 950 // Pos for waiting for intake to be high enough
-
 // TODO Configure values
 /*
 ** Constants to configure movement of intake
@@ -51,8 +29,7 @@
 ** Variables used to track intake position
 */
 int intakeStart = 0; // The position of sensor where the intake started
-int intakeTarget =
-    POS_INTAKE_EXTERNAL; // Delta from start for the intake to reach
+int intakeTarget = 0; // Delta from start for the intake to reach
 
 /*
 ** Variables used to track the claw position
@@ -167,22 +144,6 @@ void setIntakeTarget(int target) {
 
 //------------------------------------------------------------------------------
 
-// Transforms a goal constant into a pos constant
-int getGoalPos(int goal) {
-  switch (goal) {
-  case POSITION_GOAL_STATIC:
-  case POSITION_GOAL_BASE_EXTERNAL:
-    return POS_EXTAKE_EXTERNAL;
-  case POSITION_GOAL_BASE_INTERNAL:
-    return POS_EXTAKE_INTERNAL;
-  case POSITION_BASE_AVOID:
-    return POS_POSITION_AVOID;
-  case POSITION_GOAL_NONE:
-  default:
-    return getIntakePos();
-  }
-}
-
 // Sets the intake target to the right pos for the goal type
 void setIntakeTargetSmart(int goal) { setIntakeTarget(getGoalPos(goal)); }
 
@@ -197,7 +158,9 @@ void waitForIntake() {
     delay(10);
 }
 
-bool intakeIsOutOfWay() { return getIntakePos() >= POS_INTAKE_AVOID_DOWN; }
+bool intakeIsAbove(int value) { return getIntakePos() >= value; }
+
+//------------------------------------------------------------------------------
 
 void setClawOpen(bool isOpen) { clawOpen = isOpen; }
 

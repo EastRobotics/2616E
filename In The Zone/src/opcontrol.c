@@ -77,72 +77,6 @@ void swapControlState() {
   isManualControl = !isManualControl;
 }
 
-// Score the cone automatically
-void score() {
-  bprint(1, "1");
-  setLiftTargetSmart(POS_LIFT_INTERNAL, conesStacked);
-  // If we are not close enough to move
-  if (abs(getLiftTarget() - getLiftHeight()) > THRESH_LIFT_AVOID) {
-    bprint(1, "2");
-    setIntakeTarget(POS_INTAKE_AVOID_UP);
-  } else {
-    bprint(1, "3");
-    setIntakeTarget(POS_INTAKE_INTERNAL);
-    if (isIntakeReady() && isLiftReady()) {
-      bprint(1, "4");
-      if (!hasDelayedConeDrop) {
-        delay(150);
-        hasDelayedConeDrop = true;
-      }
-      openClaw();
-      conesStacked++;
-      if (isClawReady()) {
-        delay(400);
-        setLiftTarget(encoderGet(getEncoderLift()) + 150);
-        hasDelayedLiftDrop = false;
-        hasDelayedConeDrop = false;
-        autostackingBreakoutTime = 0;
-        scoringMode = 2;
-      }
-    }
-  }
-}
-
-// Reset the position of the lift/chainbar
-void resetLift() {
-  openClaw();
-  if (isClawReady()) {
-    bprint(1, "5");
-    if (!joystickGetDigital(1, 7, JOY_UP)) {
-      if ((intakeIsOutOfWay() && isIntakeReady() && isLiftReady()) ||
-          (autostackingBreakoutTime >= 2000)) {
-        bprint(1, "6");
-        if (!hasDelayedLiftDrop) {
-          delay(300);
-          hasDelayedLiftDrop = true;
-        }
-        if (!gameloadStacking)
-          setLiftTargetSmart(POS_LIFT_GROUND, 0);
-        else
-          setLiftTarget(gameloadLiftVal);
-        if (isIntakeReady() && isLiftReady()) {
-          bprint(1, "7");
-          fprintf(uart1, "intake:%d\r\n", gameloadStacking);
-          setIntakeTarget((!gameloadStacking) ? POS_INTAKE_EXTERNAL
-                                              : gameloadIntakeVal);
-          scoringMode = 0;
-        }
-      } else {
-        bprint(1, "8");
-        setIntakeTarget(POS_INTAKE_AVOID_DOWN);
-        autostackingBreakoutTime += 20;
-      }
-    } else {
-      swapControlState();
-    }
-  }
-}
-
 // Manual control of the robot
 void manualControl() {
   if (joystickGetDigital(1, 8, JOY_UP)) {
@@ -193,20 +127,6 @@ void automaticControl() {
   /*
   ** Handle the main driver's controls
   */
-  switch (scoringMode) {
-  case 0: {
-    // Do Nothing Special
-  } break;
-  case 1: {
-    score();
-  } break;
-  case 2: {
-    resetLift();
-  } break;
-  default: {
-    printf("AUTO CONTROL IS LITERALLY FREAKING OUT RIGHT NOW... WDYM???\n");
-  }
-  }
 
   if (joystickGetDigital(1, 7, JOY_UP)) {
     closeClaw();
@@ -234,6 +154,7 @@ void automaticControl() {
   // }
 }
 
+// NOTE This is probably broken...
 void operatorControl() {
   // setAutonMode(4);
   // autonomous(); // Run auton test
@@ -259,9 +180,6 @@ void operatorControl() {
                           (TASK_PRIORITY_DEFAULT));
   liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
                         (TASK_PRIORITY_DEFAULT));
-
-  setIntakeTarget(POS_INTAKE_EXTERNAL);
-  setLiftTarget(POS_LIFT_GROUND);
 
   if (isManualControl) {
     taskSuspend(intakeCont);

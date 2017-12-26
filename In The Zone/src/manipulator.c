@@ -5,34 +5,30 @@
 
 // TODO Adjust constants
 #define MANIPULATOR_AVOID_THRESH 15
+#define ACTION_SITTING_DOWN 0
+#define ACTION_GOING_UP 1
+#define ACTION_GOING_DOWN 2
 
-int internalCones = 0; // How many cones we're holding inside us
-int externalCones = 0; // How many cones are on whatever goal we're set to
-int currentIntakePos = POSITION_INTAKE_GROUND;     // Where we're intaking from
-int currentGoalType = POSITION_GOAL_BASE_INTERNAL; // Where we're scoring to
-int currentAction = ACTION_SCORING; // What we're doing right now (start folded)
-int previousTarget = 0;             // What the last target we scored on was
+int currentAction = ACTION_SITTING_DOWN;
+int cones = 0; // How many cones we're holding inside us
 bool completedAction = true; // Are we done doing what we want to be doing
 
-int getManipulatorIntakePos() { return currentIntakePos; }
-
-int getGoalType() { return currentGoalType; }
-
-int getAction() { return currentAction; }
+void setCurrentAction(int action) {
+  currentAction = action;
+}
 
 // Get how many cones are on the current target goal
 int getConeCount() {
-  if (currentGoalType == POSITION_GOAL_BASE_INTERNAL)
-    return internalCones;
-  return externalCones;
+  return cones;
 }
 
-void setInternalConeCount(int coneCount) { internalCones = coneCount; }
-
-void setExternalConeCount(int coneCount) { externalCones = coneCount; }
+// Set how many cones are on the current target goal
+void setConeCount(int coneCount) { cones = coneCount; }
 
 // Whether or not the manipulator is still doing something
 bool isManipulatorReady() {
+  // NOTE isLiftReady() && isIntakeReady() can be removed
+  // NOTE (and may actually cause problems)
   return isLiftReady() && isIntakeReady() && completedAction;
 }
 
@@ -42,104 +38,52 @@ void waitForManipulator() {
     delay(10);
 }
 
-void setCurrentAction(int action) {
-  // If we were scoring, save last target height
-  if (currentAction == ACTION_SCORING) {
-    previousTarget = getLiftTarget();
-  }
-  currentAction = action;
-}
-
 void manipulatorScore() {
-  completedAction = false;
-  setCurrentAction(ACTION_SCORING);
+  // TODO Populate
 }
 
 void manipulatorIntake() {
-  completedAction = false;
-  setCurrentAction(ACTION_INTAKING);
+  // TODO Populate
 }
 
-void manipulatorIntakeWait() {
+void score() {
+  if (!isManipulatorReady())
+    return;
   completedAction = false;
-  setCurrentAction(ACTION_WAITING);
+  setCurrentAction(ACTION_GOING_UP);
 }
-
-void manipulatorOffload() {
-  completedAction = false;
-  setCurrentAction(ACTION_OFFLOADING);
-}
-
-void setCurrGoalType(int goalType) { currentGoalType = goalType; }
-
-void setIntakePos(int intakePos) { currentIntakePos = intakePos; }
-
-int getCurrGoalType() { return currentGoalType; }
 
 // Task to handle the control of the manipulator system
 void manipulatorControl(void *ignored) {
   while (true) {
     switch (currentAction) {
-    // Synchronizing intake and lift to score cone
-    case ACTION_SCORING: {
-      setLiftTargetSmart(currentGoalType, getConeCount());
-      // If we are not close enough to move
-      if (abs(getLiftTarget() - getLiftHeight()) > MANIPULATOR_AVOID_THRESH) {
-        setIntakeTargetSmart(POSITION_BASE_AVOID);
-      } else {
-        setIntakeTargetSmart(currentGoalType);
-        if (isIntakeReady() && isLiftReady()) {
-          openClaw();
-          setCurrentAction(ACTION_EXTAKING);
-          if (currentGoalType == POSITION_GOAL_BASE_INTERNAL)
-            internalCones++;
-          else
-            externalCones++;
-        }
-      }
-    } break;
-    case ACTION_EXTAKING: {
-      // Movement only necessary if scoring on internal goal
-      if (isClawReady() && (currentGoalType == POSITION_GOAL_BASE_INTERNAL)) {
-        setIntakeTargetSmart(POSITION_GOAL_BASE_EXTERNAL);
-        if (intakeIsOutOfWay())
-          completedAction = true;
-      } else if (isClawReady())
-        completedAction = true; // Nothing needs to be done
-    } break;
-    // Synchronizing intake and lift to pick up cone
-    case ACTION_WAITING: {
-      setIntakeTargetSmart(currentGoalType);
-      // If we are not close enough to move
-      if (intakeIsOutOfWay()) {
-        setLiftTarget(getGoalHeight(currentIntakePos));
-        if (isIntakeReady() && isLiftReady())
-          completedAction = true;
-      }
-    } break;
-    case ACTION_INTAKING: {
-      openClaw();
-      if (intakeIsOutOfWay()) {
-        setLiftTargetSmart(POSITION_INTAKE_GROUND, 0);
-        if (isIntakeReady() && isLiftReady()) {
-          closeClaw();
-          if (isClawReady()) {
-            completedAction = true;
-          }
-        }
-      } else {
-        setIntakeTarget(POSITION_GOAL_BASE_EXTERNAL);
-      }
-    } break;
-    case ACTION_OFFLOADING: {
-      setLiftTargetSmart(POSITION_GOAL_BASE_INTERNAL, getConeCount() + 1);
-      setIntakeTargetSmart(POSITION_BASE_AVOID);
+      //------------------------------------------------------------------------
+      case ACTION_SITTING_DOWN: {
 
-    } break;
-    default: {
-      print("ERROR -- MANIPULATOR HAS NO IDEA WHAT YOU ARE TRYING TO DO \n");
+        break;
+      }
+      //------------------------------------------------------------------------
+      case ACTION_GOING_UP: {
+        // TODO Set lift target to actual end goal
+        // TODO Set 4bar to avoid
+        // TODO Once we can, move 4bar to score
+        // TODO Once 4 bar is score, move on
+        // TODO Set current action to going down
+        break;
+      }
+      //------------------------------------------------------------------------
+      case ACTION_GOING_DOWN: {
+        // TODO Go down enough to place cone
+        // TODO Move 4bar down to release cone
+        // TODO Open claw (should be async, doesn't need to finish)
+        // TODO Make sure 4bar is just somewhere between intaking to avoid
+        // TODO Lower lift to 0
+        // TODO Return 4bar to intaking pos
+        // TODO Set current action to sitting down
+        // TODO Set completed to true
+        break;
+      }
+      //------------------------------------------------------------------------
     }
-    }
-    delay(50);
   }
 }

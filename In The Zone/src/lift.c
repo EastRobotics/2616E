@@ -1,21 +1,6 @@
 #include "main.h"
 #include "math.h"
 
-// TODO Configure heights
-/*
-** Constant heights of goals
-*/
-#define HEIGHT_GOAL_BASE_INTERNAL 15 // Height of movable goals inside  bot
-#define HEIGHT_GOAL_BASE_EXTERNAL 10 // Height of movable goals outside bot
-#define HEIGHT_GOAL_STATIC 30        // Height of static  goals outside bot
-
-// TODO Configure heights
-/*
-** Constant heights of intake zones
-*/
-#define HEIGHT_INTAKE_GROUND 15 // Height of intaking from the ground
-#define HEIGHT_INTAKE_LOADER 30 // Height of intaking off  the loader
-
 // TODO Configure values
 /*
 ** Constants to configure movement of lift
@@ -27,6 +12,7 @@
   1.25 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
   0.25 // P term to use when setting speed to target down
+  #define HEIGHT_INCREMENT_CONE 225 // Height to add to goal per cone
 
 // TODO Configure speeds
 /*
@@ -154,28 +140,9 @@ void setLiftTarget(int target) {
 
 //------------------------------------------------------------------------------
 
-// Transforms a goal constant into a height constant
-int getGoalHeight(int goal) {
-  switch (goal) {
-  case POSITION_GOAL_STATIC:
-    return HEIGHT_GOAL_STATIC;
-  case POSITION_GOAL_BASE_INTERNAL:
-    return HEIGHT_GOAL_BASE_INTERNAL;
-  case POSITION_GOAL_BASE_EXTERNAL:
-    return HEIGHT_GOAL_BASE_EXTERNAL;
-  case POSITION_INTAKE_GROUND:
-    return HEIGHT_INTAKE_GROUND;
-  case POSITION_INTAKE_LOADER:
-    return HEIGHT_INTAKE_LOADER;
-  case POSITION_GOAL_NONE:
-  default:
-    return liftStart;
-  }
-}
-
 // Sets the lift target to the right height for the goal type and cone count
-void setLiftTargetSmart(int goal, int cones) {
-  setLiftTarget(getGoalHeight(goal) + (HEIGHT_INCREMENT_CONE * cones));
+void setLiftTargetSmart(int cones) {
+  setLiftTarget(0 + (HEIGHT_INCREMENT_CONE * cones));
 }
 
 int getLiftTarget() { return liftTarget; }
