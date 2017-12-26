@@ -57,7 +57,13 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
+#define LIFT_THRESH_AVOID 0
+
 //------------------------------------------------------------------------------
+
+#define INTAKE_POS_AVOID  0
+#define INTAKE_POS_SCORE  0
+#define INTAKE_POS_SIT    0
 
 //------------------------------------------------------------------------------
 
@@ -113,13 +119,13 @@ void setLiftSpeed(int speed);
 // Sets the value for the lift to try and reach
 void setLiftTarget(int target);
 
-int getLiftHeight();
+int getLiftPos();
 
 // Transforms a goal constant into a height constant
 int getGoalHeight(int goal);
 
 // Sets the lift target to the right height for the goal type and cone count
-void setLiftTargetSmart(int goal, int cones);
+void setLiftTargetSmart(int cones);
 
 // Gets the lift target
 int getLiftTarget();
@@ -175,8 +181,11 @@ bool isIntakeReady();
 // Wait until the intake is at it's desired target
 void waitForIntake();
 
-// Returns whether or not intake is out of way of cones
-bool intakeIsOutOfWay();
+// Returns whether or not the intake is past a certain pos
+bool intakeIsAbove(int value);
+
+// Returns whether or not the intake is past a certain pos accounting for thresh
+bool intakeIsAboveAccThresh(int value);
 
 // Sets claw to open or closed
 void setClawOpen(bool isOpen);

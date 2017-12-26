@@ -64,26 +64,35 @@ void manipulatorControl(void *ignored) {
       }
       //------------------------------------------------------------------------
       case ACTION_GOING_UP: {
-        // TODO Set lift target to actual end goal
-        // TODO Set 4bar to avoid
-        // TODO Once we can, move 4bar to score
-        // TODO Once 4 bar is score, move on
-        // TODO Set current action to going down
+        setClawOpen(false); // Make sure claw knows its closed
+        setLiftTargetSmart(cones);
+        setIntakeTarget(INTAKE_POS_AVOID);
+        waitForIntake();
+        while(!(abs(getLiftTarget() - getLiftPos()) < LIFT_THRESH_AVOID))
+          delay(10);
+        setIntakeTarget(INTAKE_POS_SCORE);
+        waitForIntake();
+        waitForLift();
+        setCurrentAction(ACTION_GOING_DOWN);
         break;
       }
       //------------------------------------------------------------------------
       case ACTION_GOING_DOWN: {
-        // TODO Go down enough to place cone
-        // TODO Move 4bar down to release cone
-        // TODO Open claw (should be async, doesn't need to finish)
-        // TODO Make sure 4bar is just somewhere between intaking to avoid
-        // TODO Lower lift to 0
-        // TODO Return 4bar to intaking pos
-        // TODO Set current action to sitting down
-        // TODO Set completed to true
+        if(cones > 0)
+          setLiftTargetSmart(cones-1);
+        setIntakeTarget(INTAKE_POS_AVOID);
+        openClaw();
+        while(!intakeIsAboveAccThresh(INTAKE_POS_AVOID))
+          delay(10);
+        setLiftTarget(0);
+        waitForLift();
+        setIntakeTarget(INTAKE_POS_SIT);
+        setCurrentAction(ACTION_SITTING_DOWN);
+        completedAction = true;
         break;
       }
       //------------------------------------------------------------------------
+      delay(20);
     }
   }
 }

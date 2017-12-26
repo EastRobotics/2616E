@@ -36,12 +36,12 @@ int liftTarget = 0; // Delta from start for the lift to reach
 //------------------------------------------------------------------------------
 
 // =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int getLiftHeightLeft() {
+// int getLiftPosLeft() {
 //   return 0; // TODO Use actual sensor value
 // }
 
 // =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int getLiftHeightRight() {
+// int getLiftPosRight() {
 //   return 0; // TODO Use actual sensor value
 // }
 
@@ -51,17 +51,17 @@ int liftTarget = 0; // Delta from start for the lift to reach
 ** RETURNS:
 **    int: The averaged height of the two sensors w/out filter
 */
-int getLiftHeight() {
+int getLiftPos() {
   // COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM
-  // return floor((((double)getLiftHeightLeft() / getLiftHeightRight()) / 2.0) +
+  // return floor((((double)getLiftPosLeft() / getLiftPosRight()) / 2.0) +
   //              0.5);
   return encoderGet(getEncoderLift());
 }
 
 // =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int getLiftOffset() { return getLiftHeightLeft() - getLiftHeightRight(); }
+// int getLiftOffset() { return getLiftPosLeft() - getLiftPosRight(); }
 
-int getLiftError() { return getLiftHeight() - liftTarget; }
+int getLiftError() { return getLiftPos() - liftTarget; }
 
 //------------------------------------------------------------------------------
 
@@ -74,12 +74,12 @@ int getLiftError() { return getLiftHeight() - liftTarget; }
 //   // If the lift has enough offset to need to be fixed
 //   if (abs(getLiftOffset()) > LIFT_BIAS_THRESH) {
 //     if (DIR_UP == direction) { // If lift is moving upward
-//       if (getLiftHeightLeft() > getLiftHeightRight())
+//       if (getLiftPosLeft() > getLiftPosRight())
 //         return 1; // Lift is going up, so right is behind (1)
 //       else
 //         return -1; // Lift is going up, so left  is behind (-1)
 //     } else {       // If lift is moving downward
-//       if (getLiftHeightLeft() > getLiftHeightRight())
+//       if (getLiftPosLeft() > getLiftPosRight())
 //         return -1; // Lift is going down, so left  is behind (-1)
 //       else
 //         return 1; // Lift is going down, so right is behind (1)
@@ -166,7 +166,7 @@ void liftControl(void *ignored) {
     if (!isLiftReady()) {
       // If lift is higher than target, move down, otherwise up
       bool correctionDirection =
-          (getLiftHeight() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;
+          (getLiftPos() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;
       int speed = (correctionDirection ? LIFT_TARGET_CORRECT_P_DOWN
                                        : LIFT_TARGET_CORRECT_P_UP) *
                   abs(getLiftError());

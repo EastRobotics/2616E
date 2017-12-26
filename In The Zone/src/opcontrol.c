@@ -17,6 +17,7 @@ int conesStacked = 0;     // The amount of cones stacked on the internal goal
 int rightBumperState = 0; // 0: none, up: 1, down: 2
 TaskHandle intakeCont;    // intake control task
 TaskHandle liftCont;      // lift control task
+TaskHandle manipulatorCont; // manipulator control task
 
 // For autostacking preloading purposes
 int gameloadLiftVal = 100;
@@ -61,13 +62,15 @@ void blueListen(char *message) {
 
 void swapControlState() {
   if (isManualControl) {
-    // taskResume(liftCont);
-    // taskResume(intakeCont);
-    if (!driverSetLiftStart)
+    taskResume(liftCont);
+    taskResume(intakeCont);
+    if (!driverSetLiftStart) {
       encoderReset(getEncoderLift());
+      driverSetLiftStart = true;
+    }
   } else {
-    // taskSuspend(liftCont);
-    // taskSuspend(intakeCont);
+    taskSuspend(liftCont);
+    taskSuspend(intakeCont);
   }
   if (!gameloadStacking) {
     motorSet(MOTOR_LIFT_1, 0);
@@ -184,6 +187,9 @@ void operatorControl() {
   if (isManualControl) {
     taskSuspend(intakeCont);
     taskSuspend(liftCont);
+  } else {
+    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                          (TASK_PRIORITY_DEFAULT));
   }
 
   while (true) { // true cooler than 1
@@ -200,6 +206,8 @@ void operatorControl() {
       if (isManualControl) {
         taskResume(intakeCont);
         taskResume(liftCont);
+        manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                              (TASK_PRIORITY_DEFAULT));
       }
 
       delay(250);
@@ -209,6 +217,7 @@ void operatorControl() {
       if (isManualControl) {
         taskSuspend(intakeCont);
         taskSuspend(liftCont);
+        taskDelete(manipulatorCont);
       }
 
       runAuton = false;

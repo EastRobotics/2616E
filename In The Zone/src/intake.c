@@ -160,6 +160,8 @@ void waitForIntake() {
 
 bool intakeIsAbove(int value) { return getIntakePos() >= value; }
 
+bool intakeIsAboveAccThresh(int value) { return getIntakePos() + INTAKE_TARGET_THRESH >= value; }
+
 //------------------------------------------------------------------------------
 
 void setClawOpen(bool isOpen) { clawOpen = isOpen; }
