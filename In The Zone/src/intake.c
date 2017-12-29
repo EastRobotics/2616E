@@ -125,8 +125,10 @@ void setIntakeSpeedRaw(int speed) {
 // Positive speed upward, negative downward
 void setIntakeSpeed(int speed) {
   // COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM
-  // if (speed == 0)
+  // if (speed == 0) {
   //   setIntakeSpeedRaw(0, 0);
+  //   return;
+  // }
   // bool direction = speed > 0;
   // setIntakeSpeedRaw(correctIntakeBias(DIR_LEFT, speed, direction),
   //                   correctIntakeBias(DIR_RIGHT, speed, direction));

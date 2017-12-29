@@ -110,7 +110,7 @@ TaskHandle getIntakeCont();
 
 // Directly sets lift motor speeds
 // Shouldn't be used unless making control loops
-void setLiftSpeedRaw(int speed);
+//void setLiftSpeedRaw(int speed);
 
 // Sets lift speed using bias correction
 // Positive speed upward, negative downward
@@ -120,6 +120,16 @@ void setLiftSpeed(int speed);
 void setLiftTarget(int target);
 
 int getLiftPos();
+
+int getLiftPosLeft();
+
+int getLiftPosRight();
+
+// Sets the starting position for the lift potentiometers
+void setLiftStart(int posLeft, int posRight);
+
+// Sets the lift starting positions to be the current values
+void setLiftStartAsNow();
 
 // Transforms a goal constant into a height constant
 int getGoalHeight(int goal);

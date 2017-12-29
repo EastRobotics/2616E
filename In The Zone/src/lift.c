@@ -6,7 +6,7 @@
 ** Constants to configure movement of lift
 */
 #define LIFT_BIAS_THRESH 5      // How far lift sides need to be off to correct
-#define LIFT_BIAS_CORRECT_P 1.5 // P term to use when correcting offset of lift
+#define LIFT_BIAS_CORRECT_P 1 // P term to use when correcting offset of lift
 #define LIFT_TARGET_THRESH 50   // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
   1.25 // P term to use when setting speed to target up
@@ -30,20 +30,32 @@
 /*
 ** Variables used to track lift height
 */
-int liftStart = 0;  // The position of sensor where the lift started
+int liftStartLeft = 0;  // The position of sensor where the lift started
+int liftStartRight = 0; // The position of sensor where the lift started
 int liftTarget = 0; // Delta from start for the lift to reach
 
 //------------------------------------------------------------------------------
 
-// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int getLiftPosLeft() {
-//   return 0; // TODO Use actual sensor value
-// }
+int getLiftPosLeft() {
+  return analogRead(ANALOG_POT_LIFT_L)-liftStartLeft;
+}
 
-// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int getLiftPosRight() {
-//   return 0; // TODO Use actual sensor value
-// }
+int getLiftPosRight() {
+  return analogRead(ANALOG_POT_LIFT_R)-liftStartRight;
+}
+
+// Sets the starting position for the lift potentiometers
+void setLiftStart(int posLeft, int posRight) {
+  liftStartLeft = posLeft;
+  liftStartRight = posRight;
+}
+
+// Sets the lift starting positions to be the current values
+void setLiftStartAsNow() {
+  liftStartLeft = 0;
+  liftStartRight = 0;
+  setLiftStart(getLiftPosLeft(), getLiftPosRight());
+}
 
 /*
 ** Gets the averaged height of the two lift sensors
@@ -52,14 +64,11 @@ int liftTarget = 0; // Delta from start for the lift to reach
 **    int: The averaged height of the two sensors w/out filter
 */
 int getLiftPos() {
-  // COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM
-  // return floor((((double)getLiftPosLeft() / getLiftPosRight()) / 2.0) +
-  //              0.5);
-  return encoderGet(getEncoderLift());
+  return floor((((double) (getLiftPosLeft() + getLiftPosRight())) /
+    2.0) + 0.5);
 }
 
-// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int getLiftOffset() { return getLiftPosLeft() - getLiftPosRight(); }
+int getLiftOffset() { return getLiftPosLeft() - getLiftPosRight(); }
 
 int getLiftError() { return getLiftPos() - liftTarget; }
 
@@ -69,67 +78,64 @@ int getLiftError() { return getLiftPos() - liftTarget; }
 // -1: Left is behind
 // 0: No correction needed
 // 1: Right is behind
-// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// char getLiftBias(bool direction) {
-//   // If the lift has enough offset to need to be fixed
-//   if (abs(getLiftOffset()) > LIFT_BIAS_THRESH) {
-//     if (DIR_UP == direction) { // If lift is moving upward
-//       if (getLiftPosLeft() > getLiftPosRight())
-//         return 1; // Lift is going up, so right is behind (1)
-//       else
-//         return -1; // Lift is going up, so left  is behind (-1)
-//     } else {       // If lift is moving downward
-//       if (getLiftPosLeft() > getLiftPosRight())
-//         return -1; // Lift is going down, so left  is behind (-1)
-//       else
-//         return 1; // Lift is going down, so right is behind (1)
-//     }
-//   }
-//   return 0; // Lift sides don't need correction, return 0
-// }
+char getLiftBias(bool direction) {
+  // If the lift has enough offset to need to be fixed
+  if (abs(getLiftOffset()) > LIFT_BIAS_THRESH) {
+    if (DIR_UP == direction) { // If lift is moving upward
+      if (getLiftPosLeft() > getLiftPosRight())
+        return 1; // Lift is going up, so right is behind (1)
+      else
+        return -1; // Lift is going up, so left  is behind (-1)
+    } else {       // If lift is moving downward
+      if (getLiftPosLeft() > getLiftPosRight())
+        return -1; // Lift is going down, so left  is behind (-1)
+      else
+        return 1; // Lift is going down, so right is behind (1)
+    }
+  }
+  return 0; // Lift sides don't need correction, return 0
+}
 
-// Fixes malignant bias by slowing the biased side
+// Fixes alignant bias by slowing the biased side
 // Corrects left side by slowing right and vise versa, keep in mind when reading
-// =============== COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM ===============
-// int corretLiftBias(bool side, int speed, bool direction) {
-//   int bias = getLiftBias(direction); // Get the current bias
-//   // If bias isn't 0 and the bias is the side we're checking for, return
-//   speed
-//   if (bias != 0 &&
-//       ((bias == -1 && side == DIR_RIGHT) || (bias == 1 && side == DIR_LEFT)))
-//       {
-//     // If going up, negative speed to dampen. Vice versa for down
-//     return speed +
-//            (LIFT_BIAS_CORRECT_P * abs(getLiftOffset()) * (direction ? -1 :
-//            1));
-//   }
-//   return speed; // No correction needed, return the speed
-// }
+int corretLiftBias(bool side, int speed, bool direction) {
+  int bias = getLiftBias(direction); // Get the current bias
+  // If bias isn't 0 and the bias is the side we're checking for, return
+  // speed
+  if (bias != 0 && // If bias isn't 0
+      ((bias == -1 && side == DIR_RIGHT) || // If left is behind & is right
+      (bias == 1 && side == DIR_LEFT))) // If right is behind & is left
+      {
+    // Slow down the ahead side by p * error
+    // First convert the speed to RPM, then p correct to that linearized model
+    // Then convert the RPM back to motor speed in order to set the motors properly
+    return RPMToMotor(motorToRPM(speed) - (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
+  }
+  return speed; // No correction needed, return the speed
+}
 
 //------------------------------------------------------------------------------
 
 // Directly sets lift motor speeds
 // Shouldn't be used unless making control loops
-// COMMENTED OUT BECAUSE LIFT HAS ONE SIDE
-// void setLiftSpeedRaw(int speedLeft, int speedRight) {
-void setLiftSpeedRaw(int speed) {
-  motorSet(MOTOR_LIFT_1, speed);
-  motorSet(MOTOR_LIFT_2, -speed);
+void setLiftSpeedRaw(int speedLeft, int speedRight) {
+//void setLiftSpeedRaw(int speed) {
+  motorSet(MOTOR_LIFT_1, speedLeft);
+  motorSet(MOTOR_LIFT_2, speedRight);
 }
 
 // Sets lift speed using bias correction
 // Positive speed upward, negative downward
 void setLiftSpeed(int speed) {
-  // COMMENTED OUT BECAUSE LIFT HAS ONE SIDE ATM
-  // if (speed == 0)
-  //   setLiftSpeedRaw(0, 0);
-  // bool direction = speed > 0;
-  // // TODO Check bounds
-  // setLiftSpeedRaw(corretLiftBias(DIR_LEFT, speed, direction),
-  //                 corretLiftBias(DIR_RIGHT, speed, direction));
+  if (speed == 0) {
+    setLiftSpeedRaw(0, 0);
+    return;
+  }
 
   // TODO Check bounds
-  setLiftSpeedRaw(speed);
+  bool direction = speed > 0;
+  setLiftSpeedRaw(-1*corretLiftBias(DIR_LEFT, speed, direction),
+                  corretLiftBias(DIR_RIGHT, speed, direction));
 }
 
 // Sets the value for the lift to try and reach
