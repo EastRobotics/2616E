@@ -38,14 +38,14 @@ extern "C" {
 ** Analog
 ** (1-8)
 */
-  #define ANALOG_POW_EXPAND 1       // Power expander,     analog 1
-  #define ANALOG_GYRO 2             // Gyroscope,          analog 2
-  #define ANALOG_POT_MOGO 3         // Mogo potentiometer, analog 3
-  #define ANALOG_LINE_LEFT_FRONT  4 // Line Sensor Left,   analog 4
-  #define ANALOG_LINE_RIGHT_FRONT 5 // Line Sensor Right,  analog 5
-  #define ANALOG_LINE_LEFT_BACK  7  // Line Sensor Left,   analog 7
-  #define ANALOG_LINE_RIGHT_BACK 6  // Line Sensor Right,  analog 6
-  #define ANALOG_POT_FOUR_BAR 8     // Cart potentiometer, analog 8 
+  #define ANALOG_POT_MOGO 1     // Mogo intake pot, analog 1
+  #define ANALOG_GYRO 2         // Gyroscope,       analog 2
+  #define ANALOG_POT_LIFT_L 3   // Lift left pot,   analog 3
+  #define ANALOG_POT_LIFT_R  4  // Lift right pot,  analog 4
+  #define ANALOG_POT_FOUR_BAR 5 // Intake pot,      analog 5
+  #define ANALOG_UNASIGNED_6  6 // UNASSIGNED,      analog 6
+  #define ANALOG_UNASIGNED_7 7  // UNASSIGNED,      analog 7
+  #define ANALOG_UNASIGNED_8 8  // UNASSIGNED,      analog 8 
 
 /*
 ** Digital
