@@ -31,33 +31,27 @@ int autostackingBreakoutTime = 0;
 // Listen to bluetooth commands from an external controller and respond
 void blueListen(char *message) {
   if (strcmp(message, "pos\r\n") == 0) { // Send position
-    fprintf(uart1, "Robot pos: (%d,%d) >\r\n", getOdomPosX(), getOdomPosY());
+    bprintf(1, "Robot pos: (%d,%d) >\r\n", getOdomPosX(), getOdomPosY());
   } else if (strcmp(message, "gyro\r\n") == 0) { // Send gyro
-    fprintf(uart1, "Robot gyro: %d\r\n >", gyroGet(getGyro()));
+    bprintf(1, "Robot gyro: %d\r\n >", gyroGet(getGyro()));
   } else if (strcmp(message, "rpm\r\n") == 0) {
     rpmTest();
   } else if (strcmp(message, "sensortest\r\n") == 0) {
-    fprintf(uart1, "Lift  Enc: %d\r\n", encoderGet(getEncoderLift()));
-    fprintf(uart1, "Left  Enc: %d\r\n", encoderGet(getEncoderBL()));
-    fprintf(uart1, "Right Enc: %d\r\n", encoderGet(getEncoderBR()));
-    fprintf(uart1, "Claw  Lim: %d\r\n", digitalRead(DIGITAL_LIM_CLAW));
-    fprintf(uart1, "Cart  Pot: %d\r\n", analogRead(ANALOG_POT_FOUR_BAR));
+    bprintf(1, "Left  Drive Enc: %d\r\n", encoderGet(getEncoderBL()));
+    bprintf(1, "Right Drive Enc: %d\r\n", encoderGet(getEncoderBR()));
+    bprintf(1, "Claw  Lim: %d\r\n", digitalRead(DIGITAL_LIM_CLAW));
+    bprintf(1, "Cart  Pot: %d\r\n", analogRead(ANALOG_POT_FOUR_BAR));
+    bprintf(1, "Lift  pot L: %d\r\n", analogRead(ANALOG_POT_LIFT_L));
+    bprintf(1, "Lift  pot R: %d\r\n", analogRead(ANALOG_POT_LIFT_R));
+    bprintf(1, "Lift  pos: %d\r\n", getLiftPos());
+    bprintf(1, "Lift  posL: %d\r\n", getLiftPosLeft());
+    bprintf(1, "Lift  posR: %d\r\n", getLiftPosRight());
   } else if (strcmp(message, "startauton\r\n") == 0) {
     runAuton = true;
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
-  } else if (strcmp(message, "cherisse\r\n") ==
-             0) { // Send a sign of disinterest
-    bprint(1, "*SIGH*\r\n");
-  } else if (strcmp(message, "cameron\r\n") ==
-             0) { // Send a signal of comradery
-    bprint(1, "oh meine Bruter\r\n");
-  } else if (strcmp(message, "ian\r\n") == 0) { // Send a message of IDE loyalty
-    bprint(1, "*opens android studio*\r\n");
-  } else if (strcmp(message, "michael\r\n") == 0) { // Send an apology
-    bprint(1, "sorry\r\n");
   } else // Unknown command
-    fprintf(uart1, "I don't know what \"%s\" means :(", message);
+    bprintf(1, "I don't know what \"%s\" means :(", message);
 }
 
 void swapControlState() {
@@ -82,48 +76,45 @@ void swapControlState() {
 
 // Manual control of the robot
 void manualControl() {
-  if (joystickGetDigital(1, 8, JOY_UP)) {
-    motorSet(MOTOR_FOUR_BAR,
-             ((digitalRead(DIGITAL_LIM_CLAW))
-                  ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127)
-                  : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 10)));
-    fourBarUp = true;
-  } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    motorSet(MOTOR_FOUR_BAR,
-             (joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127);
-    fourBarUp = false;
-  } else {
-    motorSet(MOTOR_FOUR_BAR, (fourBarUp) ? 10 : 0);
-  }
+  // if (joystickGetDigital(1, 8, JOY_UP)) {
+  //   motorSet(MOTOR_FOUR_BAR,
+  //            ((digitalRead(DIGITAL_LIM_CLAW))
+  //                 ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127)
+  //                 : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 10)));
+  //   fourBarUp = true;
+  // } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
+  //   motorSet(MOTOR_FOUR_BAR,
+  //            (joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127);
+  //   fourBarUp = false;
+  // } else {
+  //   motorSet(MOTOR_FOUR_BAR, (fourBarUp) ? 10 : 0);
+  // }
 
   // Test other things
   if (joystickGetDigital(1, 7, JOY_UP)) {
-    motorSet(MOTOR_LIFT_1, 127);
-    motorSet(MOTOR_LIFT_2, -127);
-  } else if (joystickGetDigital(1, 7, JOY_LEFT) &&
-             (encoderGet(getEncoderLift()) > 0)) {
-    int liftSpeed = encoderGet(getEncoderLift()) * 0.2;
-    motorSet(MOTOR_LIFT_1, -liftSpeed);
-    motorSet(MOTOR_LIFT_2, liftSpeed);
+    setLiftSpeed(127);
+  } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
+    //  && (encoderGet(getEncoderLift()) > 0)
+    int liftSpeed = -127; //encoderGet(getEncoderLift()) * 0.2;
+    setLiftSpeed(liftSpeed);
   } else {
-    motorSet(MOTOR_LIFT_1, 0);
-    motorSet(MOTOR_LIFT_2, 0);
+    setLiftSpeed(0);
   }
 
-  if (joystickGetDigital(1, 8, JOY_DOWN)) {
-    if (eightDReleased) {
-      if (!gameloadStacking) {
-        gameloadIntakeVal = analogRead(ANALOG_POT_FOUR_BAR);
-        gameloadLiftVal = encoderGet(getEncoderLift());
-        setIntakeTarget(analogRead(ANALOG_POT_FOUR_BAR));
-        setLiftTarget(encoderGet(getEncoderLift()));
-      }
-      gameloadStacking = !gameloadStacking;
-      eightDReleased = false;
-    }
-  } else {
-    eightDReleased = true;
-  }
+  // if (joystickGetDigital(1, 8, JOY_DOWN)) {
+  //   if (eightDReleased) {
+  //     if (!gameloadStacking) {
+  //       gameloadIntakeVal = analogRead(ANALOG_POT_FOUR_BAR);
+  //       gameloadLiftVal = encoderGet(getEncoderLift());
+  //       setIntakeTarget(analogRead(ANALOG_POT_FOUR_BAR));
+  //       setLiftTarget(encoderGet(getEncoderLift()));
+  //     }
+  //     gameloadStacking = !gameloadStacking;
+  //     eightDReleased = false;
+  //   }
+  // } else {
+  //   eightDReleased = true;
+  // }
 }
 
 void automaticControl() {
@@ -159,6 +150,7 @@ void automaticControl() {
 
 // NOTE This is probably broken...
 void operatorControl() {
+  setLiftStartAsNow();
   // setAutonMode(4);
   // autonomous(); // Run auton test
   // print("Done auton");
@@ -169,8 +161,8 @@ void operatorControl() {
 
   // Setup & start odometry
   initOdomScale(4, 15, 1); // Set up odom for 4 inch wheels with 15 inch diam
-  taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
-             (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
+  //taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
+  //           (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
   delay(50);                           // Give odom some time to start
   odomReset();                         // Clear it, leggo
 
@@ -179,18 +171,18 @@ void operatorControl() {
   blisten(1, blueListen); // Listen to messages
 
   // Start chainbar task
-  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                          (TASK_PRIORITY_DEFAULT));
-  liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                        (TASK_PRIORITY_DEFAULT));
+  //intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                        (TASK_PRIORITY_DEFAULT));
+  //liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                      (TASK_PRIORITY_DEFAULT));
 
-  if (isManualControl) {
-    taskSuspend(intakeCont);
-    taskSuspend(liftCont);
-  } else {
-    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                          (TASK_PRIORITY_DEFAULT));
-  }
+  // if (isManualControl) {
+  //   taskSuspend(intakeCont);
+  //   taskSuspend(liftCont);
+  // } else {
+  //   manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  //                         (TASK_PRIORITY_DEFAULT));
+  // }
 
   while (true) { // true cooler than 1
 
@@ -200,33 +192,33 @@ void operatorControl() {
       setAutonMode(2);
     }*/
 
-    if (runAuton) {
-      setAutonMode(2);
+    // if (runAuton) {
+    //   setAutonMode(2);
+    //
+    //   if (isManualControl) {
+    //     taskResume(intakeCont);
+    //     taskResume(liftCont);
+    //     manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
+    //                           (TASK_PRIORITY_DEFAULT));
+    //   }
+    //
+    //   delay(250);
+    //   setLiftTarget(800);
+    //   autonomous();
+    //
+    //   if (isManualControl) {
+    //     taskSuspend(intakeCont);
+    //     taskSuspend(liftCont);
+    //     taskDelete(manipulatorCont);
+    //   }
+    //
+    //   runAuton = false;
+    // }
 
-      if (isManualControl) {
-        taskResume(intakeCont);
-        taskResume(liftCont);
-        manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                              (TASK_PRIORITY_DEFAULT));
-      }
-
-      delay(250);
-      setLiftTarget(800);
-      autonomous();
-
-      if (isManualControl) {
-        taskSuspend(intakeCont);
-        taskSuspend(liftCont);
-        taskDelete(manipulatorCont);
-      }
-
-      runAuton = false;
-    }
-
-    if (joystickGetDigital(1, 8, JOY_DOWN) &&
-        joystickGetDigital(1, 8, JOY_LEFT)) {
-      deploy();
-    }
+    // if (joystickGetDigital(1, 8, JOY_DOWN) &&
+    //     joystickGetDigital(1, 8, JOY_LEFT)) {
+    //   deploy();
+    // }
 
     /*
     ** Handle the main driver's joysticks
@@ -237,46 +229,46 @@ void operatorControl() {
 
     // fprintf(uart1, "Lift Position: %d\r\n", getLiftHeight());
 
-    if (joystickGetDigital(1, 7, JOY_DOWN)) {
-      if (sevenDReleased) {
-        swapControlState();
-      }
-      sevenDReleased = false;
-    } else {
-      sevenDReleased = true;
-    }
-
-    if (isManualControl) {
+    // if (joystickGetDigital(1, 7, JOY_DOWN)) {
+    //   if (sevenDReleased) {
+    //     swapControlState();
+    //   }
+    //   sevenDReleased = false;
+    // } else {
+    //   sevenDReleased = true;
+    // }
+    //
+    // if (isManualControl) {
       manualControl();
-    } else {
-      automaticControl();
-    }
+    // } else {
+    //   automaticControl();
+    // }
+    //
+    // if (isClawReady()) {
+    //   if (!(joystickGetDigital(1, 6, JOY_UP) &&
+    //         joystickGetDigital(1, 6, JOY_DOWN))) {
+    //     if (joystickGetDigital(1, 6, JOY_UP)) {
+    //       clawClosed = true;
+    //       motorSet(MOTOR_CLAW, -127);
+    //     } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
+    //       clawClosed = false;
+    //       motorSet(MOTOR_CLAW, 127);
+    //     } else {
+    //       motorSet(MOTOR_CLAW, (clawClosed) ? -10 : 0);
+    //     }
+    //   }
+    // }
 
-    if (isClawReady()) {
-      if (!(joystickGetDigital(1, 6, JOY_UP) &&
-            joystickGetDigital(1, 6, JOY_DOWN))) {
-        if (joystickGetDigital(1, 6, JOY_UP)) {
-          clawClosed = true;
-          motorSet(MOTOR_CLAW, -127);
-        } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
-          clawClosed = false;
-          motorSet(MOTOR_CLAW, 127);
-        } else {
-          motorSet(MOTOR_CLAW, (clawClosed) ? -10 : 0);
-        }
-      }
-    }
-
-    if (joystickGetDigital(1, 5, JOY_UP)) {
-      motorSet(MOTOR_MOGO_L, 127);
-      motorSet(MOTOR_MOGO_R, -127);
-    } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
-      motorSet(MOTOR_MOGO_L, -127);
-      motorSet(MOTOR_MOGO_R, 127);
-    } else {
-      motorSet(MOTOR_MOGO_L, 0);
-      motorSet(MOTOR_MOGO_R, 0);
-    }
+    // if (joystickGetDigital(1, 5, JOY_UP)) {
+    //   motorSet(MOTOR_MOGO_L, 127);
+    //   motorSet(MOTOR_MOGO_R, -127);
+    // } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+    //   motorSet(MOTOR_MOGO_L, -127);
+    //   motorSet(MOTOR_MOGO_R, 127);
+    // } else {
+    //   motorSet(MOTOR_MOGO_L, 0);
+    //   motorSet(MOTOR_MOGO_R, 0);
+    // }
 
     // update the position on any external trackers
     // blueListen("pos\r\n");
