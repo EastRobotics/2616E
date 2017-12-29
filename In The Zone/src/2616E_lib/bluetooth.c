@@ -39,6 +39,3 @@ void blisten(char uart, void (*_callback)(char *)) {
   taskCreate(blistenTask, TASK_DEFAULT_STACK_SIZE, NULL,
              TASK_PRIORITY_DEFAULT);
 }
-
-// Sorry, idk how to pass varargs, so no bprintf atm:
-// fprintf(uart1, "formatString", ...); // Send formatted message to bluetooth

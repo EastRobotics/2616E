@@ -319,6 +319,8 @@ extern "C" {
   ** Bluetooth.c
   */
 
+  #define bprintf(uart, format, args...) fprintf (uart == 1 ? uart1 : uart2, format, args)
+  
   void hc05Init(char uart, bool atMode);
 
   char * bluetoothRead(char uart);
