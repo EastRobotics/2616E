@@ -320,7 +320,7 @@ extern "C" {
   */
 
   #define bprintf(uart, format, args...) fprintf (uart == 1 ? uart1 : uart2, format, args)
-  
+
   void hc05Init(char uart, bool atMode);
 
   char * bluetoothRead(char uart);
@@ -336,6 +336,8 @@ extern "C" {
   */
 
   void rpmTest();
+
+  void rpmTestManual(int motorPort, int speed, int speedUpTime);
 
 #ifdef __cplusplus // end method if
 }

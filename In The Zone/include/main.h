@@ -81,6 +81,8 @@ void initialize();
 
 void operatorControl();
 
+void setRunAuton(bool shouldRun);
+
 void implUpdateLCD(bool userCaused, int page);
 void implMenuNext(int page);
 void implMenuBack(int page);
@@ -252,6 +254,14 @@ int getCurrGoalType();
 
 // Task to handle the control of the manipulator system
 void manipulatorControl(void *ignored);
+
+// -----------------------------------------------------------------------------
+
+/*
+** Bluetooth listener implementations (bluetooth_impl.c)
+*/
+
+void blueListen(char *message);
 
 // End C++ export structure
 #ifdef __cplusplus

@@ -28,8 +28,7 @@ extern "C" {
   #define MOTOR_FOUR_BAR 8  // Right claw, moto
 
   // MoGo Intake
-  #define MOTOR_MOGO_L 5 // Left mogo intake,  motor 5
-  #define MOTOR_MOGO_R 6 // Right mogo intake, motor 6
+  #define MOTOR_MOGO 5 // Mogo intake,  motor 5
 
   // Claw
   #define MOTOR_CLAW 3 // Claw, motor 3
@@ -45,7 +44,7 @@ extern "C" {
   #define ANALOG_POT_FOUR_BAR 5 // Intake pot,      analog 5
   #define ANALOG_UNASIGNED_6  6 // UNASSIGNED,      analog 6
   #define ANALOG_UNASIGNED_7 7  // UNASSIGNED,      analog 7
-  #define ANALOG_UNASIGNED_8 8  // UNASSIGNED,      analog 8 
+  #define ANALOG_UNASIGNED_8 8  // UNASSIGNED,      analog 8
 
 /*
 ** Digital

@@ -5,8 +5,8 @@
 /*
 ** Constants to configure movement of lift
 */
-#define LIFT_BIAS_THRESH 5      // How far lift sides need to be off to correct
-#define LIFT_BIAS_CORRECT_P 1 // P term to use when correcting offset of lift
+#define LIFT_BIAS_THRESH 0      // How far lift sides need to be off to correct
+#define LIFT_BIAS_CORRECT_P 1.5 // P te`rm to use when correcting offset of lift
 #define LIFT_TARGET_THRESH 50   // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
   1.25 // P term to use when setting speed to target up
@@ -54,7 +54,7 @@ void setLiftStart(int posLeft, int posRight) {
 void setLiftStartAsNow() {
   liftStartLeft = 0;
   liftStartRight = 0;
-  setLiftStart(getLiftPosLeft(), getLiftPosRight());
+  setLiftStart(getLiftPosLeft()+5, getLiftPosRight()+5);
 }
 
 /*
@@ -106,10 +106,20 @@ int corretLiftBias(bool side, int speed, bool direction) {
       ((bias == -1 && side == DIR_RIGHT) || // If left is behind & is right
       (bias == 1 && side == DIR_LEFT))) // If right is behind & is left
       {
+        int speedABS = abs(speed);
+        bool speedDir = speed > 0;
     // Slow down the ahead side by p * error
     // First convert the speed to RPM, then p correct to that linearized model
     // Then convert the RPM back to motor speed in order to set the motors properly
-    return RPMToMotor(motorToRPM(speed) - (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
+    // ----
+    //return RPMToMotor(motorToRPM(abs(speed)) -
+    // (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
+    // ----
+    //return (speedDir ? 1 : -1) * (RPMToMotor(motorToRPM(speedABS) -
+    //  (LIFT_BIAS_CORRECT_P * abs(getLiftOffset()))));
+    // ----
+    return (speedDir ? 1 : -1) * (speedABS -
+      (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
   }
   return speed; // No correction needed, return the speed
 }

@@ -47,11 +47,9 @@ void deploy() {
   delay(350);
   motorSet(MOTOR_CLAW, -20);
   motorSet(MOTOR_FOUR_BAR, 10);
-  motorSet(MOTOR_MOGO_L, 127);
-  motorSet(MOTOR_MOGO_R, -127);
+  motorSet(MOTOR_MOGO, 127);
   delay(750);
-  motorSet(MOTOR_MOGO_L, 0);
-  motorSet(MOTOR_MOGO_R, 0);
+  motorSet(MOTOR_MOGO, 0);
   delay(250);
   motorSet(MOTOR_LIFT_1, 127);
   motorSet(MOTOR_LIFT_2, -127);
@@ -165,11 +163,9 @@ void autonomous() {
     deploy();
     motorSet(MOTOR_FOUR_BAR, 100);
     delay(100);
-    motorSet(MOTOR_MOGO_L, -127);
-    motorSet(MOTOR_MOGO_R, 127);
+    motorSet(MOTOR_MOGO, -127);
     delay(500);
-    motorSet(MOTOR_MOGO_L, 0);
-    motorSet(MOTOR_MOGO_R, 0);
+    motorSet(MOTOR_MOGO, 0);
     while (analogRead(ANALOG_POT_FOUR_BAR) > 900) {
       delay(10);
     }
@@ -185,11 +181,9 @@ void autonomous() {
       delay(10);
     }
     motorSet(MOTOR_FOUR_BAR, 10);
-    motorSet(MOTOR_MOGO_L, -127);
-    motorSet(MOTOR_MOGO_R, 127);
+    motorSet(MOTOR_MOGO, -127);
     delay(150);
-    motorSet(MOTOR_MOGO_L, 0);
-    motorSet(MOTOR_MOGO_R, 0);
+    motorSet(MOTOR_MOGO, 0);
     pLoopDriveStraight(600, true);
     delay(1000); // TODO RESET TO 250!!!!
     motorSet(MOTOR_CLAW, 100);
@@ -205,24 +199,20 @@ void autonomous() {
     print("Ran auton three!\n");
     // deploy();
     delay(200);
-    motorSet(MOTOR_MOGO_L, 127);
-    motorSet(MOTOR_MOGO_R, -127);
+    motorSet(MOTOR_MOGO, 127);
     delay(200);
     pLoopDriveStraight(3000, false);
     driveRaw(50, 50, 50, 50);
     delay(100);
     driveRaw(0, 0, 0, 0);
-    motorSet(MOTOR_MOGO_L, -127);
-    motorSet(MOTOR_MOGO_R, 127);
+    motorSet(MOTOR_MOGO, -127);
     delay(500);
     pLoopDriveStraight(-2500, true);
     pLoopTurnPoint(180);
-    motorSet(MOTOR_MOGO_L, 127);
-    motorSet(MOTOR_MOGO_R, -127);
+    motorSet(MOTOR_MOGO, 127);
     delay(500);
     pLoopDriveStraight(-750, false);
-    motorSet(MOTOR_MOGO_L, -127);
-    motorSet(MOTOR_MOGO_R, 127);
+    motorSet(MOTOR_MOGO, -127);
     delay(500);
     pLoopTurnPoint(0);
     driveRaw(50, 50, 50, 50);
