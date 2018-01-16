@@ -2,7 +2,9 @@
 #include "math.h"
 
 #define KP_DRIVE 0.1
+#define KD_DRIVE 0.1
 #define KP_DRIVE_TURN 0.80
+#define KD_DRIVE_TURN 0.1
 #define KP_GYRO_CORRECT 10
 #define P_LOOP_DRIVE_THRESHOLD 10
 #define P_LOOP_DRIVE_TURN_THRESHOLD 3
@@ -25,37 +27,8 @@ void initDrivePID() {
 }
 
 void deploy() {
-  motorSet(MOTOR_CLAW, 100);
-  delay(150);
-  motorSet(MOTOR_FOUR_BAR, 100);
-  delay(300);
-  motorSet(MOTOR_CLAW, -100);
-  delay(150);
-  motorSet(MOTOR_FOUR_BAR, 10);
-  delay(100);
-  motorSet(MOTOR_CLAW, 0);
-  motorSet(MOTOR_FOUR_BAR, -100);
-  delay(350);
-  motorSet(MOTOR_FOUR_BAR, 10);
-  driveRaw(50, 50, 50, 50);
-  delay(150);
-  motorSet(MOTOR_CLAW, -100);
-  delay(200);
-  driveRaw(0, 0, 0, 0);
-  delay(350);
-  motorSet(MOTOR_FOUR_BAR, 100);
-  delay(350);
-  motorSet(MOTOR_CLAW, -20);
-  motorSet(MOTOR_FOUR_BAR, 10);
-  motorSet(MOTOR_MOGO, 127);
-  delay(750);
-  motorSet(MOTOR_MOGO, 0);
-  delay(250);
-  motorSet(MOTOR_LIFT_1, 127);
-  motorSet(MOTOR_LIFT_2, -127);
-  delay(250);
-  motorSet(MOTOR_LIFT_1, 0);
-  motorSet(MOTOR_LIFT_2, 0);
+  // Everything beautiful must die - Michael
+  // TODO REMOVE in next update.  I just wanted a memorial for the deploy
 }
 
 ///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
@@ -81,7 +54,8 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
   int errorL;                                 // Error in the left side
   int errorR;                                 // Error in the right side
   int error;                                  // Averaged Error
-  int speed;                                  // Calculated speed to drive at
+  int lastError = 0;                 // The Error from the Previous Iteration
+  int speed;                         // Calculated speed to drive at
   int stopCount = 0;                 // Amount of time spent within threshold
   int initGyro = gyroGet(getGyro()); // Initial value of the gyro
   int speedModif = 0;                // How much to modify the speed for angle
@@ -91,7 +65,7 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
     errorL = tickDiff - (encoderGet(getEncoderBL()) - leftInit);
     errorR = tickDiff - (encoderGet(getEncoderBR()) - rightInit);
     error = errorL; // round((errorL + errorR) / 2);
-    speed = error * KP_DRIVE;
+    speed = error * KP_DRIVE + ((error - lastError) * KD_DRIVE);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
     speed = (abs(speed) < 25) ? (speed < 0) ? -25 : 25 : speed;
 
@@ -107,6 +81,7 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
         break;
     }
 
+    lastError = error;
     delay(20);
   }
 
@@ -117,11 +92,12 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
 
 void pLoopTurnPoint(int angleTarget) {
   int error;         // error in current position
+  int lastError = 0; // error from last iteration of the loop
   int speed;         // speed for the motors to run at
   int stopCount = 0; // Amount of time spent within threshold
   while (true) {
     error = angleTarget - gyroGet(getGyro());
-    speed = error * KP_DRIVE_TURN;
+    speed = (error * KP_DRIVE_TURN) + ((error - lastError) * KD_DRIVE_TURN);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
     speed = (abs(speed) < 30) ? (speed < 0) ? -25 : 25 : speed;
 
@@ -135,6 +111,7 @@ void pLoopTurnPoint(int angleTarget) {
         break;
     }
 
+    lastError = error;
     delay(20);
   }
 
@@ -160,72 +137,85 @@ void autonomous() {
   case 2:
     print("Ran auton two!\n");
     bprint(1, "Ran auton two!");
-    deploy();
-    motorSet(MOTOR_FOUR_BAR, 100);
-    delay(100);
-    motorSet(MOTOR_MOGO, -127);
-    delay(500);
+    setLiftTarget(213); // Get lift out of way
+    waitForLift();
+    motorSet(MOTOR_MOGO, 127); // Send out mogo
+    delay(1070);
     motorSet(MOTOR_MOGO, 0);
-    while (analogRead(ANALOG_POT_FOUR_BAR) > 900) {
-      delay(10);
-    }
-    motorSet(MOTOR_FOUR_BAR, 10);
-    motorSet(MOTOR_LIFT_1, 127);
-    motorSet(MOTOR_LIFT_2, -127);
-    while (encoderGet(getEncoderLift()) < 1500)
-      delay(10);
-    motorSet(MOTOR_LIFT_1, 0);
-    motorSet(MOTOR_LIFT_2, 0);
-    motorSet(MOTOR_FOUR_BAR, 100);
-    while (analogRead(ANALOG_POT_FOUR_BAR) > 900) {
-      delay(10);
-    }
-    motorSet(MOTOR_FOUR_BAR, 10);
-    motorSet(MOTOR_MOGO, -127);
-    delay(150);
-    motorSet(MOTOR_MOGO, 0);
-    pLoopDriveStraight(600, true);
-    delay(1000); // TODO RESET TO 250!!!!
-    motorSet(MOTOR_CLAW, 100);
-    delay(100);
-    motorSet(MOTOR_CLAW, 0);
-    // Drive half way back
-    pLoopDriveStraight((50 - (encoderGet(getEncoderBL()))) / 2, true);
-    // pLoopTurnPoint(135);
-    // pLoopDriveStraight(650, true);
-    // pLoopTurnPoint(90);
-    break;
-  case 3:
-    print("Ran auton three!\n");
-    // deploy();
+    pLoopDriveStraight(2590, false); // Drive to mogo
+    motorSet(MOTOR_MOGO, -127);      // Grab mogo while driving forward
+    driveRaw(127, 127, 127, 127);
     delay(200);
-    motorSet(MOTOR_MOGO, 127);
-    delay(200);
-    pLoopDriveStraight(3000, false);
-    driveRaw(50, 50, 50, 50);
-    delay(100);
     driveRaw(0, 0, 0, 0);
-    motorSet(MOTOR_MOGO, -127);
+    delay(1150);
+    pLoopDriveStraight(-2120, true); // Drive back to zone
+    pLoopTurnPoint(180);             // Turn to face zone
+    pLoopDriveStraight(449, true);   // Drive closer to zone
+    pLoopTurnPoint(225);             // Turn to face zone better
+    motorSet(MOTOR_MOGO, 127);       // Extend mogo outward
+    delay(1070);
+    motorSet(MOTOR_MOGO, 0);
+    delay(100);
+    driveRaw(-127, -127, -127, -127); // Back up
+    delay(300);
+    driveRaw(0, 0, 0, 0);
+    motorSet(MOTOR_MOGO, 127); // Lower mogo a bit more
+    delay(200);
+    motorSet(MOTOR_MOGO, 0);
+    driveRaw(127, 127, 127, 127); // drive forwards a tad
+    delay(400);
+    driveRaw(0, 0, 0, 0);
+    delay(100);
+    driveRaw(-127, -127, -127, -127); // back away to not touch goal
     delay(500);
-    pLoopDriveStraight(-2500, true);
-    pLoopTurnPoint(180);
-    motorSet(MOTOR_MOGO, 127);
-    delay(500);
-    pLoopDriveStraight(-750, false);
-    motorSet(MOTOR_MOGO, -127);
-    delay(500);
-    pLoopTurnPoint(0);
-    driveRaw(50, 50, 50, 50);
-    delay(5000);
     driveRaw(0, 0, 0, 0);
     break;
   case 4:
     print("Ran auton four!\n");
-    addPIDLoop(initDrivePID, getEncoderValue, setMotorSpeedPID, shutDownMotors,
+    /*addPIDLoop(initDrivePID, getEncoderValue, setMotorSpeedPID,
+    shutDownMotors,
                0.5, 0.0, 0.0, 50.0, 12.0);
     startPIDLoop(0, 500.0);
     delay(5000);
-    waitForPID(0);
+    waitForPID(0);*/
+    // INTAKE TEST
+    // setIntakeTarget(INTAKE_POS_AVOID);
+    // waitForIntake();
+    // delay(5000);
+    // LIFT TEST
+    /*setLiftTargetSmart(0);
+    waitForLift();
+    delay(1000);
+    setLiftTargetSmart(1);
+    waitForLift();
+    delay(1000);
+    setLiftTargetSmart(2);
+    */
+    // CLAW TEST
+    /*closeClaw();
+    waitForClaw();
+    delay(1000);
+    openClaw();
+    waitForClaw();
+    delay(1000);
+    closeClaw();
+    waitForClaw();
+    delay(1000);
+    openClaw();
+    */
+    // waitForIntake();
+    // waitForLift();
+    // waitForClaw();
+    motorSet(MOTOR_CLAW, -127);
+    delay(200);
+    motorSet(MOTOR_CLAW, 0);
+    driveRaw(127, 127, 127, 127);
+    delay(5000);
+    driveRaw(50, 50, 50, 50);
+    delay(2000);
+    driveRaw(0, 0, 0, 0);
+    delay(1000);
+
     break;
   default:
     print("Ran auton that wasn't given a case!");

@@ -27,7 +27,7 @@ void initDriveEncoders() {
       encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, true);
   // Init left encoder, not reversed
   encDriveBL =
-      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, false);
+      encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, true);
 }
 
 TaskHandle getLiftCont() { return liftCont; }
@@ -91,7 +91,7 @@ void initialize() {
   print("[Init] Setting up autonomous modes\n");
   lcdSetText(uart2, 1, "Init auton...");
   autonInit(4); // 3 auton modes
-  setAutonMode(2);
+  setAutonMode(4);
 
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");

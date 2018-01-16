@@ -12,7 +12,7 @@
   1.25 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
   0.25 // P term to use when setting speed to target down
-  #define HEIGHT_INCREMENT_CONE 225 // Height to add to goal per cone
+#define HEIGHT_INCREMENT_CONE 225 // Height to add to goal per cone
 
 // TODO Configure speeds
 /*
@@ -32,17 +32,13 @@
 */
 int liftStartLeft = 0;  // The position of sensor where the lift started
 int liftStartRight = 0; // The position of sensor where the lift started
-int liftTarget = 0; // Delta from start for the lift to reach
+int liftTarget = 0;     // Delta from start for the lift to reach
 
 //------------------------------------------------------------------------------
 
-int getLiftPosLeft() {
-  return analogRead(ANALOG_POT_LIFT_L)-liftStartLeft;
-}
+int getLiftPosLeft() { return analogRead(ANALOG_POT_LIFT_L) - liftStartLeft; }
 
-int getLiftPosRight() {
-  return analogRead(ANALOG_POT_LIFT_R)-liftStartRight;
-}
+int getLiftPosRight() { return analogRead(ANALOG_POT_LIFT_R) - liftStartRight; }
 
 // Sets the starting position for the lift potentiometers
 void setLiftStart(int posLeft, int posRight) {
@@ -54,7 +50,7 @@ void setLiftStart(int posLeft, int posRight) {
 void setLiftStartAsNow() {
   liftStartLeft = 0;
   liftStartRight = 0;
-  setLiftStart(getLiftPosLeft()+5, getLiftPosRight()+5);
+  setLiftStart(getLiftPosLeft() + 5, getLiftPosRight() + 5);
 }
 
 /*
@@ -64,8 +60,7 @@ void setLiftStartAsNow() {
 **    int: The averaged height of the two sensors w/out filter
 */
 int getLiftPos() {
-  return floor((((double) (getLiftPosLeft() + getLiftPosRight())) /
-    2.0) + 0.5);
+  return floor((((double)(getLiftPosLeft() + getLiftPosRight())) / 2.0) + 0.5);
 }
 
 int getLiftOffset() { return getLiftPosLeft() - getLiftPosRight(); }
@@ -102,24 +97,25 @@ int corretLiftBias(bool side, int speed, bool direction) {
   int bias = getLiftBias(direction); // Get the current bias
   // If bias isn't 0 and the bias is the side we're checking for, return
   // speed
-  if (bias != 0 && // If bias isn't 0
+  if (bias != 0 &&                          // If bias isn't 0
       ((bias == -1 && side == DIR_RIGHT) || // If left is behind & is right
-      (bias == 1 && side == DIR_LEFT))) // If right is behind & is left
-      {
-        int speedABS = abs(speed);
-        bool speedDir = speed > 0;
+       (bias == 1 && side == DIR_LEFT)))    // If right is behind & is left
+  {
+    int speedABS = abs(speed);
+    bool speedDir = speed > 0;
     // Slow down the ahead side by p * error
     // First convert the speed to RPM, then p correct to that linearized model
-    // Then convert the RPM back to motor speed in order to set the motors properly
+    // Then convert the RPM back to motor speed in order to set the motors
+    // properly
     // ----
-    //return RPMToMotor(motorToRPM(abs(speed)) -
+    // return RPMToMotor(motorToRPM(abs(speed)) -
     // (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
     // ----
-    //return (speedDir ? 1 : -1) * (RPMToMotor(motorToRPM(speedABS) -
+    // return (speedDir ? 1 : -1) * (RPMToMotor(motorToRPM(speedABS) -
     //  (LIFT_BIAS_CORRECT_P * abs(getLiftOffset()))));
     // ----
-    return (speedDir ? 1 : -1) * (speedABS -
-      (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
+    return (speedDir ? 1 : -1) *
+           (speedABS - (LIFT_BIAS_CORRECT_P * abs(getLiftOffset())));
   }
   return speed; // No correction needed, return the speed
 }
@@ -129,7 +125,7 @@ int corretLiftBias(bool side, int speed, bool direction) {
 // Directly sets lift motor speeds
 // Shouldn't be used unless making control loops
 void setLiftSpeedRaw(int speedLeft, int speedRight) {
-//void setLiftSpeedRaw(int speed) {
+  // void setLiftSpeedRaw(int speed) {
   motorSet(MOTOR_LIFT_1, speedLeft);
   motorSet(MOTOR_LIFT_2, speedRight);
 }
@@ -144,7 +140,17 @@ void setLiftSpeed(int speed) {
 
   // TODO Check bounds
   bool direction = speed > 0;
-  setLiftSpeedRaw(-1*corretLiftBias(DIR_LEFT, speed, direction),
+  bprint(1, "---------------------------\r\n");
+  bprintf(1, "Pot Left: %d\r\n", analogRead(ANALOG_POT_LIFT_L));
+  bprintf(1, "Pot Right: %d\r\n", analogRead(ANALOG_POT_LIFT_R));
+  bprintf(1, "Off Left: %d\r\n", analogRead(ANALOG_POT_LIFT_L) - liftStartLeft);
+  bprintf(1, "Off Right: %d\r\n",
+          analogRead(ANALOG_POT_LIFT_R) - liftStartRight);
+  bprintf(1, "Cor Left: %d\r\n", corretLiftBias(DIR_LEFT, speed, direction));
+  bprintf(1, "Cor Right: %d\r\n", corretLiftBias(DIR_RIGHT, speed, direction));
+  bprint(1, "---------------------------\r\n\r\n");
+
+  setLiftSpeedRaw(-1 * corretLiftBias(DIR_LEFT, speed, direction),
                   corretLiftBias(DIR_RIGHT, speed, direction));
 }
 
@@ -192,7 +198,8 @@ void liftControl(void *ignored) {
     } else { // Otherwise let the lift be still
       // TODO Determine whether or not to use LIFT_SPEED_HOLDING or
       //    LIFT_SPEED_IDLE
-      setLiftSpeed(LIFT_SPEED_HOLDING);
+      // setLiftSpeed(LIFT_SPEED_HOLDING);
+      // TODO UNCOMMENT ABOVE!!!!!
     }
     delay(10);
   }

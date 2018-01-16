@@ -11,11 +11,11 @@ bool driverSetLiftStart = false;
 bool sevenDReleased = true;
 bool eightRReleased = true;
 bool eightDReleased = true;
-int scoringMode = 0;      // 0: Not scoring, 1: scoring, 2: resetting
-int conesStacked = 0;     // The amount of cones stacked on the internal goal
-int rightBumperState = 0; // 0: none, up: 1, down: 2
-TaskHandle intakeCont;    // intake control task
-TaskHandle liftCont;      // lift control task
+bool intakeTaskRunning = false;
+bool liftLastDir = false;   // true: up, false: down
+int rightBumperState = 0;   // 0: none, up: 1, down: 2
+TaskHandle intakeCont;      // intake control task
+TaskHandle liftCont;        // lift control task
 TaskHandle manipulatorCont; // manipulator control task
 
 // For autostacking preloading purposes
@@ -27,9 +27,7 @@ bool hasDelayedLiftDrop =
 bool hasDelayedConeDrop = false;
 int autostackingBreakoutTime = 0;
 
-void setRunAuton(bool shouldRun) {
-  runAuton = shouldRun;
-}
+void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
 void swapControlState() {
   if (isManualControl) {
@@ -56,26 +54,46 @@ void manualControl() {
   if (joystickGetDigital(1, 8, JOY_UP)) {
     motorSet(MOTOR_FOUR_BAR,
              ((digitalRead(DIGITAL_LIM_CLAW))
-                  ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127)
-                  : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 10)));
+                  ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127)
+                  : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -10)));
     fourBarUp = true;
+    setShouldHoldIntake(false);
+    if (intakeTaskRunning) {
+      taskSuspend(intakeCont);
+      intakeTaskRunning = false;
+    }
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    motorSet(MOTOR_FOUR_BAR,
-             (joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127);
+    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127);
     fourBarUp = false;
+    setShouldHoldIntake(false);
+    if (intakeTaskRunning) {
+      taskSuspend(intakeCont);
+      intakeTaskRunning = false;
+    }
   } else {
-    motorSet(MOTOR_FOUR_BAR, (fourBarUp) ? 10 : 0);
+    motorSet(MOTOR_FOUR_BAR, (!fourBarUp) ? 10 : 0);
   }
 
   // Test other things
   if (joystickGetDigital(1, 7, JOY_UP)) {
-    setLiftSpeed(127);
+    setLiftSpeedRaw(-127, 127);
+    liftLastDir = true;
   } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
     //  && (encoderGet(getEncoderLift()) > 0)
-    int liftSpeed = -127; //encoderGet(getEncoderLift()) * 0.2;
-    setLiftSpeed(liftSpeed);
+    int liftSpeed = -127; // encoderGet(getEncoderLift()) * 0.2;
+    setLiftSpeedRaw(-liftSpeed, liftSpeed);
+    liftLastDir = false;
   } else {
-    setLiftSpeed(0);
+    int liftSpeed = (liftLastDir) ? 25 : 0;
+    setLiftSpeedRaw(-liftSpeed, liftSpeed);
+  }
+
+  if (joystickGetDigital(1, 8, JOY_LEFT)) {
+    setIntakeTarget(INTAKE_POS_AVOID);
+    if (!intakeTaskRunning) {
+      taskResume(intakeCont);
+      intakeTaskRunning = true;
+    }
   }
 }
 
@@ -84,25 +102,18 @@ void automaticControl() {
   ** Handle the main driver's controls
   */
 
-  if (joystickGetDigital(1, 7, JOY_UP)) {
-    closeClaw();
-    setClawOpen(false);
-    scoringMode = 1;
-  }
-
   if (joystickGetDigital(1, 8, JOY_UP)) {
-    conesStacked = 0;
+    setConeCount(0);
   }
 
   if (joystickGetDigital(1, 8, JOY_RIGHT)) {
     if (eightRReleased) {
-      conesStacked--;
+      setConeCount(getConeCount() - 1);
     }
     eightRReleased = false;
   } else {
     eightRReleased = true;
   }
-
 }
 
 // NOTE This is probably broken...
@@ -114,10 +125,10 @@ void operatorControl() {
 
   // Setup & start odometry
   initOdomScale(4, 15, 1); // Set up odom for 4 inch wheels with 15 inch diam
-  //taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
+  // taskCreate(trackRobotPosition, TASK_DEFAULT_STACK_SIZE, NULL,
   //           (TASK_PRIORITY_DEFAULT)); // Start odometry tracking
-  delay(50);                           // Give odom some time to start
-  odomReset();                         // Clear it, leggo
+  delay(50);   // Give odom some time to start
+  odomReset(); // Clear it, leggo
 
   // TODO Disable during comp
   // Initialize the bluetooth listener
@@ -125,32 +136,32 @@ void operatorControl() {
 
   // Start chainbar task
   intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                         (TASK_PRIORITY_DEFAULT));
+                          (TASK_PRIORITY_DEFAULT));
   liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                       (TASK_PRIORITY_DEFAULT));
+                        (TASK_PRIORITY_DEFAULT));
 
   if (isManualControl) {
     taskSuspend(intakeCont);
     taskSuspend(liftCont);
   } else {
-    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                          (TASK_PRIORITY_DEFAULT));
+    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
+                                 NULL, (TASK_PRIORITY_DEFAULT));
   }
 
   while (true) { // true cooler than 1
 
     if (runAuton) {
-      setAutonMode(2);
+      setAutonMode(4);
 
       if (isManualControl) {
         taskResume(intakeCont);
         taskResume(liftCont);
-        manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                              (TASK_PRIORITY_DEFAULT));
+        manipulatorCont =
+            taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                       (TASK_PRIORITY_DEFAULT));
       }
 
       delay(250);
-      setLiftTarget(800);
       autonomous();
 
       if (isManualControl) {
@@ -171,7 +182,7 @@ void operatorControl() {
 
     if (joystickGetDigital(1, 7, JOY_DOWN)) {
       if (sevenDReleased) {
-        swapControlState();
+        // swapControlState();
       }
       sevenDReleased = false;
     } else {
@@ -183,7 +194,6 @@ void operatorControl() {
     } else {
       automaticControl();
     }
-
 
     if (isClawReady()) {
       if (!(joystickGetDigital(1, 6, JOY_UP) &&

@@ -61,11 +61,14 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
-#define INTAKE_POS_AVOID  0
-#define INTAKE_POS_SCORE  0
-#define INTAKE_POS_SIT    0
+#define INTAKE_POS_AVOID  2334
+#define INTAKE_POS_SCORE  4095
+#define INTAKE_POS_SIT    2334
 
 //------------------------------------------------------------------------------
+
+#define INTAKE_TYPE_PASSTHROUGH false
+#define ROBOT_CONE_LIMIT 12
 
 /*
 ** Prototypes for initialization, operator control and autonomous
@@ -117,6 +120,9 @@ TaskHandle getIntakeCont();
 // Sets lift speed using bias correction
 // Positive speed upward, negative downward
 void setLiftSpeed(int speed);
+
+// I know it shouldn't be used, but at a comp now and need this change - Michael
+void setLiftSpeedRaw(int speedLeft, int speedRight);
 
 // Sets the value for the lift to try and reach
 void setLiftTarget(int target);
@@ -199,6 +205,9 @@ bool intakeIsAbove(int value);
 // Returns whether or not the intake is past a certain pos accounting for thresh
 bool intakeIsAboveAccThresh(int value);
 
+// Whether or not the intake should hold
+void setShouldHoldIntake(bool shouldHold);
+
 // Sets claw to open or closed
 void setClawOpen(bool isOpen);
 
@@ -210,6 +219,9 @@ void closeClaw();
 
 // Checks if the claw is done it's movement
 bool isClawReady();
+
+// Waits for the Claw to be Ready
+void waitForClaw();
 
 //------------------------------------------------------------------------------
 
@@ -225,6 +237,8 @@ int getAction();
 
 // Get how many cones are on the current target goal
 int getConeCount();
+
+void setConeCount(int coneCount);
 
 void setInternalConeCount(int coneCount);
 
