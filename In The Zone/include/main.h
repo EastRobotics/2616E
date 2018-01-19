@@ -61,9 +61,9 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
-#define INTAKE_POS_AVOID  2334
-#define INTAKE_POS_SCORE  4095
-#define INTAKE_POS_SIT    2334
+#define INTAKE_POS_AVOID  1205
+#define INTAKE_POS_SCORE  2530
+#define INTAKE_POS_SIT    1205
 
 //------------------------------------------------------------------------------
 

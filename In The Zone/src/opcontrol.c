@@ -76,15 +76,15 @@ void manualControl() {
 
   // Test other things
   if (joystickGetDigital(1, 7, JOY_UP)) {
-    setLiftSpeedRaw(-127, 127);
+    setLiftSpeed(127);
     liftLastDir = true;
   } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
     //  && (encoderGet(getEncoderLift()) > 0)
-    int liftSpeed = -127; // encoderGet(getEncoderLift()) * 0.2;
-    setLiftSpeedRaw(-liftSpeed, liftSpeed);
+    int liftSpeed = -127; // en coderGet(getEncoderLift()) * 0.2;
+    setLiftSpeed(liftSpeed);
     liftLastDir = false;
   } else {
-    int liftSpeed = (liftLastDir) ? 25 : 0;
+    int liftSpeed = (liftLastDir) ? 15 : 0;
     setLiftSpeedRaw(-liftSpeed, liftSpeed);
   }
 
