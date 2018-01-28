@@ -31,6 +31,11 @@ void deploy() {
   // TODO REMOVE in next update.  I just wanted a memorial for the deploy
 }
 
+double imperialToTick(double inches) {
+  double conversion = (4 * acos(-1.0)) / (360);
+  return inches / conversion;
+}
+
 ///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
 
 // Setter from the motor speed PID loop with *double parameter*
@@ -48,7 +53,7 @@ double getEncoderValue() { return encoderGet(getEncoderBR()); }
 
 ///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
 
-void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
+void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir) {
   int leftInit = encoderGet(getEncoderBL());  // Initial left value
   int rightInit = encoderGet(getEncoderBR()); // Initial right value
   int errorL;                                 // Error in the left side
@@ -70,7 +75,7 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
     speed = (abs(speed) < 25) ? (speed < 0) ? -25 : 25 : speed;
 
     angleOffset = gyroGet(getGyro()) - initGyro;
-    speedModif = angleOffset * KP_GYRO_CORRECT;
+    speedModif = (correctDir) ? angleOffset * KP_GYRO_CORRECT : 0;
 
     driveRaw(speed + speedModif, speed + speedModif, speed - speedModif,
              speed - speedModif);
@@ -85,7 +90,7 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards) {
     delay(20);
   }
 
-  driveRaw(-speed, -speed, -speed, -speed); // Slam the breaks
+  driveRaw(-10, -10, -10, -10); // Slam the breaks
   delay(10);
   driveRaw(0, 0, 0, 0);
 }
@@ -95,7 +100,8 @@ void pLoopTurnPoint(int angleTarget) {
   int lastError = 0; // error from last iteration of the loop
   int speed;         // speed for the motors to run at
   int stopCount = 0; // Amount of time spent within threshold
-  while (true) {
+  int iterations = 0;
+  while (iterations++ < 263) {
     error = angleTarget - gyroGet(getGyro());
     speed = (error * KP_DRIVE_TURN) + ((error - lastError) * KD_DRIVE_TURN);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
@@ -125,6 +131,16 @@ void autonomous() {
   ** Set up
   */
   initPID(); // Start PID
+  /*TaskHandle intakeCont;      // intake control task
+  TaskHandle liftCont;        // lift control task
+  TaskHandle manipulatorCont; // manipulator control task
+
+  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                          (TASK_PRIORITY_DEFAULT));*/
+  /*liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                        (TASK_PRIORITY_DEFAULT));*/
+  /*manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
+                               NULL, (TASK_PRIORITY_DEFAULT));*/
 
   /*
   ** Run auton
@@ -132,91 +148,51 @@ void autonomous() {
   switch (getAutonMode()) {
   case 1:
     print("Ran auton one!\n");
+    break;
 
-    break;
   case 2:
-    print("Ran auton two!\n");
-    bprint(1, "Ran auton two!");
-    setLiftTarget(213); // Get lift out of way
-    waitForLift();
-    motorSet(MOTOR_MOGO, 127); // Send out mogo
-    delay(1070);
-    motorSet(MOTOR_MOGO, 0);
-    pLoopDriveStraight(2590, false); // Drive to mogo
-    motorSet(MOTOR_MOGO, -127);      // Grab mogo while driving forward
+    // Mogo Out
+    // Drive forward
+    // pLoopDriveStraight(imperialToTick(55.0), false, true);
     driveRaw(127, 127, 127, 127);
-    delay(200);
-    driveRaw(0, 0, 0, 0);
-    delay(1150);
-    pLoopDriveStraight(-2120, true); // Drive back to zone
-    pLoopTurnPoint(180);             // Turn to face zone
-    pLoopDriveStraight(449, true);   // Drive closer to zone
-    pLoopTurnPoint(225);             // Turn to face zone better
-    motorSet(MOTOR_MOGO, 127);       // Extend mogo outward
-    delay(1070);
-    motorSet(MOTOR_MOGO, 0);
-    delay(100);
-    driveRaw(-127, -127, -127, -127); // Back up
-    delay(300);
-    driveRaw(0, 0, 0, 0);
-    motorSet(MOTOR_MOGO, 127); // Lower mogo a bit more
-    delay(200);
-    motorSet(MOTOR_MOGO, 0);
-    driveRaw(127, 127, 127, 127); // drive forwards a tad
-    delay(400);
-    driveRaw(0, 0, 0, 0);
-    delay(100);
-    driveRaw(-127, -127, -127, -127); // back away to not touch goal
-    delay(500);
+    delay(5000);
     driveRaw(0, 0, 0, 0);
     break;
-  case 4:
-    print("Ran auton four!\n");
-    /*addPIDLoop(initDrivePID, getEncoderValue, setMotorSpeedPID,
-    shutDownMotors,
-               0.5, 0.0, 0.0, 50.0, 12.0);
-    startPIDLoop(0, 500.0);
-    delay(5000);
-    waitForPID(0);*/
-    // INTAKE TEST
-    // setIntakeTarget(INTAKE_POS_AVOID);
-    // waitForIntake();
-    // delay(5000);
-    // LIFT TEST
-    /*setLiftTargetSmart(0);
-    waitForLift();
+
+  case 3:
+    // Mogo Out
+    motorSet(MOTOR_MOGO, 127);
     delay(1000);
-    setLiftTargetSmart(1);
-    waitForLift();
-    delay(1000);
-    setLiftTargetSmart(2);
-    */
-    // CLAW TEST
-    /*closeClaw();
-    waitForClaw();
-    delay(1000);
-    openClaw();
-    waitForClaw();
-    delay(1000);
-    closeClaw();
-    waitForClaw();
-    delay(1000);
-    openClaw();
-    */
-    // waitForIntake();
-    // waitForLift();
-    // waitForClaw();
-    motorSet(MOTOR_CLAW, -127);
-    delay(200);
-    motorSet(MOTOR_CLAW, 0);
+    motorSet(MOTOR_MOGO, 0);
+    // Drive forward
+    // pLoopDriveStraight(imperialToTick(55.0), false, true);
     driveRaw(127, 127, 127, 127);
-    delay(5000);
-    driveRaw(50, 50, 50, 50);
+    delay(3300);
+    driveRaw(0, 0, 0, 0);
+    // Take in mogo
+    motorSet(MOTOR_MOGO, -127);
+    delay(1000);
+    motorSet(MOTOR_MOGO, 0);
+    // Realign
+    pLoopTurnPoint(0);
+    // Back up
+    driveRaw(-127, -127, -127, -127);
+    delay(2300);
+    driveRaw(0, 0, 0, 0);
+    // Rest
+    delay(500);
+    // Turn
+    pLoopTurnPoint(180);
+    // Mogo Out
+    motorSet(MOTOR_MOGO, 127);
+    delay(1000);
+    motorSet(MOTOR_MOGO, 0);
+    // Back up
+    driveRaw(-127, -127, -127, -127);
     delay(2000);
     driveRaw(0, 0, 0, 0);
-    delay(1000);
-
     break;
+
   default:
     print("Ran auton that wasn't given a case!");
   }
@@ -227,5 +203,9 @@ void autonomous() {
   if (isOnline()) {          // Shut down sensors if at a comp
     gyroShutdown(getGyro()); // Disable our gyro
   }
+  // taskDelete(liftCont);
+  // taskDelete(intakeCont);
+  // taskDelete(manipulatorCont);
+
   shutdownPID(); // Kill PID
 }

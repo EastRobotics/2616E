@@ -7,12 +7,12 @@
 */
 #define LIFT_BIAS_THRESH 0      // How far lift sides need to be off to correct
 #define LIFT_BIAS_CORRECT_P 1.5 // P te`rm to use when correcting offset of lift
-#define LIFT_TARGET_THRESH 50   // How far lift's from target to try go to it
+#define LIFT_TARGET_THRESH 25   // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
-  1.25 // P term to use when setting speed to target up
+  0.25 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
   0.25 // P term to use when setting speed to target down
-#define HEIGHT_INCREMENT_CONE 225 // Height to add to goal per cone
+#define HEIGHT_INCREMENT_CONE 117 // Height to add to goal per cone
 
 // TODO Configure speeds
 /*
@@ -20,19 +20,23 @@
 */
 #define LIFT_SPEED_HOLDING 0
 #define LIFT_SPEED_IDLE 0
+#define LIFT_SPEED_MIN 20
 
 // TODO Configure values
 #define LIFT_MIN_HEIGHT 0
-#define LIFT_MAX_HEIGHT 1000
+#define LIFT_MAX_HEIGHT 1511
 
 //------------------------------------------------------------------------------
 
 /*
 ** Variables used to track lift height
 */
-int liftStartLeft = 0;  // The position of sensor where the lift started
-int liftStartRight = 0; // The position of sensor where the lift started
-int liftTarget = 0;     // Delta from start for the lift to reach
+int liftStartLeft = 0;      // The position of sensor where the lift started
+int liftStartRight = 0;     // The position of sensor where the lift started
+int liftTarget = 0;         // Delta from start for the lift to reach
+bool netTargetDir = DIR_UP; // The overall direction of the lift movements
+bool shouldOvershoot =
+    true; // Whether or not the lift should oscillate to correct
 
 //------------------------------------------------------------------------------
 
@@ -133,10 +137,13 @@ void setLiftSpeedRaw(int speedLeft, int speedRight) {
 // Sets lift speed using bias correction
 // Positive speed upward, negative downward
 void setLiftSpeed(int speed) {
-  if (speed == 0) {
+  /*if (speed == 0) {
     setLiftSpeedRaw(0, 0);
     return;
-  }
+  }*/
+  // TODO REMOVE!!!!!!!!!!!!!!
+  // setLiftSpeedRaw(-speed, speed);
+  // return;
 
   // TODO Check bounds
   bool direction = speed > 0;
@@ -158,25 +165,38 @@ void setLiftSpeed(int speed) {
 void setLiftTarget(int target) {
   liftTarget = target;
   // TODO Add anything else needed
+  netTargetDir = (getLiftPos() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;
 }
 
 //------------------------------------------------------------------------------
 
 // Sets the lift target to the right height for the goal type and cone count
 void setLiftTargetSmart(int cones) {
-  setLiftTarget(0 + (HEIGHT_INCREMENT_CONE * cones));
+  setLiftTarget(200 + (HEIGHT_INCREMENT_CONE * cones));
 }
 
 int getLiftTarget() { return liftTarget; }
 
 // Whether or not the lift is at it's target
-bool isLiftReady() { return abs(getLiftError()) <= LIFT_TARGET_THRESH; }
+bool isLiftAtTarget() { return abs(getLiftError()) <= LIFT_TARGET_THRESH; }
 
 // Wait until the lift is at it's desired target
 void waitForLift() {
   while (!isLiftReady())
     delay(10);
 }
+
+void setShouldOvershootLift(bool shouldOvershootLift) {
+  shouldOvershoot = shouldOvershootLift;
+}
+
+bool isLiftOvershooting() {
+  bool correctionDirection =
+      (getLiftPos() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;
+  return ((shouldOvershoot) ? (correctionDirection != netTargetDir) : false);
+}
+
+bool isLiftReady() { return isLiftAtTarget() || isLiftOvershooting(); }
 
 //------------------------------------------------------------------------------
 
@@ -185,6 +205,7 @@ void liftControl(void *ignored) {
   while (true) {
     // TODO Handle upper and lower bounds
     // If the error is great enough, move lift towards target
+    // also if it can overshoot, do not change direction just stop
     if (!isLiftReady()) {
       // If lift is higher than target, move down, otherwise up
       bool correctionDirection =
@@ -192,6 +213,8 @@ void liftControl(void *ignored) {
       int speed = (correctionDirection ? LIFT_TARGET_CORRECT_P_DOWN
                                        : LIFT_TARGET_CORRECT_P_UP) *
                   abs(getLiftError());
+      speed = (speed > 127) ? 127 : speed;
+      speed = (speed < LIFT_SPEED_MIN) ? LIFT_SPEED_MIN : speed;
       speed *= (correctionDirection ? -1 : 1);
       // Set lift speed to Kp * error * directionMultiplier
       setLiftSpeed(speed);

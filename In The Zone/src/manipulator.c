@@ -43,15 +43,20 @@ void manipulatorIntake() {
 }
 
 void score() {
+  bprint(1, "Scoring\r\n");
   if ((!isManipulatorReady()) || (cones == ROBOT_CONE_LIMIT))
     return;
   completedAction = false;
+  bprint(1, "Is going to move\r\n");
   setCurrentAction(ACTION_GOING_UP);
 }
 
 // Task to handle the control of the manipulator system
 void manipulatorControl(void *ignored) {
+  bprint(1, "TASK STARTED\r\n");
+  print("Task Started\n");
   while (true) {
+    bprintf(1, "currAct: %d\r\n", currentAction);
     switch (currentAction) {
     //------------------------------------------------------------------------
     case ACTION_SITTING_DOWN: {
@@ -60,12 +65,17 @@ void manipulatorControl(void *ignored) {
     }
     //------------------------------------------------------------------------
     case ACTION_GOING_UP: {
-      setClawOpen(false); // Make sure claw knows its closed
-      setLiftTargetSmart(cones);
-      setIntakeTarget(INTAKE_POS_AVOID);
+      bprint(1, "Starting scoring motion");
+      setClawOpen(false);                // Make sure claw knows its closed
+      setLiftTargetSmart(cones);         // Lift to height of cones
+      setIntakeTarget(INTAKE_POS_AVOID); // Get that 4-bar out of way
+      bprint(1, "Going to wait for intake\r\n");
       waitForIntake();
-      while (!(abs(getLiftTarget() - getLiftPos()) < LIFT_THRESH_AVOID))
-        delay(10);
+      bprint(1, "Done waiting for intake\r\n");
+      // while (!(abs(getLiftTarget() - getLiftPos()) < LIFT_THRESH_AVOID))
+      //  delay(10);
+      waitForLift();
+      bprint(1, "Done waiting for lift\r\n");
       setIntakeTarget(INTAKE_POS_SCORE);
       waitForIntake();
       waitForLift();
@@ -101,7 +111,8 @@ void manipulatorControl(void *ignored) {
       break;
     }
       //------------------------------------------------------------------------
-      delay(20);
+      // TODO RESET TO 20
+      delay(500);
     }
   }
 }

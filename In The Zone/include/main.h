@@ -57,18 +57,18 @@ extern "C" {
 
 //------------------------------------------------------------------------------
 
-#define LIFT_THRESH_AVOID 0
+#define LIFT_THRESH_AVOID 20
 
 //------------------------------------------------------------------------------
 
-#define INTAKE_POS_AVOID  1205
-#define INTAKE_POS_SCORE  2530
-#define INTAKE_POS_SIT    1205
+#define INTAKE_POS_AVOID  2040
+#define INTAKE_POS_SCORE  3747
+#define INTAKE_POS_SIT    2040
 
 //------------------------------------------------------------------------------
 
 #define INTAKE_TYPE_PASSTHROUGH false
-#define ROBOT_CONE_LIMIT 12
+#define ROBOT_CONE_LIMIT 14
 
 /*
 ** Prototypes for initialization, operator control and autonomous
@@ -158,6 +158,8 @@ bool isLiftReady();
 void waitForLift();
 
 int getLiftTarget();
+
+void setShouldOvershootLift(bool shouldOvershootLift);
 
 
 //------------------------------------------------------------------------------
@@ -265,6 +267,8 @@ void setCurrGoalType(int goalType);
 void setIntakePos(int intakePos);
 
 int getCurrGoalType();
+
+void score();
 
 // Task to handle the control of the manipulator system
 void manipulatorControl(void *ignored);

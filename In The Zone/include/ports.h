@@ -55,11 +55,11 @@ extern "C" {
   #define DIGITAL_BREAKPOINT     1   // Breakpoint button,           digital 1
   // Claw
   #define DIGITAL_ENC_LIFT_TOP 2    // Encoder lift  top     left,   digital 2
-  #define DIGITAL_ENC_LIFT_BOT 3    // Encoder lift  bottom  left,   digital 3
-  #define DIGITAL_LIM_CLAW     4    // Encoder limit claw,           digital 4
+  #define DIGITAL_ENC_LIFT_BOT 5    // Encoder lift  bottom  left,   digital 3
+  #define DIGITAL_LIM_CLAW     6    // Encoder limit claw,           digital 4
   // Drive
-  #define DIGITAL_ENC_DRIVE_BR_TOP 5  // Encoder drive top    right, digital 5
-  #define DIGITAL_ENC_DRIVE_BR_BOT 6  // Encoder drive bottom right, digital 6
+  #define DIGITAL_ENC_DRIVE_BR_TOP 3  // Encoder drive top    right, digital 5
+  #define DIGITAL_ENC_DRIVE_BR_BOT 4  // Encoder drive bottom right, digital 6
   #define DIGITAL_ENC_DRIVE_BL_TOP 7 // Encoder drive top      left, digital 7
   #define DIGITAL_ENC_DRIVE_BL_BOT 8 // Encoder drive bottom   left, digital 8
   // #define DO_NOT_USE 10

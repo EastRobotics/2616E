@@ -8,10 +8,10 @@
 #define INTAKE_BIAS_THRESH 5      // How far sides need to be off to correct
 #define INTAKE_BIAS_CORRECT_P 1.5 // P term to use when correcting offset
 #define INTAKE_TARGET_THRESH 40   // How far from target to try go to it
-#define INTAKE_TARGET_CORRECT_P_UP 0.25 // P term to use when setting speed up
+#define INTAKE_TARGET_CORRECT_P_UP 0.2 // P term to use when setting speed up
 #define INTAKE_TARGET_CORRECT_P_DOWN                                           \
-  0.275                         // P term to use when setting speed down
-#define INTAKE_MINIMUM_SPEED 25 // Minimum speed for the intake to move at
+  0.22                          // P term to use when setting speed down
+#define INTAKE_MINIMUM_SPEED 20 // Minimum speed for the intake to move at
 #define CLAW_MOVEMENT_TIME 300  // The amount of time the claw needs to open
 #define CLAW_MOVEMENT_SPEED 127 // Movement speed of the claw
 
@@ -28,8 +28,9 @@
 /*
 ** Variables used to track intake position
 */
-int intakeStart = 0;  // The position of sensor where the intake started
-int intakeTarget = 0; // Delta from start for the intake to reach
+int intakeStart =
+    INTAKE_POS_SCORE; // The position of sensor where the intake started
+int intakeTarget = INTAKE_POS_SCORE; // Delta from start for the intake to reach
 
 /*
 ** Variables used to track the claw position
@@ -212,6 +213,7 @@ void intakeControl(void *ignored) {
     // TODO Handle upper and lower bounds
     // If the error is great enough, move intake towards target
     if (!isIntakeReady()) {
+      bprintf(1, "error: %d\r\n", getIntakePos());
       // If intake is higher than target, move down, otherwise up
       // NOTE: This is opposite of what it should be
       bool correctionDirection =
