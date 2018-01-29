@@ -2,6 +2,10 @@
 #include "math.h"
 // TODO Add parameters for sensor input -- currently our-code specific!
 
+int linSpeed(int speedUnlin) {
+  return getLerpedSpeed(speedUnlin, 0, 0);
+}
+
 // Turn to a point based on gyroscopic target
 // Test status:
 //  Tested, works great.
@@ -17,6 +21,7 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
     speed = (error * p) + ((error - lastError) * d);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
     speed = (abs(speed) < 30) ? (speed < 0) ? -25 : 25 : speed;
+    speed = linSpeed(speed); // Linearize speed
 
     driveRaw(-speed, -speed, speed, speed);
     fprintf(uart1, "speed: %d\r\n", speed);
@@ -66,8 +71,9 @@ void pLoopDriveStraightRaw(int tickDiff, bool correctBackwards, bool correctDir,
     angleOffset = gyroGet(getGyro()) - initGyro;
     speedModif = (correctDir) ? angleOffset * pCorrect : 0;
 
-    driveRaw(speed + speedModif, speed + speedModif, speed - speedModif,
-             speed - speedModif);
+    // Set motors to linearized version of input speeds
+    driveRaw(linSpeed(speed + speedModif), linSpeed(speed + speedModif),
+      linSpeed(speed - speedModif), linSpeed(speed - speedModif));
 
     if (abs(error) < thresh) {
       stopCount++;
@@ -79,7 +85,7 @@ void pLoopDriveStraightRaw(int tickDiff, bool correctBackwards, bool correctDir,
     delay(20);
   }
 
-  driveRaw(-10, -10, -10, -10); // Slam the breaks
+  driveRaw(-speed, -speed, -speed, -speed); // Slam the breaks
   delay(10);
   driveRaw(0, 0, 0, 0);
 }
