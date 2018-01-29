@@ -83,3 +83,28 @@ void pLoopDriveStraightRaw(int tickDiff, bool correctBackwards, bool correctDir,
   delay(10);
   driveRaw(0, 0, 0, 0);
 }
+
+// Drive to a point based on odometric values
+// Test status:
+//  completely untested, however has tested method foundation
+// So many parameters... rip
+void autoDriveToPointRaw(int x, int y, bool driveCorrectBackwards,
+  bool driveCorrectDir, double drivePSpeed, double driveDSpeed,
+  double drivePCorrect, int driveThresh, int driveThreshCount,  double turnP,
+   double turnD, int turnThresh, int turnThreshCount) {
+  // Turn to the desired point
+  // when finding the angle it is important to remember 0 is forward
+  //   (angle + 90) and right is negative (-1 * angle)
+  int angle = round(-1 * (180 * atan2(y-getOdomPosY(),x-getOdomPosX()) /
+    acos(-1.0)) + 90);
+  printf("turn to angle: %d\n", angle);
+  pLoopTurnPointRaw(angle, turnP, turnD, turnThresh, turnThreshCount);
+  print("done turning\n");
+
+  //Drive to specified point
+  double distMM = distance(x,getOdomPosX(),y,getOdomPosY());
+  int distTicks = inchesToTicks(distMM/25.4, 1);
+  printf("dist:%d\n",distTicks);
+  pLoopDriveStraightRaw(distTicks, driveCorrectBackwards, driveCorrectDir,
+    drivePSpeed, driveDSpeed, drivePCorrect, driveThresh, driveThreshCount);
+}

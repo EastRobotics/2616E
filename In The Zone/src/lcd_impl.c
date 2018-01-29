@@ -5,18 +5,26 @@ void implUpdateLCD(bool userCaused, int page) {
   switch (page) {
   // [Page 1] Auton mode selector ----------------------------------------------
   case 1: {
-    /*
     lcdPrintTitle("AutonMode");
     const char *autonName;
     switch (getAutonMode()) { // Set name based on auton mode
     case 1:                   // Mode 1 selected
-      autonName = "Test mode 1";
+      autonName = "Do Nothing";
       break;
     case 2: // Mode 2 selected
-      autonName = "Test mode 2";
+      autonName = "Block";
       break;
     case 3: // Mode 3 selected
-      autonName = "Test mode 3";
+      autonName = "Skills";
+      break;
+    case 4: // Mode 3 selected
+      autonName = "Strt 2\'";
+      break;
+    case 5: // Mode 3 selected
+      autonName = "Trn 180";
+      break;
+    case 6: // Mode 3 selected
+      autonName = "OdmTringle";
       break;
     default: { // Unknown mode
       char temp[17];
@@ -27,9 +35,6 @@ void implUpdateLCD(bool userCaused, int page) {
     static char temp[16]; // Create buffer for following line
     sprintf(temp, "%c %s %c", 0xBC, autonName, 0xBB); // Set up auton name
     lcdPrintCentered(temp, 2);                        // Print auton name
-    */
-    lcdPrint(uart2, 1, "L: %d", encoderGet(getEncoderBL()));
-    lcdPrint(uart2, 2, "R: %d", encoderGet(getEncoderBR()));
   } break;
   // [Page 2] Example page -----------------------------------------------------
   case 2: {

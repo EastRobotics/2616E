@@ -144,7 +144,6 @@ void lcdManager(void *param) {
         // Only run stuff if not paused or disabled
         if (!paused && isEnabled()) {
           if (highestCombination == 1) { // Left button pressed
-            printf("Cameron is going to read this, I know it");
             lcdLastPage();
             buttonReleased = false;
           } else if (highestCombination == 2) { // Center button pressed

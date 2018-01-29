@@ -355,6 +355,11 @@ extern "C" {
 
   void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
       int threshCount);
+
+  void autoDriveToPointRaw(int x, int y, bool driveCorrectBackwards,
+    bool driveCorrectDir, double drivePSpeed, double driveDSpeed,
+    double drivePCorrect, int driveThresh, int driveThreshCount,  double turnP,
+     double turnD, int turnThresh, int turnThreshCount);
 #ifdef __cplusplus // end method if
 }
 #endif

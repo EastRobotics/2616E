@@ -285,6 +285,9 @@ void pLoopTurnPoint(int angleTarget);
 
 void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir);
 
+void autoDriveToPoint(int x, int y, bool driveCorrectBackwards,
+  bool driveCorrectDir);
+
 // End C++ export structure
 #ifdef __cplusplus
 }

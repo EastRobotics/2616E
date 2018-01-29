@@ -25,6 +25,8 @@ bool slewRate = 0;
 char valuesLeft[127];
 char valuesRight[127];
 
+// TODO Linearize through slew, not slew after linearized (slew not linear)
+
 /*
 ** Sets the drive motors we're using. This makes it so we don't need to provide
 ** the ports every time we want to do any drive methods.

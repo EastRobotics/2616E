@@ -26,3 +26,12 @@ void pLoopTurnPoint(int angleTarget) {
   pLoopTurnPointRaw(angleTarget, KP_DRIVE_TURN, KD_DRIVE_TURN,
     P_LOOP_DRIVE_TURN_THRESHOLD, P_LOOP_TURN_STOP_COUNT);
 }
+
+void autoDriveToPoint(int x, int y, bool driveCorrectBackwards,
+  bool driveCorrectDir) {
+    autoDriveToPointRaw(x, y, driveCorrectBackwards,
+      driveCorrectDir, KP_DRIVE, KD_DRIVE,
+       KP_GYRO_CORRECT, P_LOOP_DRIVE_THRESHOLD, P_LOOP_STOP_COUNT,
+       KP_DRIVE_TURN, KD_DRIVE_TURN, P_LOOP_DRIVE_TURN_THRESHOLD,
+       P_LOOP_TURN_STOP_COUNT);
+   }

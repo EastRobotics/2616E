@@ -95,6 +95,29 @@ void autonomous() {
     driveRaw(0, 0, 0, 0);
     break;
 
+  case 4:
+    pLoopDriveStraight(inchesToTicks(24, 1), true, true);
+    // Will be more likely used, however above should be tuned first
+    // pLoopDriveStraight(inchesToTicks(24, 1), false, true);
+    break;
+
+  case 5:
+    pLoopTurnPoint(180);
+    break;
+
+  case 6:
+    // Drive to 10,10, aka 6",6"
+    autoDriveToPoint(152.4,152.4,false,true);
+    // Drive "forward" 2 feet
+    autoDriveToPoint(152.4,152.4+609.6,false,true);
+    // Drive to 1.5 feet right from 6"6" start
+    autoDriveToPoint(152.4+457.2,152.4,false,true);
+    // Drive back to 6"6" start
+    autoDriveToPoint(152.4,152.4,false,true);
+    // Turn back to original angle
+    pLoopTurnPoint(0);
+    break;
+
   default:
     print("Ran auton that wasn't given a case!");
   }
