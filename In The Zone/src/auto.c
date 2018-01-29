@@ -1,35 +1,10 @@
 #include "main.h"
 #include "math.h"
 
-#define KP_DRIVE 0.1
-#define KD_DRIVE 0.1
-#define KP_DRIVE_TURN 0.80
-#define KD_DRIVE_TURN 0.1
-#define KP_GYRO_CORRECT 10
-#define P_LOOP_DRIVE_THRESHOLD 10
-#define P_LOOP_DRIVE_TURN_THRESHOLD 3
-#define P_LOOP_STOP_COUNT 25
-#define P_LOOP_TURN_STOP_COUNT 25
-#define P_LOOP_GYRO_STAIGHTEN_SPEED_MODIF 10
-#define P_LOOP_GYRO_CORRECTION_ANGLE 2
 
 // KEEP IN MIND, AFTER AUTON, IF WE'RE PLUGGED IN SOME SENSORS WILL SHUT DOWN
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
-
-void breakpoint() {
-  while (digitalRead(DIGITAL_BREAKPOINT))
-    delay(20);
-}
-
-void initDrivePID() {
-  // TODO Implement
-}
-
-void deploy() {
-  // Everything beautiful must die - Michael
-  // TODO REMOVE in next update.  I just wanted a memorial for the deploy
-}
 
 double imperialToTick(double inches) {
   double conversion = (4 * acos(-1.0)) / (360);
@@ -52,79 +27,6 @@ void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 double getEncoderValue() { return encoderGet(getEncoderBR()); }
 
 ///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
-
-void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir) {
-  int leftInit = encoderGet(getEncoderBL());  // Initial left value
-  int rightInit = encoderGet(getEncoderBR()); // Initial right value
-  int errorL;                                 // Error in the left side
-  int errorR;                                 // Error in the right side
-  int error;                                  // Averaged Error
-  int lastError = 0;                 // The Error from the Previous Iteration
-  int speed;                         // Calculated speed to drive at
-  int stopCount = 0;                 // Amount of time spent within threshold
-  int initGyro = gyroGet(getGyro()); // Initial value of the gyro
-  int speedModif = 0;                // How much to modify the speed for angle
-  int angleOffset; // How much the robot is curving in its motion
-
-  while (true) {
-    errorL = tickDiff - (encoderGet(getEncoderBL()) - leftInit);
-    errorR = tickDiff - (encoderGet(getEncoderBR()) - rightInit);
-    error = errorL; // round((errorL + errorR) / 2);
-    speed = error * KP_DRIVE + ((error - lastError) * KD_DRIVE);
-    speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
-    speed = (abs(speed) < 25) ? (speed < 0) ? -25 : 25 : speed;
-
-    angleOffset = gyroGet(getGyro()) - initGyro;
-    speedModif = (correctDir) ? angleOffset * KP_GYRO_CORRECT : 0;
-
-    driveRaw(speed + speedModif, speed + speedModif, speed - speedModif,
-             speed - speedModif);
-
-    if (abs(error) < P_LOOP_DRIVE_THRESHOLD) {
-      stopCount++;
-      if (stopCount >= P_LOOP_STOP_COUNT || !correctBackwards)
-        break;
-    }
-
-    lastError = error;
-    delay(20);
-  }
-
-  driveRaw(-10, -10, -10, -10); // Slam the breaks
-  delay(10);
-  driveRaw(0, 0, 0, 0);
-}
-
-void pLoopTurnPoint(int angleTarget) {
-  int error;         // error in current position
-  int lastError = 0; // error from last iteration of the loop
-  int speed;         // speed for the motors to run at
-  int stopCount = 0; // Amount of time spent within threshold
-  int iterations = 0;
-  while (iterations++ < 263) {
-    error = angleTarget - gyroGet(getGyro());
-    speed = (error * KP_DRIVE_TURN) + ((error - lastError) * KD_DRIVE_TURN);
-    speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
-    speed = (abs(speed) < 30) ? (speed < 0) ? -25 : 25 : speed;
-
-    driveRaw(-speed, -speed, speed, speed);
-    fprintf(uart1, "speed: %d\r\n", speed);
-    fprintf(uart1, "error: %d\r\n", error);
-
-    if (abs(error) < P_LOOP_DRIVE_TURN_THRESHOLD) {
-      stopCount++;
-      if (stopCount >= P_LOOP_TURN_STOP_COUNT)
-        break;
-    }
-
-    lastError = error;
-    delay(20);
-  }
-
-  driveRaw(speed, speed, -speed, -speed); // Slam the breaks
-  delay(10);
-  driveRaw(0, 0, 0, 0);
-}
 
 void autonomous() {
   /*

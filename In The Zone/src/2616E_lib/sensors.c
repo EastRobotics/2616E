@@ -117,3 +117,16 @@ bool sameSign(int one, int two) {
 double distance(double x1, double x2, double y1, double y2) {
   return sqrt(pow(x2 - x1, 2) + pow(y2 - y1, 2));
 }
+
+// Scale is ratio of encoder to wheel (1 wheel rotation gives 2 encoder
+// rotations, scale is 2)
+double inchesToTicks(double inches, double scale) {
+  double conversion = (4 * acos(-1.0)) / (360*scale);
+  return inches / conversion;
+}
+
+// Scale is ratio of encoder to wheel (1 wheel rotation gives 2 encoder
+// rotations, scale is 2)
+double feetToTicks(double feet, double scale) {
+  return inchesToTicks(feet*12.0, scale);
+}

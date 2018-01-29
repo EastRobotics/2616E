@@ -1,0 +1,85 @@
+#include "main.h"
+#include "math.h"
+// TODO Add parameters for sensor input -- currently our-code specific!
+
+// Turn to a point based on gyroscopic target
+// Test status:
+//  Tested, works great.
+void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
+    int threshCount) {
+  int error;         // error in current position
+  int lastError = 0; // error from last iteration of the loop
+  int speed;         // speed for the motors to run at
+  int stopCount = 0; // Amount of time spent within threshold
+  int iterations = 0;
+  while (iterations++ < 263) {
+    error = angleTarget - gyroGet(getGyro());
+    speed = (error * p) + ((error - lastError) * d);
+    speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
+    speed = (abs(speed) < 30) ? (speed < 0) ? -25 : 25 : speed;
+
+    driveRaw(-speed, -speed, speed, speed);
+    fprintf(uart1, "speed: %d\r\n", speed);
+    fprintf(uart1, "error: %d\r\n", error);
+
+    if (abs(error) < thresh) {
+      stopCount++;
+      if (stopCount >= threshCount)
+        break;
+    }
+
+    lastError = error;
+    delay(20);
+  }
+
+  driveRaw(speed, speed, -speed, -speed); // Slam the breaks
+  delay(10);
+  driveRaw(0, 0, 0, 0);
+}
+
+// Drive an amount of ticks as straight as possible
+// Test status:
+//  completely untested
+void pLoopDriveStraightRaw(int tickDiff, bool correctBackwards, bool correctDir,
+    double pSpeed, double dSpeed, double pCorrect, int thresh,
+    int threshCount) {
+  int leftInit = encoderGet(getEncoderBL());  // Initial left value
+  int rightInit = encoderGet(getEncoderBR()); // Initial right value
+  int errorL;                                 // Error in the left side
+  int errorR;                                 // Error in the right side
+  int error;                                  // Averaged Error
+  int lastError = 0;                 // The Error from the Previous Iteration
+  int speed;                         // Calculated speed to drive at
+  int stopCount = 0;                 // Amount of time spent within threshold
+  int initGyro = gyroGet(getGyro()); // Initial value of the gyro
+  int speedModif = 0;                // How much to modify the speed for angle
+  int angleOffset; // How much the robot is curving in its motion
+
+  while (true) {
+    errorL = tickDiff - (encoderGet(getEncoderBL()) - leftInit);
+    errorR = tickDiff - (encoderGet(getEncoderBR()) - rightInit);
+    error =  round((errorL + errorR) / 2); // errorL;
+    speed = error * pSpeed + ((error - lastError) * dSpeed);
+    speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
+    speed = (abs(speed) < 25) ? (speed < 0) ? -25 : 25 : speed;
+
+    angleOffset = gyroGet(getGyro()) - initGyro;
+    speedModif = (correctDir) ? angleOffset * pCorrect : 0;
+
+    driveRaw(speed + speedModif, speed + speedModif, speed - speedModif,
+             speed - speedModif);
+
+    if (abs(error) < thresh) {
+      stopCount++;
+      if (stopCount >= threshCount || !correctBackwards)
+        break;
+    }
+
+    lastError = error;
+    delay(20);
+  }
+
+  driveRaw(-10, -10, -10, -10); // Slam the breaks
+  delay(10);
+  driveRaw(0, 0, 0, 0);
+}

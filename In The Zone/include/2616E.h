@@ -248,6 +248,10 @@ extern "C" {
 
   bool sameSign(int one, int two);
 
+  double inchesToTicks(double inches, double scale);
+
+  double feetToTicks(double feet, double scale);
+
 //------------------------------------------------------------------------------
 
   /*
@@ -339,6 +343,18 @@ extern "C" {
 
   void rpmTestManual(int motorPort, int speed, int speedUpTime);
 
+//------------------------------------------------------------------------------
+
+  /*
+  ** autondrive.c
+  */
+
+  void pLoopDriveStraightRaw(int tickDiff, bool correctBackwards, bool correctDir,
+      double pSpeed, double dSpeed, double pCorrect, int thresh,
+      int threshCount);
+
+  void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
+      int threshCount);
 #ifdef __cplusplus // end method if
 }
 #endif

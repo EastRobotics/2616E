@@ -281,6 +281,10 @@ void manipulatorControl(void *ignored);
 
 void blueListen(char *message);
 
+void pLoopTurnPoint(int angleTarget);
+
+void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir);
+
 // End C++ export structure
 #ifdef __cplusplus
 }
