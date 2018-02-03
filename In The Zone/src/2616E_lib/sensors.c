@@ -130,3 +130,7 @@ double inchesToTicks(double inches, double scale) {
 double feetToTicks(double feet, double scale) {
   return inchesToTicks(feet*12.0, scale);
 }
+
+double feetToMM(double feet) {
+  return feet*12*25.4;
+}

@@ -254,6 +254,8 @@ extern "C" {
 
   double feetToTicks(double feet, double scale);
 
+  double feetToMM(double feet);
+
 //------------------------------------------------------------------------------
 
   /*
@@ -318,6 +320,8 @@ extern "C" {
   void setOdomPosX(int x);
 
   void setOdomPosY(int y);
+
+  void setOdomPos(int x, int y, int theta);
 
 //------------------------------------------------------------------------------
 

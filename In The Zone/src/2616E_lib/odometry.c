@@ -22,6 +22,10 @@ void setOdomPosX(int x) { posX = x; }
 
 void setOdomPosY(int y) { posY = y; }
 
+void setOdomPos(int x, int y, int theta) {
+
+}
+
 void odomReset() {
   posX = 0;
   posY = 0;
