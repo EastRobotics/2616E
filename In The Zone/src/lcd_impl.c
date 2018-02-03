@@ -43,7 +43,7 @@ void implUpdateLCD(bool userCaused, int page) {
   } break;
   // [Page 3] Example page -----------------------------------------------------
   case 3: {
-    lcdPrintTitle("Page3"); // Print auton name
+    lcdPrintError("Dist",encoderGet(getEncoderBL()),1000);
   } break;
   // [Page ?] Unknown page -----------------------------------------------------
   default:

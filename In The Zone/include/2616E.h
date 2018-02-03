@@ -218,6 +218,8 @@ extern "C" {
 
   void lcdSetUpdater(updateLCDFunction);
 
+  void lcdPrintError(const char * title, double current, double target);
+
 //------------------------------------------------------------------------------
 
   /*

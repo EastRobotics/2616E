@@ -1,5 +1,6 @@
 #include "main.h"
 #include "string.h"
+#include "math.h"
 
 // TODO: Add back in hold time detection
 // TODO: Rewrite to be much cleaner and easier to use
@@ -206,6 +207,22 @@ void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
 
   // Put filler text til done
   lcdSetText(uart2, 1, "LCD Init Done");
+}
+
+void lcdPrintError(const char * title, double current, double target) {
+  lcdClear(uart2);
+  static char temp[16]; // Create buffer for following line
+  sprintf(temp, "%s%c %f", title, 0xF6, target-current); // Set up auton name
+  lcdPrintCentered(temp, 1);
+  // Okay yeah this is messy. I don't want to mess with appending in c.
+  int num = floor(((current/target)*15.0)+0.5);
+  char output[16];
+  for (int i = 0; i < num; i++)
+    output[i] = ' ';
+  for (int i = 0; i < 15-num; i++)
+    output[i+num] = ' ';
+  output[15] = ((num == 15) ? 'X' : 'O');
+  lcdPrint(uart2, 2, output);
 }
 
 void lcdSetUpdater(updateLCDFunction _lcdUpdatePage) {
