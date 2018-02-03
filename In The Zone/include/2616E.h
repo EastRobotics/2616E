@@ -321,7 +321,7 @@ extern "C" {
 
   void setOdomPosY(int y);
 
-  void setOdomPos(int x, int y, int theta);
+  void setOdomPos(int x, int y, float theta);
 
 //------------------------------------------------------------------------------
 

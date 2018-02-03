@@ -12,9 +12,9 @@
 // #define P_LOOP_GYRO_CORRECTION_ANGLE 2
 
 void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir) {
-  pLoopDriveStraightRaw(tickDiff, correctBackwards, correctDir,
-      KP_DRIVE, KD_DRIVE, KP_GYRO_CORRECT, P_LOOP_DRIVE_THRESHOLD,
-      P_LOOP_STOP_COUNT);
+  pLoopDriveStraightRaw(tickDiff, correctBackwards, correctDir, KP_DRIVE,
+                        KD_DRIVE, KP_GYRO_CORRECT, P_LOOP_DRIVE_THRESHOLD,
+                        P_LOOP_STOP_COUNT);
 }
 
 #define KP_DRIVE_TURN 0.80
@@ -24,14 +24,20 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir) {
 
 void pLoopTurnPoint(int angleTarget) {
   pLoopTurnPointRaw(angleTarget, KP_DRIVE_TURN, KD_DRIVE_TURN,
-    P_LOOP_DRIVE_TURN_THRESHOLD, P_LOOP_TURN_STOP_COUNT);
+                    P_LOOP_DRIVE_TURN_THRESHOLD, P_LOOP_TURN_STOP_COUNT);
 }
 
 void autoDriveToPoint(int x, int y, bool driveCorrectBackwards,
-  bool driveCorrectDir) {
-    autoDriveToPointRaw(x, y, driveCorrectBackwards,
-      driveCorrectDir, KP_DRIVE, KD_DRIVE,
-       KP_GYRO_CORRECT, P_LOOP_DRIVE_THRESHOLD, P_LOOP_STOP_COUNT,
-       KP_DRIVE_TURN, KD_DRIVE_TURN, P_LOOP_DRIVE_TURN_THRESHOLD,
-       P_LOOP_TURN_STOP_COUNT);
-   }
+                      bool driveCorrectDir) {
+  autoDriveToPointRaw(x, y, driveCorrectBackwards, driveCorrectDir, KP_DRIVE,
+                      KD_DRIVE, KP_GYRO_CORRECT, P_LOOP_DRIVE_THRESHOLD,
+                      P_LOOP_STOP_COUNT, KP_DRIVE_TURN, KD_DRIVE_TURN,
+                      P_LOOP_DRIVE_TURN_THRESHOLD, P_LOOP_TURN_STOP_COUNT);
+}
+
+void odomDriveForward(int millimeters, bool driveCorrectBackwards,
+                      bool driveCorrectDir) {}
+
+void odomTurn(float degrees) {}
+
+void odomTurnSB(float degrees) {}

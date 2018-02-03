@@ -11,6 +11,7 @@ float turnScale = 0;
 float posX = 0;
 float posY = 0;
 float posTheta = 0;
+float startingTheta = 0;
 
 int getOdomPosX() { return posX; }
 
@@ -22,8 +23,14 @@ void setOdomPosX(int x) { posX = x; }
 
 void setOdomPosY(int y) { posY = y; }
 
-void setOdomPos(int x, int y, int theta) {
+void setOdomPosTheta(float theta) {
+  startingTheta = theta - gyroGet(getGyro());
+}
 
+void setOdomPos(int x, int y, float theta) {
+  setOdomPosX(x);
+  setOdomPosY(y);
+  setOdomPosTheta(theta);
 }
 
 void odomReset() {
@@ -82,7 +89,7 @@ void trackRobotPosition(void *param) {
     // if ((rightMM-leftMM) != 0) {
     //  posTheta += (rightMM - leftMM) / turnScale; // May be broken
     //}
-    posTheta = gyroGet(getGyro());
+    posTheta = startingTheta + gyroGet(getGyro());
     // printf("posTheta: %f\n", posTheta);
 
     // Wrap theta
@@ -95,8 +102,14 @@ void trackRobotPosition(void *param) {
     // Do the odom math
     // printf("xAdd: %f\n", mm * cos(posThetaRad));
     // printf("yAdd: %f\n", mm * sin(posThetaRad));
-    posX -= mm * sin(posThetaRad);
-    posY += mm * cos(posThetaRad);
+
+    // WHAT WE HAD
+    // posX -= mm * sin(posThetaRad);
+    // posY += mm * cos(posThetaRad);
+
+    // WHAT BCI HAS
+    posX += mm * cos(posThetaRad);
+    posY += mm * sin(posThetaRad);
 
     // print("----------------------------------------\n");
 

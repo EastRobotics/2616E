@@ -281,12 +281,24 @@ void manipulatorControl(void *ignored);
 
 void blueListen(char *message);
 
+// ---------------------------------------------------------------------------
+
+/*
+** Auton Drive Implementations (autondrive_impl.c)
+*/
+
 void pLoopTurnPoint(int angleTarget);
 
 void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir);
 
 void autoDriveToPoint(int x, int y, bool driveCorrectBackwards,
   bool driveCorrectDir);
+
+void odomDriveForward(int millimeters, bool driveCorrectBackwards, bool driveCorrectDir);
+
+void odomTurn(float degrees);
+
+void odomTurnSB(float degrees);
 
 // End C++ export structure
 #ifdef __cplusplus
