@@ -13,7 +13,7 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
     int threshCount) {
   int error;         // error in current position
   int lastError = 0; // error from last iteration of the loop
-  int speed;         // speed for the motors to run at
+  int speed = 0;         // speed for the motors to run at
   int stopCount = 0; // Amount of time spent within threshold
   int iterations = 0;
   while (iterations++ < 263) {

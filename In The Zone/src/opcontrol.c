@@ -55,47 +55,47 @@ void swapControlState() {
 
 // Manual control of the robot
 void manualControl() {
-  // if (joystickGetDigital(1, 8, JOY_UP)) {
-  //   bprint(1, "MOVING FOUR BAR");
-  //   motorSet(MOTOR_FOUR_BAR,
-  //            ((digitalRead(DIGITAL_LIM_CLAW))
-  //                 ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127)
-  //                 : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -10)));
-  //   fourBarUp = true;
-  //   setShouldHoldIntake(false);
-  //   if (intakeTaskRunning) {
-  //     taskSuspend(intakeCont);
-  //     intakeTaskRunning = false;
-  //   }
-  // } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-  //   bprint(1, "MOVING FOUR BAR - 2");
-  //   motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 :
-  //   127);
-  //   fourBarUp = false;
-  //   setShouldHoldIntake(false);
-  //   if (intakeTaskRunning) {
-  //     taskSuspend(intakeCont);
-  //     intakeTaskRunning = false;
-  //   }
-  // } else {
-  //   if (!intakeTaskRunning) {
-  //     motorSet(MOTOR_FOUR_BAR, (!fourBarUp) ? 10 : 0);
-  //   }
-  // }
+  if (joystickGetDigital(1, 8, JOY_UP)) {
+    bprint(1, "MOVING FOUR BAR");
+    motorSet(MOTOR_FOUR_BAR,
+             ((digitalRead(DIGITAL_LIM_CLAW))
+                  ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127)
+                  : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -10)));
+    fourBarUp = true;
+    setShouldHoldIntake(false);
+    if (intakeTaskRunning) {
+      taskSuspend(intakeCont);
+      intakeTaskRunning = false;
+    }
+  } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
+    bprint(1, "MOVING FOUR BAR - 2");
+    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 :
+    127);
+    fourBarUp = false;
+    setShouldHoldIntake(false);
+    if (intakeTaskRunning) {
+      taskSuspend(intakeCont);
+      intakeTaskRunning = false;
+    }
+  } else {
+    if (!intakeTaskRunning) {
+      motorSet(MOTOR_FOUR_BAR, (!fourBarUp) ? 10 : 0);
+    }
+  }
 
-  // // Test other things
-  // if (joystickGetDigital(1, 7, JOY_UP)) {
-  //   setLiftSpeed(127);
-  //   liftLastDir = true;
-  // } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
-  //   //  && (encoderGet(getEncoderLift()) > 0)
-  //   int liftSpeed = -127; // en coderGet(getEncoderLift()) * 0.2;
-  //   setLiftSpeedRaw(80, -127);
-  //   liftLastDir = false;
-  // } else {
-  //   int liftSpeed = (liftLastDir) ? 15 : 0;
-  //   setLiftSpeedRaw(-liftSpeed, liftSpeed);
-  // }
+  // Test other things
+  if (joystickGetDigital(1, 7, JOY_UP)) {
+    setLiftSpeed(127);
+    liftLastDir = true;
+  } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
+    //  && (encoderGet(getEncoderLift()) > 0)
+    int liftSpeed = -127; // en coderGet(getEncoderLift()) * 0.2;
+    setLiftSpeedRaw(80, -127);
+    liftLastDir = false;
+  } else {
+    int liftSpeed = (liftLastDir) ? 15 : 0;
+    setLiftSpeedRaw(-liftSpeed, liftSpeed);
+  }
   //
   //   if (joystickGetDigital(1, 8, JOY_LEFT)) {
   //     setIntakeTarget(INTAKE_POS_AVOID);
@@ -212,20 +212,20 @@ void operatorControl() {
       automaticControl();
     }
 
-    // if (isClawReady()) {
-    //   if (!(joystickGetDigital(1, 6, JOY_UP) &&
-    //         joystickGetDigital(1, 6, JOY_DOWN))) {
-    //     if (joystickGetDigital(1, 6, JOY_UP)) {
-    //       clawClosed = true;
-    //       motorSet(MOTOR_CLAW, -127);
-    //     } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
-    //       clawClosed = false;
-    //       motorSet(MOTOR_CLAW, 127);
-    //     } else {
-    //       motorSet(MOTOR_CLAW, (clawClosed) ? -25 : 0);
-    //     }
-    //   }
-    // }
+    if (isClawReady()) {
+      if (!(joystickGetDigital(1, 6, JOY_UP) &&
+            joystickGetDigital(1, 6, JOY_DOWN))) {
+        if (joystickGetDigital(1, 6, JOY_UP)) {
+          clawClosed = true;
+          motorSet(MOTOR_CLAW, -127);
+        } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
+          clawClosed = false;
+          motorSet(MOTOR_CLAW, 127);
+        } else {
+          motorSet(MOTOR_CLAW, (clawClosed) ? -25 : 0);
+        }
+      }
+    }
 
     if (joystickGetDigital(1, 5, JOY_UP)) {
       motorSet(MOTOR_MOGO, 127);
