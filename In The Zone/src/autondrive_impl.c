@@ -36,8 +36,14 @@ void autoDriveToPoint(int x, int y, bool driveCorrectBackwards,
 }
 
 void odomDriveForward(int millimeters, bool driveCorrectBackwards,
-                      bool driveCorrectDir) {}
+                      bool driveCorrectDir) {
+  autoDriveToPoint(getOdomPosX() + (millimeters * cos(getOdomTheta())),
+                   getOdomPosY() + (millimeters * sin(getOdomTheta())),
+                   driveCorrectBackwards, driveCorrectDir);
+}
 
-void odomTurn(float degrees) {}
+void odomTurn(int degrees) { pLoopTurnPoint(getOdomTheta() + degrees); }
 
-void odomTurnSB(float degrees) {}
+void odomTurnSB(float degrees) {
+  pLoopTurnPoint(getOdomTheta() + (degrees * (getAutonPosition() ? 1 : -1)));
+}

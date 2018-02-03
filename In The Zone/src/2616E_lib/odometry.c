@@ -10,8 +10,8 @@ float scale = 0;
 float turnScale = 0;
 float posX = 0;
 float posY = 0;
-float posTheta = 0;
-float startingTheta = 0;
+int posTheta = 0;
+int startingTheta = 0;
 
 int getOdomPosX() { return posX; }
 
@@ -23,11 +23,9 @@ void setOdomPosX(int x) { posX = x; }
 
 void setOdomPosY(int y) { posY = y; }
 
-void setOdomPosTheta(float theta) {
-  startingTheta = theta - gyroGet(getGyro());
-}
+void setOdomPosTheta(int theta) { startingTheta = theta - gyroGet(getGyro()); }
 
-void setOdomPos(int x, int y, float theta) {
+void setOdomPos(int x, int y, int theta) {
   setOdomPosX(x);
   setOdomPosY(y);
   setOdomPosTheta(theta);
@@ -98,7 +96,7 @@ void trackRobotPosition(void *param) {
     // if (posTheta <= -180)
     //  posTheta += 360;
 
-    float posThetaRad = posTheta * PI / 180;
+    float posThetaRad = posTheta * PI / 180.0;
     // Do the odom math
     // printf("xAdd: %f\n", mm * cos(posThetaRad));
     // printf("yAdd: %f\n", mm * sin(posThetaRad));
