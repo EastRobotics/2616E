@@ -291,14 +291,13 @@ void pLoopTurnPoint(int angleTarget);
 
 void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir);
 
-void autoDriveToPoint(int x, int y, bool driveCorrectBackwards,
-  bool driveCorrectDir);
+void autoDriveToPoint(int x, int y, bool driveCorrectBackwards, bool driveCorrectDir);
 
 void odomDriveForward(int millimeters, bool driveCorrectBackwards, bool driveCorrectDir);
 
-void odomTurn(float degrees);
+void odomTurn(int degrees);
 
-void odomTurnSB(float degrees);
+void odomTurnSB(int degrees);
 
 // End C++ export structure
 #ifdef __cplusplus

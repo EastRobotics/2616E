@@ -69,8 +69,7 @@ void manualControl() {
     }
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
     bprint(1, "MOVING FOUR BAR - 2");
-    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 :
-    127);
+    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127);
     fourBarUp = false;
     setShouldHoldIntake(false);
     if (intakeTaskRunning) {
@@ -89,8 +88,8 @@ void manualControl() {
     liftLastDir = true;
   } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
     //  && (encoderGet(getEncoderLift()) > 0)
-    int liftSpeed = -127; // en coderGet(getEncoderLift()) * 0.2;
-    setLiftSpeedRaw(80, -127);
+    int liftSpeed = -127; // encoderGet(getEncoderLift()) * 0.2;
+    setLiftSpeedRaw(127, -127);
     liftLastDir = false;
   } else {
     int liftSpeed = (liftLastDir) ? 15 : 0;

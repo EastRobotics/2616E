@@ -58,10 +58,10 @@ extern "C" {
   #define DIGITAL_ENC_LIFT_BOT 5    // Encoder lift  bottom  left,   digital 3
   #define DIGITAL_LIM_CLAW     6    // Encoder limit claw,           digital 4
   // Drive
-  #define DIGITAL_ENC_DRIVE_BR_TOP 3  // Encoder drive top    right, digital 5
-  #define DIGITAL_ENC_DRIVE_BR_BOT 4  // Encoder drive bottom right, digital 6
-  #define DIGITAL_ENC_DRIVE_BL_TOP 7 // Encoder drive top      left, digital 7
-  #define DIGITAL_ENC_DRIVE_BL_BOT 8 // Encoder drive bottom   left, digital 8
+  #define DIGITAL_ENC_DRIVE_BR_TOP 7  // Encoder drive top    right, digital 5
+  #define DIGITAL_ENC_DRIVE_BR_BOT 8  // Encoder drive bottom right, digital 6
+  #define DIGITAL_ENC_DRIVE_BL_TOP 3 // Encoder drive top      left, digital 7
+  #define DIGITAL_ENC_DRIVE_BL_BOT 4 // Encoder drive bottom   left, digital 8
   // #define DO_NOT_USE 10
 
 
