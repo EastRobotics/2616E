@@ -25,6 +25,17 @@ void blueListen(char *message) {
     setRunAuton(true);
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
     bprint(1, "OMG it has too much give! >:(\r\n");
+  } else if (strcmp(message, "checkauton\r\n") == 0) {
+    const char *autonSide;
+    if (getAutonPosition()) {
+      autonSide = "Right";
+    } else {
+      autonSide = "Left";
+    }
+    bprintf(1, "Auton #%d\r\nAuton Side: ", getAutonMode());
+    bprint(1, autonSide);
+    bprint(1, "\r\n");
+
   } else // Unknown command
     bprintf(1, "I don't know what \"%s\" means :(", message);
 }

@@ -74,7 +74,7 @@ void initialize() {
 
   // Set up the LCD and start it
   print("[Init] Setting up the LCD\n");
-  lcdInitMenu(1, 3, 1); // Min 1, max 3, home 1
+  lcdInitMenu(1, 4, 1); // Min 1, max 3, home 1
   lcdSetUpdater(implUpdateLCD);
   lcdSetMenuBack(implMenuBack);
   lcdSetMenuNext(implMenuNext);
@@ -90,8 +90,7 @@ void initialize() {
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
   lcdSetText(uart2, 1, "Init auton...");
-  autonInit(6); // 3 auton modes
-  setAutonMode(2);
+  autonInit(8); // 7 auton modes
 
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");

@@ -121,16 +121,14 @@ double distance(double x1, double x2, double y1, double y2) {
 // Scale is ratio of encoder to wheel (1 wheel rotation gives 2 encoder
 // rotations, scale is 2)
 double inchesToTicks(double inches, double scale) {
-  double conversion = (4 * acos(-1.0)) / (360*scale);
-  return inches / conversion;
+  double conversion = (4 * acos(-1.0)) / (360 * scale);
+  return inches * conversion;
 }
 
 // Scale is ratio of encoder to wheel (1 wheel rotation gives 2 encoder
 // rotations, scale is 2)
 double feetToTicks(double feet, double scale) {
-  return inchesToTicks(feet*12.0, scale);
+  return inchesToTicks(feet * 12.0, scale);
 }
 
-double feetToMM(double feet) {
-  return feet*12*25.4;
-}
+double feetToMM(double feet) { return feet * 12 * 25.4; }

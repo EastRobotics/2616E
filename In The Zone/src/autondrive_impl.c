@@ -47,3 +47,20 @@ void odomTurn(int degrees) { pLoopTurnPoint(getOdomTheta() + degrees); }
 void odomTurnSB(int degrees) {
   pLoopTurnPoint(getOdomTheta() + (degrees * (getAutonPosition() ? 1 : -1)));
 }
+
+void driveStraightRaw(int speed, int timeToDrive) {
+  int initGyro = gyroGet(getGyro());
+  int angleOffset = 0;
+  int speedModif = 0;
+  int timeSpent = 0;
+  while (timeSpent <= timeToDrive) {
+    angleOffset = gyroGet(getGyro()) - initGyro;
+    speedModif = angleOffset * KP_GYRO_CORRECT;
+    driveRaw((speed + speedModif), (speed + speedModif), (speed - speedModif),
+             (speed - speedModif));
+    delay(20);
+    timeSpent += 50;
+    delay(30);
+  }
+  driveRaw(0, 0, 0, 0);
+}

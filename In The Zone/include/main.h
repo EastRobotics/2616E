@@ -299,6 +299,8 @@ void odomTurn(int degrees);
 
 void odomTurnSB(int degrees);
 
+void driveStraightRaw(int speed, int timeToDrive);
+
 // End C++ export structure
 #ifdef __cplusplus
 }

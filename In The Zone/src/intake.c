@@ -212,8 +212,7 @@ void intakeControl(void *ignored) {
   while (true) {
     // TODO Handle upper and lower bounds
     // If the error is great enough, move intake towards target
-    // if (!isIntakeReady()) {
-    if (true) {
+    if (!isIntakeReady()) {
       bprintf(1, "error: %d\r\n", getIntakePos());
       // If intake is higher than target, move down, otherwise up
       // NOTE: This is opposite of what it should be

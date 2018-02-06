@@ -4,7 +4,7 @@
 #define IN_TO_MM (25.4)
 #define MM_TO_IN (1 / 25.4)
 #define PI acos(-1.0)
-#define TICKS_PER_REV 360
+#define TICKS_PER_REV 360 * 2
 
 float scale = 0;
 float turnScale = 0;

@@ -206,8 +206,7 @@ void liftControl(void *ignored) {
     // TODO Handle upper and lower bounds
     // If the error is great enough, move lift towards target
     // also if it can overshoot, do not change direction just stop
-    // if (!isLiftReady()) {
-    if (true) {
+    if (!isLiftReady()) {
       // If lift is higher than target, move down, otherwise up
       bool correctionDirection =
           (getLiftPos() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;

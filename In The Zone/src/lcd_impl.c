@@ -26,6 +26,12 @@ void implUpdateLCD(bool userCaused, int page) {
     case 6: // Mode 3 selected
       autonName = "OdmTringle";
       break;
+    case 7:
+      autonName = "Test10pt";
+      break;
+    case 8:
+      autonName = "3815C";
+      break;
     default: { // Unknown mode
       char temp[17];
       snprintf(temp, 17, "Unknown %d", page);
@@ -43,7 +49,17 @@ void implUpdateLCD(bool userCaused, int page) {
   } break;
   // [Page 3] Example page -----------------------------------------------------
   case 3: {
-    lcdPrintError("Dist",encoderGet(getEncoderBL()),1000);
+    lcdPrintError("Dist", encoderGet(getEncoderBL()), 1000);
+  } break;
+  case 4: {
+    lcdPrintTitle("Auton Pos");
+    const char *autonSide;
+    if (getAutonPosition()) {
+      autonSide = "<<Right>>";
+    } else {
+      autonSide = "<<Left>>";
+    }
+    lcdPrintCentered(autonSide, 2);
   } break;
   // [Page ?] Unknown page -----------------------------------------------------
   default:
@@ -63,6 +79,9 @@ void implMenuNext(int page) {
     else
       setAutonMode(nextMode);
   } break; // ------------------------------------------------------------------
+  case 4: {
+    setAutonPosition(!getAutonPosition());
+  } break; // ------------------------------------------------------------------
   }
   implUpdateLCD(true, page);
   lcdResetAutoRefresh();
@@ -78,6 +97,9 @@ void implMenuBack(int page) {
       setAutonMode(getAutonModeMax());
     else
       setAutonMode(nextMode);
+  } break; // ------------------------------------------------------------------
+  case 4: {
+    setAutonPosition(!getAutonPosition());
   } break; // ------------------------------------------------------------------
   }
   implUpdateLCD(true, page);

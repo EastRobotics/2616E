@@ -167,7 +167,7 @@ void operatorControl() {
   while (true) { // true cooler than 1
 
     if (runAuton) {
-      setAutonMode(2);
+      // setAutonMode(2);
 
       // if (!isManualControl) {
       //   taskSuspend(intakeCont);

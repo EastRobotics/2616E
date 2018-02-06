@@ -3,8 +3,8 @@
 
 unsigned char maxAutonMode;
 unsigned char autonMode = MIN_AUTON_MODE;
-bool position = false; // False for left, true for right
-bool color = false;    // False for red, true for blue
+bool position = true; // False for left, true for right
+bool color = false;   // False for red, true for blue
 
 void autonInit(unsigned char _maxAutonMode) { maxAutonMode = _maxAutonMode; }
 

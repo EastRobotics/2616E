@@ -1,7 +1,6 @@
 #include "main.h"
 #include "math.h"
 
-
 // KEEP IN MIND, AFTER AUTON, IF WE'RE PLUGGED IN SOME SENSORS WILL SHUT DOWN
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
@@ -62,15 +61,17 @@ void autonomous() {
     break;
 
   case 3:
+    // Lift
+    setLiftSpeed(127);
+    delay(100);
+    setLiftSpeed(0);
     // Mogo Out
     motorSet(MOTOR_MOGO, 127);
     delay(1000);
     motorSet(MOTOR_MOGO, 0);
     // Drive forward
     // pLoopDriveStraight(imperialToTick(55.0), false, true);
-    driveRaw(127, 127, 127, 127);
-    delay(3300);
-    driveRaw(0, 0, 0, 0);
+    driveStraightRaw(127, 2000);
     // Take in mogo
     motorSet(MOTOR_MOGO, -127);
     delay(1000);
@@ -78,25 +79,37 @@ void autonomous() {
     // Realign
     pLoopTurnPoint(0);
     // Back up
-    driveRaw(-127, -127, -127, -127);
-    delay(2300);
-    driveRaw(0, 0, 0, 0);
+    driveStraightRaw(-127, 1500);
     // Rest
-    delay(500);
+    delay(250);
     // Turn
-    pLoopTurnPoint(180);
+    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1));
+    // Approach Zone
+    driveRaw(80, 80, 80, 80);
+    delay(250);
+    driveRaw(0, 0, 0, 0);
     // Mogo Out
     motorSet(MOTOR_MOGO, 127);
     delay(1000);
     motorSet(MOTOR_MOGO, 0);
     // Back up
-    driveRaw(-127, -127, -127, -127);
-    delay(2000);
+    driveRaw(-80, -80, -80, -80);
+    delay(100);
     driveRaw(0, 0, 0, 0);
+    // wait a sec
+    delay(500);
+    // Ram the goal in just in case
+    driveRaw(127, 127, 127, 127);
+    delay(200);
+    driveRaw(0, 0, 0, 0);
+    // wait
+    delay(50);
+    // Back up
+    driveStraightRaw(-127, 2000);
     break;
 
   case 4:
-    pLoopDriveStraight(inchesToTicks(24, 1), true, true);
+    pLoopDriveStraight(inchesToTicks(24, 2), true, true);
     // Will be more likely used, however above should be tuned first
     // pLoopDriveStraight(inchesToTicks(24, 1), false, true);
     break;
@@ -107,17 +120,73 @@ void autonomous() {
 
   case 6:
     // Drive to 10,10, aka 6",6"
-    autoDriveToPoint(152.4,152.4,false,true);
+    autoDriveToPoint(152.4, 152.4, false, true);
     // Drive "forward" 2 feet
-    autoDriveToPoint(152.4,152.4+609.6,false,true);
+    autoDriveToPoint(152.4, 152.4 + 609.6, false, true);
     // Drive to 1.5 feet right from 6"6" start
-    autoDriveToPoint(152.4+457.2,152.4,false,true);
+    autoDriveToPoint(152.4 + 457.2, 152.4, false, true);
     // Drive back to 6"6" start
-    autoDriveToPoint(152.4,152.4,false,true);
+    autoDriveToPoint(152.4, 152.4, false, true);
     // Turn back to original angle
     pLoopTurnPoint(0);
     break;
 
+  case 7:
+    setIntakeTarget(1000); // FIX Extend Four Bar
+    waitForIntake();
+    setLiftTarget(1000); // FIX Raise Lift
+    waitForLift();
+    // CHECK Extend the Mogo
+    motorSet(MOTOR_MOGO, 127);
+    delay(750);
+    motorSet(MOTOR_MOGO, 0);
+    odomDriveForward(1500, false, true); // Ram the Mogo
+    // CHECK Intake Mogo
+    motorSet(MOTOR_MOGO, -127);
+    delay(750);
+    motorSet(MOTOR_MOGO, 0);
+    odomDriveForward(-1450, false, true); // Back up
+    pLoopTurnPoint(-200);                 // Turn to Zones
+    // CHECK Release Mogo
+    motorSet(MOTOR_MOGO, -127);
+    delay(750);
+    motorSet(MOTOR_MOGO, 0);
+    break;
+  case 8:
+    // Lift
+    setLiftSpeed(127);
+    delay(100);
+    setLiftSpeed(0);
+    // Mogo Out
+    motorSet(MOTOR_MOGO, 127);
+    delay(1000);
+    motorSet(MOTOR_MOGO, 0);
+    // Drive forward
+    // pLoopDriveStraight(imperialToTick(55.0), false, true);
+    driveStraightRaw(127, 2000);
+    // Take in mogo
+    motorSet(MOTOR_MOGO, -127);
+    delay(1000);
+    motorSet(MOTOR_MOGO, 0);
+    // Realign
+    pLoopTurnPoint(0);
+    // Back up
+    driveStraightRaw(-127, 750);
+    // Rest
+    delay(250);
+    // Turn
+    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1));
+    // Wait for 3815C
+    delay(2500);
+    // Drive in a bit
+    driveStraightRaw(60, 500);
+    // Mogo Out
+    motorSet(MOTOR_MOGO, 127);
+    delay(1000);
+    motorSet(MOTOR_MOGO, 0);
+    // Back up
+    driveStraightRaw(-127, 2000);
+    break;
   default:
     print("Ran auton that wasn't given a case!");
   }
