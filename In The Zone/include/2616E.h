@@ -366,6 +366,16 @@ extern "C" {
     bool driveCorrectDir, double drivePSpeed, double driveDSpeed,
     double drivePCorrect, int driveThresh, int driveThreshCount,  double turnP,
      double turnD, int turnThresh, int turnThreshCount);
+
+//------------------------------------------------------------------------------
+
+  /*
+  ** autoasync.c
+  */
+
+  typedef void (*asyncFunction)(void);
+
+
 #ifdef __cplusplus // end method if
 }
 #endif

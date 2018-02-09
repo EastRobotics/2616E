@@ -58,9 +58,8 @@ void driveStraightRaw(int speed, int timeToDrive) {
     speedModif = angleOffset * KP_GYRO_CORRECT;
     driveRaw((speed + speedModif), (speed + speedModif), (speed - speedModif),
              (speed - speedModif));
-    delay(20);
+    delay(50);
     timeSpent += 50;
-    delay(30);
   }
   driveRaw(0, 0, 0, 0);
 }

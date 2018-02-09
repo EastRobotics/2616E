@@ -148,6 +148,9 @@ void setLiftTargetSmart(int cones);
 // Gets the lift target
 int getLiftTarget();
 
+// Determines speed at which the lift should run to reach target value
+int pLoopDetermineLiftSpeed();
+
 // Task to handle the control of the lift
 void liftControl(void *ignored);
 
@@ -209,6 +212,9 @@ bool intakeIsAboveAccThresh(int value);
 
 // Whether or not the intake should hold
 void setShouldHoldIntake(bool shouldHold);
+
+// Specifies the speed at which the intake should run when approaching target with p loop
+int pLoopDetermineIntakeSpeed();
 
 // Sets claw to open or closed
 void setClawOpen(bool isOpen);

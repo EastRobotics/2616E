@@ -205,6 +205,21 @@ void waitForClaw() {
     delay(10);
 }
 
+int pLoopDetermineIntakeSpeed() {
+  // If intake is higher than target, move down, otherwise up
+  // NOTE: This is opposite of what it should be
+  bool correctionDirection =
+      (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
+  // Set intake speed to Kp * error * directionMultiplier
+  int speed = (correctionDirection ? INTAKE_TARGET_CORRECT_P_DOWN
+                                   : INTAKE_TARGET_CORRECT_P_UP) *
+              abs(getIntakeError());
+  speed =
+      (abs(speed) < INTAKE_MINIMUM_SPEED) ? INTAKE_MINIMUM_SPEED : speed;
+  speed *= (correctionDirection ? -1 : 1);
+  return speed;
+}
+
 //------------------------------------------------------------------------------
 
 // Task to handle the control of the intake
@@ -213,19 +228,8 @@ void intakeControl(void *ignored) {
     // TODO Handle upper and lower bounds
     // If the error is great enough, move intake towards target
     if (!isIntakeReady()) {
-      bprintf(1, "error: %d\r\n", getIntakePos());
-      // If intake is higher than target, move down, otherwise up
-      // NOTE: This is opposite of what it should be
-      bool correctionDirection =
-          (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
-      // Set intake speed to Kp * error * directionMultiplier
-      int speed = (correctionDirection ? INTAKE_TARGET_CORRECT_P_DOWN
-                                       : INTAKE_TARGET_CORRECT_P_UP) *
-                  abs(getIntakeError());
-      speed =
-          (abs(speed) < INTAKE_MINIMUM_SPEED) ? INTAKE_MINIMUM_SPEED : speed;
-      speed *= (correctionDirection ? -1 : 1);
-      setIntakeSpeed(speed);
+      // bprintf(1, "error: %d\r\n", getIntakePos());
+      setIntakeSpeed(pLoopDetermineIntakeSpeed());
       shouldHoldIntake = true;
     } else if (shouldHoldIntake) { // Otherwise let the intake be still
       // TODO Determine whether or not to use INTAKE_SPEED_HOLDING or

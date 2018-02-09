@@ -141,9 +141,9 @@ void setLiftSpeed(int speed) {
     setLiftSpeedRaw(0, 0);
     return;
   }*/
-  // TODO REMOVE!!!!!!!!!!!!!!
-  // setLiftSpeedRaw(-speed, speed);
-  // return;
+  
+  setLiftSpeedRaw(-speed, speed);
+  return;
 
   // TODO Check bounds
   bool direction = speed > 0;
@@ -198,6 +198,20 @@ bool isLiftOvershooting() {
 
 bool isLiftReady() { return isLiftAtTarget() || isLiftOvershooting(); }
 
+int pLoopDetermineLiftSpeed() {
+  // If lift is higher than target, move down, otherwise up
+  bool correctionDirection =
+      (getLiftPos() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;
+  int speed = (correctionDirection ? LIFT_TARGET_CORRECT_P_DOWN
+                                   : LIFT_TARGET_CORRECT_P_UP) *
+              abs(getLiftError());
+  speed = (speed > 127) ? 127 : speed;
+  speed = (speed < LIFT_SPEED_MIN) ? LIFT_SPEED_MIN : speed;
+  speed *= (correctionDirection ? -1 : 1);
+  // Set lift speed to Kp * error * directionMultiplier
+  return speed;
+}
+
 //------------------------------------------------------------------------------
 
 // Task to handle the control of the lift
@@ -207,17 +221,7 @@ void liftControl(void *ignored) {
     // If the error is great enough, move lift towards target
     // also if it can overshoot, do not change direction just stop
     if (!isLiftReady()) {
-      // If lift is higher than target, move down, otherwise up
-      bool correctionDirection =
-          (getLiftPos() - liftTarget) > 0 ? DIR_UP : DIR_DOWN;
-      int speed = (correctionDirection ? LIFT_TARGET_CORRECT_P_DOWN
-                                       : LIFT_TARGET_CORRECT_P_UP) *
-                  abs(getLiftError());
-      speed = (speed > 127) ? 127 : speed;
-      speed = (speed < LIFT_SPEED_MIN) ? LIFT_SPEED_MIN : speed;
-      speed *= (correctionDirection ? -1 : 1);
-      // Set lift speed to Kp * error * directionMultiplier
-      setLiftSpeed(speed);
+      setLiftSpeed(pLoopDetermineLiftSpeed());
     } else { // Otherwise let the lift be still
       // TODO Determine whether or not to use LIFT_SPEED_HOLDING or
       //    LIFT_SPEED_IDLE
