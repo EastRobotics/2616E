@@ -307,6 +307,32 @@ void odomTurnSB(int degrees);
 
 void driveStraightRaw(int speed, int timeToDrive);
 
+// ---------------------------------------------------------------------------
+
+/*
+** Auton Async Implementations (autonasync.c)
+*/
+
+void runMogoAsync(int speed, int runTime);
+
+void waitForMogoAsync();
+
+void pLoopDriveStraightAsync(int ticks, bool correctBackwards, bool correctDir);
+
+void waitForDriveStraight();
+
+void pLoopTurnPointAsync(int angle);
+
+void waitForTurnPoint();
+
+void runLiftAsync(int target, bool shouldOvershoot);
+
+void waitForLiftAsync();
+
+void runIntakeAsync(int target);
+
+void waitForIntakeAsync();
+
 // End C++ export structure
 #ifdef __cplusplus
 }
