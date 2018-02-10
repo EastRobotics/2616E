@@ -229,7 +229,7 @@ void operatorControl() {
     if (joystickGetDigital(1, 5, JOY_UP)) {
       motorSet(MOTOR_MOGO, 127);
     } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
-      motorSet(MOTOR_MOGO, -127);
+      motorSet(MOTOR_MOGO, -80);
     } else {
       motorSet(MOTOR_MOGO, 0);
     }
