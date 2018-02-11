@@ -7,6 +7,8 @@ int linSpeed(int speedUnlin) { return getLerpedSpeed(speedUnlin, 0, 0); }
 // Turn to a point based on gyroscopic target
 // Test status:
 //  Tested, works great.
+// TODO Add in breakout time parameter, because it is constant at 2 seconds
+// right now
 void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
                        int threshCount) {
   int error;         // error in current position
@@ -16,11 +18,11 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
   int iterations = 0;
   bprintf(1, "---\r\nang:%d\r\np:%f\r\nd:%f\r\nthresh%d\r\ncount:%d\r\n",
           angleTarget, p, d, thresh, threshCount);
-  while (iterations++ < 263) {
+  while (iterations++ < 75) { //  Was 263
     error = angleTarget - gyroGet(getGyro());
     speed = (error * p) + ((error - lastError) * d);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
-    speed = (abs(speed) < 30) ? (speed < 0) ? -25 : 25 : speed;
+    speed = (abs(speed) < 30) ? (speed < 0) ? -30 : 30 : speed;
     speed = (speed); // Linearize speed
 
     driveRaw(-speed, -speed, speed, speed);

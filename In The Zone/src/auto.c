@@ -153,10 +153,14 @@ void autonomous() {
     motorSet(MOTOR_MOGO, 0);
     break;
   case 8:
+    // Intake Cone
+    motorSet(MOTOR_CLAW, -127);
+    delay(200);
+    motorSet(MOTOR_CLAW, -25);
     // Lift
     setLiftSpeed(127);
-    delay(100);
-    setLiftSpeed(0);
+    delay(350);
+    setLiftSpeed(10);
     // Mogo Out
     motorSet(MOTOR_MOGO, 127);
     delay(1000);
@@ -168,24 +172,47 @@ void autonomous() {
     motorSet(MOTOR_MOGO, -127);
     delay(1000);
     motorSet(MOTOR_MOGO, 0);
+    // Lower Lift
+    setLiftSpeed(-80);
+    delay(350);
+    setLiftSpeed(10);
+    delay(250);
+    // Extake cone and relift lift
+    motorSet(MOTOR_CLAW, 127);
+    delay(150);
+    setLiftSpeed(80);
+    delay(350);
+    setLiftSpeed(10);
+    delay(200);
+    motorSet(MOTOR_CLAW, 0);
+    // Backup a smidge
+    driveStraightRaw(-127, 100);
     // Realign
     pLoopTurnPoint(0);
     // Back up
     driveStraightRaw(-127, 750);
     // Rest
-    delay(250);
+    delay(100);
     // Turn
     pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1));
     // Wait for 3815C
-    delay(2500);
+    delay(50);
     // Drive in a bit
-    driveStraightRaw(60, 500);
+    driveStraightRaw(80, 850);
     // Mogo Out
     motorSet(MOTOR_MOGO, 127);
     delay(1000);
     motorSet(MOTOR_MOGO, 0);
+    // KIND OF FIVE PT ZONE SPECIFIC
+    // Back up a little bit
+    driveStraightRaw(-127, 100);
+    delay(150);
+    // Push forward a good amount
+    driveStraightRaw(127, 400);
+    delay(150);
+    // KIND OF FIVE PT ZONE SPECIFIC
     // Back up
-    driveStraightRaw(-127, 2000);
+    driveStraightRaw(-127, 1500);
     break;
   default:
     print("Ran auton that wasn't given a case!");
