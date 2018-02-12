@@ -1,29 +1,14 @@
 #include "main.h"
 
-#define MANIPULATOR_AVOID_THRESH 15
-
 bool isManualControl = true; // Whether or not to use manual controls
 bool clawClosed = false;     // Whether or not the claw is closed
-bool fourBarUp = false;
+bool fourBarUp = false;      // Was the four bar last up or down
 bool runAuton = false;
-bool canAutoScore = false;
-bool driverSetLiftStart = false;
-bool eightRReleased = true;
 bool intakeTaskRunning = false;
 bool liftLastDir = false;   // true: up, false: down
-int rightBumperState = 0;   // 0: none, up: 1, down: 2
 TaskHandle intakeCont;      // intake control task
 TaskHandle liftCont;        // lift control task
 TaskHandle manipulatorCont; // manipulator control task
-
-// For autostacking preloading purposes
-int gameloadLiftVal = 100;
-int gameloadIntakeVal = 1600;
-bool gameloadStacking = false;
-bool hasDelayedLiftDrop =
-    false; // If the lift has already waited to drop in autostack
-bool hasDelayedConeDrop = false;
-int autostackingBreakoutTime = 0;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
@@ -34,19 +19,10 @@ void swapControlState() {
     taskResume(intakeCont);
     manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
                                  NULL, (TASK_PRIORITY_DEFAULT));
-    if (!driverSetLiftStart) {
-      encoderReset(getEncoderLift());
-      driverSetLiftStart = true;
-    }
   } else {
     taskSuspend(liftCont);
     taskSuspend(intakeCont);
     taskDelete(manipulatorCont);
-  }
-  if (!gameloadStacking) {
-    motorSet(MOTOR_LIFT_1, 0);
-    motorSet(MOTOR_LIFT_2, 0);
-    motorSet(MOTOR_FOUR_BAR, 0);
   }
   isManualControl = !isManualControl;
 }
@@ -54,7 +30,6 @@ void swapControlState() {
 // Manual control of the robot
 void manualControl() {
   if (joystickGetDigital(1, 8, JOY_UP)) {
-    bprint(1, "MOVING FOUR BAR");
     motorSet(MOTOR_FOUR_BAR,
              ((digitalRead(DIGITAL_LIM_CLAW))
                   ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127)
@@ -66,7 +41,6 @@ void manualControl() {
       intakeTaskRunning = false;
     }
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    bprint(1, "MOVING FOUR BAR - 2");
     motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127);
     fourBarUp = false;
     setShouldHoldIntake(false);
@@ -82,11 +56,9 @@ void manualControl() {
 
   // Test other things
   if (joystickGetDigital(1, 7, JOY_UP)) {
-    setLiftSpeed(127);
+    setLiftSpeedRaw(-127, 127);
     liftLastDir = true;
   } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
-    //  && (encoderGet(getEncoderLift()) > 0)
-    int liftSpeed = -127; // encoderGet(getEncoderLift()) * 0.2;
     setLiftSpeedRaw(127, -127);
     liftLastDir = false;
   } else {
@@ -108,18 +80,6 @@ void automaticControl() {
   ** Handle the main driver's controls
   */
 
-  if (joystickGetDigital(1, 8, JOY_UP)) {
-    setConeCount(0);
-  }
-
-  if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    if (eightRReleased) {
-      setConeCount(getConeCount() - 1);
-    }
-    eightRReleased = false;
-  } else {
-    eightRReleased = true;
-  }
 }
 
 // NOTE This is probably broken...
