@@ -248,33 +248,11 @@ int getConeCount();
 
 void setConeCount(int coneCount);
 
-void setInternalConeCount(int coneCount);
-
-void setExternalConeCount(int coneCount);
-
 // Whether or not the manipulator is still doing something
 bool isManipulatorReady();
 
 // Wait until the intake is at it's desired target
 void waitForManipulator();
-
-void setCurrentAction(int action);
-
-void manipulatorScore();
-
-void manipulatorIntake();
-
-void manipulatorIntakeWait();
-
-void manipulatorOffload();
-
-void setCurrGoalType(int goalType);
-
-void setIntakePos(int intakePos);
-
-int getCurrGoalType();
-
-void score();
 
 // Task to handle the control of the manipulator system
 void manipulatorControl(void *ignored);

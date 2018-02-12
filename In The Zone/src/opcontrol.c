@@ -8,9 +8,7 @@ bool fourBarUp = false;
 bool runAuton = false;
 bool canAutoScore = false;
 bool driverSetLiftStart = false;
-bool sevenDReleased = true;
 bool eightRReleased = true;
-bool eightDReleased = true;
 bool intakeTaskRunning = false;
 bool liftLastDir = false;   // true: up, false: down
 int rightBumperState = 0;   // 0: none, up: 1, down: 2
@@ -121,14 +119,6 @@ void automaticControl() {
     eightRReleased = false;
   } else {
     eightRReleased = true;
-  }
-
-  if (joystickGetDigital(1, 8, JOY_DOWN)) {
-    if (eightDReleased)
-      score();
-    eightDReleased = false;
-  } else {
-    eightDReleased = true;
   }
 }
 
