@@ -17,8 +17,8 @@ void swapControlState() {
     setIntakeTarget(getIntakePos());
     taskResume(liftCont);
     taskResume(intakeCont);
-    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-                                 NULL, (TASK_PRIORITY_DEFAULT));
+    // manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
+    //                              NULL, (TASK_PRIORITY_DEFAULT));
   } else {
     taskSuspend(liftCont);
     taskSuspend(intakeCont);
