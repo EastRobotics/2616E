@@ -295,21 +295,31 @@ void runMogoAsync(int speed, int runTime);
 
 void waitForMogoAsync();
 
+void runMogoSync(int speed, int runTime);
+
 void pLoopDriveStraightAsync(int ticks, bool correctBackwards, bool correctDir);
 
 void waitForDriveStraight();
+
+void pLoopDriveStraightSync(int ticks, bool correctBackwards, bool correctDir);
 
 void pLoopTurnPointAsync(int angle);
 
 void waitForTurnPoint();
 
+void pLoopTurnPointSync(int angle);
+
 void runLiftAsync(int target, bool shouldOvershoot);
 
 void waitForLiftAsync();
 
+void runLiftSync(int target, bool shouldOvershoot);
+
 void runIntakeAsync(int target);
 
 void waitForIntakeAsync();
+
+void runIntakeSync(int target);
 
 // End C++ export structure
 #ifdef __cplusplus

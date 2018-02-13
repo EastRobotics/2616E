@@ -9,10 +9,10 @@
 // Mogo Action
 
 int mogoSpeed = 127; // Speed to run the mogo at
-int mogoTime = 500; // Time to run the mogo for
+int mogoTime = 500;  // Time to run the mogo for
 int mogoDone = true;
 
-void mogoAction(void* param) {
+void mogoAction(void *param) {
   motorSet(MOTOR_MOGO, mogoSpeed);
   delay(mogoTime);
   motorSet(MOTOR_MOGO, 0);
@@ -27,8 +27,13 @@ void runMogoAsync(int speed, int runTime) {
 }
 
 void waitForMogoAsync() {
-  while(!mogoDone)
+  while (!mogoDone)
     delay(10);
+}
+
+void runMogoSync(int speed, int runTime) {
+  runMogoAsync(speed, runTime);
+  waitForMogoAsync();
 }
 
 // Drive Straight
@@ -38,22 +43,28 @@ bool drStCorrectBack = false;
 bool drStCorrectDir = true;
 bool drStDone = true;
 
-void driveStraight(void* param) {
+void driveStraight(void *param) {
   pLoopDriveStraight(drStTicks, drStCorrectBack, drStCorrectDir);
   drStDone = true;
 }
 
-void pLoopDriveStraightAsync(int ticks, bool correctBackwards, bool correctDir) {
+void pLoopDriveStraightAsync(int ticks, bool correctBackwards,
+                             bool correctDir) {
   drStTicks = ticks;
   drStCorrectBack = correctBackwards;
   drStCorrectDir = correctDir;
   drStDone = false;
-  taskCreate(driveStraight, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+  taskCreate(driveStraight, TASK_DEFAULT_STACK_SIZE, NULL,
+             TASK_PRIORITY_DEFAULT);
 }
 
 void waitForDriveStraight() {
-  while(!drStDone)
+  while (!drStDone)
     delay(10);
+}
+
+void pLoopDriveStraightSync(int ticks, bool correctBackwards, bool correctDir) {
+  pLoopDriveStraight(ticks, correctBackwards, correctDir);
 }
 
 // Point Turn
@@ -61,7 +72,7 @@ void waitForDriveStraight() {
 int turnAngle = 90;
 bool turnDone = true;
 
-void turnPoint(void* param) {
+void turnPoint(void *param) {
   pLoopTurnPoint(turnAngle);
   turnDone = true;
 }
@@ -73,16 +84,18 @@ void pLoopTurnPointAsync(int angle) {
 }
 
 void waitForTurnPoint() {
-  while(!turnDone)
+  while (!turnDone)
     delay(10);
 }
+
+void pLoopTurnPointSync(int angle) { pLoopTurnPoint(angle); }
 
 // Lift Action
 
 bool liftDone = true;
 
-void liftAction(void* param) {
-  while(!isLiftReady()) {
+void liftAction(void *param) {
+  while (!isLiftReady()) {
     setLiftSpeed(pLoopDetermineLiftSpeed());
     delay(10);
   }
@@ -97,16 +110,21 @@ void runLiftAsync(int target, bool shouldOvershoot) {
 }
 
 void waitForLiftAsync() {
-  while(!isLiftReady() || !liftDone)
+  while (!isLiftReady() || !liftDone)
     delay(10);
+}
+
+void runLiftSync(int target, bool shouldOvershoot) {
+  runLiftAsync(target, shouldOvershoot);
+  waitForLiftAsync();
 }
 
 // Intake Action
 
 bool intakeDone = true;
 
-void intakeAction(void* param) {
-  while(!isIntakeReady()) {
+void intakeAction(void *param) {
+  while (!isIntakeReady()) {
     setIntakeSpeed(pLoopDetermineIntakeSpeed());
     delay(10);
   }
@@ -115,10 +133,16 @@ void intakeAction(void* param) {
 
 void runIntakeAsync(int target) {
   setIntakeTarget(target);
-  taskCreate(intakeAction, TASK_DEFAULT_STACK_SIZE, NULL, TASK_PRIORITY_DEFAULT);
+  taskCreate(intakeAction, TASK_DEFAULT_STACK_SIZE, NULL,
+             TASK_PRIORITY_DEFAULT);
 }
 
 void waitForIntakeAsync() {
-  while(!isIntakeReady() || !intakeDone)
+  while (!isIntakeReady() || !intakeDone)
     delay(10);
+}
+
+void runIntakeSync(int target) {
+  runIntakeAsync(target);
+  waitForIntakeAsync();
 }
