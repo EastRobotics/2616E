@@ -3,12 +3,12 @@
 bool isManualControl = true; // Whether or not to use manual controls
 bool clawClosed = false;     // Whether or not the claw is closed
 bool fourBarUp = false;      // Was the four bar last up or down
-bool runAuton = false;
-bool intakeTaskRunning = false;
-bool liftLastDir = false;   // true: up, false: down
-TaskHandle intakeCont;      // intake control task
-TaskHandle liftCont;        // lift control task
-TaskHandle manipulatorCont; // manipulator control task
+bool runAuton = false; // Should the robot run auton (used for remote start)
+bool intakeTaskRunning = false; // Is the intake tast currently running
+bool liftLastDir = false;       // true: up, false: down
+TaskHandle intakeCont;          // intake control task
+TaskHandle liftCont;            // lift control task
+TaskHandle manipulatorCont;     // manipulator control task
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
@@ -17,8 +17,8 @@ void swapControlState() {
     setIntakeTarget(getIntakePos());
     taskResume(liftCont);
     taskResume(intakeCont);
-    // manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-    //                              NULL, (TASK_PRIORITY_DEFAULT));
+    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
+                                 NULL, (TASK_PRIORITY_DEFAULT));
   } else {
     taskSuspend(liftCont);
     taskSuspend(intakeCont);
@@ -29,6 +29,8 @@ void swapControlState() {
 
 // Manual control of the robot
 void manualControl() {
+
+  // Run the four bar
   if (joystickGetDigital(1, 8, JOY_UP)) {
     motorSet(MOTOR_FOUR_BAR,
              ((digitalRead(DIGITAL_LIM_CLAW))
@@ -54,7 +56,7 @@ void manualControl() {
     }
   }
 
-  // Test other things
+  // Run the lift
   if (joystickGetDigital(1, 7, JOY_UP)) {
     setLiftSpeedRaw(-127, 127);
     liftLastDir = true;
@@ -65,7 +67,7 @@ void manualControl() {
     int liftSpeed = (liftLastDir) ? 15 : 0;
     setLiftSpeedRaw(-liftSpeed, liftSpeed);
   }
-  //
+  //  // Take intake to specific height
   //   if (joystickGetDigital(1, 8, JOY_LEFT)) {
   //     setIntakeTarget(INTAKE_POS_AVOID);
   //     if (!intakeTaskRunning) {
@@ -79,7 +81,6 @@ void automaticControl() {
   /*
   ** Handle the main driver's controls
   */
-
 }
 
 // NOTE This is probably broken...
@@ -100,42 +101,25 @@ void operatorControl() {
   // Initialize the bluetooth listener
   blisten(1, blueListen); // Listen to messages
 
-  // Start chainbar task
-  // intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-  //                         (TASK_PRIORITY_DEFAULT));
-  // liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-  //                       (TASK_PRIORITY_DEFAULT));
-  // manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-  //                              NULL, (TASK_PRIORITY_DEFAULT));
+  // Start manipulator tasks
+  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                          (TASK_PRIORITY_DEFAULT));
+  liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                        (TASK_PRIORITY_DEFAULT));
+  manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
+                               NULL, (TASK_PRIORITY_DEFAULT));
 
-  // if (isManualControl) {
-  //   taskSuspend(intakeCont);
-  //   taskSuspend(liftCont);
-  //   taskDelete(manipulatorCont);
-  // }
+  if (isManualControl) {
+    taskSuspend(intakeCont);
+    taskSuspend(liftCont);
+    taskDelete(manipulatorCont);
+  }
 
   while (true) { // true cooler than 1
 
     if (runAuton) {
-      // setAutonMode(2);
-
-      // if (!isManualControl) {
-      //   taskSuspend(intakeCont);
-      //   taskSuspend(liftCont);
-      //   taskDelete(manipulatorCont);
-      // }
-
       delay(250);
       autonomous();
-
-      // if (!isManualControl) {
-      //   taskResume(intakeCont);
-      //   taskResume(liftCont);
-      //   manipulatorCont =
-      //       taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE, NULL,
-      //                  (TASK_PRIORITY_DEFAULT));
-      // }
-
       runAuton = false;
     }
 
@@ -146,6 +130,7 @@ void operatorControl() {
     // and 0 for strafe
     driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
 
+    // Swap control state
     // if (joystickGetDigital(1, 7, JOY_DOWN)) {
     //   if (sevenDReleased) {
     //     swapControlState();
@@ -155,12 +140,14 @@ void operatorControl() {
     //   sevenDReleased = true;
     // }
 
+    // Run the proper control state
     if (isManualControl) {
       manualControl();
     } else {
       automaticControl();
     }
 
+    // Run the claw
     if (isClawReady()) {
       if (!(joystickGetDigital(1, 6, JOY_UP) &&
             joystickGetDigital(1, 6, JOY_DOWN))) {
@@ -176,6 +163,7 @@ void operatorControl() {
       }
     }
 
+    // Run the mogo
     if (joystickGetDigital(1, 5, JOY_UP)) {
       motorSet(MOTOR_MOGO, 127);
     } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
