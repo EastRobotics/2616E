@@ -103,6 +103,13 @@ void lcdAutoRefresh(void *param) {
   while (true) {
     // lastHoldTime = -1.0;
     taskDelay(20);
+    // Print out if we're disabled
+    if (!isEnabled()) {
+      lcdClear(uart2);
+      lcdPrint(uart2, 1, "%cEssential Evil%c", 0xCD, 0xCD);
+      lcdPrintCentered("- Disabled -", 2);
+      continue;
+    }
     if (millis() - lastRefresh >= refreshTimeMillis) {
       lcdUpdatePage(false, currentPage);
       lcdResetAutoRefresh();
@@ -115,6 +122,11 @@ void lcdManager(void *param) {
   unsigned char highestCombination = 0;
   printf("[Init] Starting LCD Buttons\n");
   while (true) {
+    // Only do if enabled
+    if (!isEnabled()) {
+      delay(20);
+      continue;
+    }
     if (lcdReadButtons(uart2) == 0) { // A button wasn't pressed
       // printf("1:%d\n", highestCombination);
       if (buttonReleased ==
@@ -170,14 +182,6 @@ void lcdManager(void *param) {
         highestCombination = lcdReadButtons(uart2);
       }
     }
-
-    // Print out if we're disabled
-    if (!isEnabled()) {
-      lcdClear(uart2);
-      lcdPrint(uart2, 1, "%cEssential Evil%c", 0xCD, 0xCD);
-      lcdPrintCentered("- Disabled -", 2);
-    }
-
     if (!paused && isEnabled())
       delay(20); // Give other tasks time to run
     else
