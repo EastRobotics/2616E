@@ -182,7 +182,7 @@ void lcdManager(void *param) {
         highestCombination = lcdReadButtons(uart2);
       }
     }
-    if (!paused && isEnabled())
+    if (!paused)
       delay(20); // Give other tasks time to run
     else
       delay(1000); // Slow down more when we aren't expecting presses

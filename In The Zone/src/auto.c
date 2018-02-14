@@ -47,173 +47,35 @@ void autonomous() {
   ** Run auton
   */
   switch (getAutonMode()) {
+  // This is probably our most complex auton - it strategically does nothing
   case 1:
     print("Ran auton one!\n");
     break;
 
+  // 20 point & stationary goal
   case 2:
-    // Mogo Out
-    // Drive forward
-    // pLoopDriveStraight(imperialToTick(55.0), false, true);
-    driveRaw(127, 127, 127, 127);
-    delay(5000);
-    driveRaw(0, 0, 0, 0);
     break;
 
+  // 20 point
   case 3:
-    // Lift
-    setLiftSpeed(127);
-    delay(100);
-    setLiftSpeed(0);
-    // Mogo Out
-    motorSet(MOTOR_MOGO, 127);
-    delay(1000);
-    motorSet(MOTOR_MOGO, 0);
-    // Drive forward
-    // pLoopDriveStraight(imperialToTick(55.0), false, true);
-    driveStraightRaw(127, 2000);
-    // Take in mogo
-    motorSet(MOTOR_MOGO, -127);
-    delay(1000);
-    motorSet(MOTOR_MOGO, 0);
-    // Realign
-    pLoopTurnPoint(0);
-    // Back up
-    driveStraightRaw(-127, 1500);
-    // Rest
-    delay(250);
-    // Turn
-    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1));
-    // Approach Zone
-    driveRaw(80, 80, 80, 80);
-    delay(250);
-    driveRaw(0, 0, 0, 0);
-    // Mogo Out
-    motorSet(MOTOR_MOGO, 127);
-    delay(1000);
-    motorSet(MOTOR_MOGO, 0);
-    // Back up
-    driveRaw(-80, -80, -80, -80);
-    delay(100);
-    driveRaw(0, 0, 0, 0);
-    // wait a sec
-    delay(500);
-    // Ram the goal in just in case
-    driveRaw(127, 127, 127, 127);
-    delay(200);
-    driveRaw(0, 0, 0, 0);
-    // wait
-    delay(50);
-    // Back up
-    driveStraightRaw(-127, 2000);
     break;
 
+  // 10 point & stationary goal
   case 4:
-    pLoopDriveStraight(inchesToTicks(24, 2), true, true);
-    // Will be more likely used, however above should be tuned first
-    // pLoopDriveStraight(inchesToTicks(24, 1), false, true);
     break;
 
+  // 10 point
   case 5:
-    pLoopTurnPoint(180);
     break;
 
+  // Programming Skills
   case 6:
-    // Drive to 10,10, aka 6",6"
-    autoDriveToPoint(152.4, 152.4, false, true);
-    // Drive "forward" 2 feet
-    autoDriveToPoint(152.4, 152.4 + 609.6, false, true);
-    // Drive to 1.5 feet right from 6"6" start
-    autoDriveToPoint(152.4 + 457.2, 152.4, false, true);
-    // Drive back to 6"6" start
-    autoDriveToPoint(152.4, 152.4, false, true);
-    // Turn back to original angle
-    pLoopTurnPoint(0);
     break;
 
+  // Backup - I think that means ram
   case 7:
-    setIntakeTarget(1000); // FIX Extend Four Bar
-    waitForIntake();
-    setLiftTarget(1000); // FIX Raise Lift
-    waitForLift();
-    // CHECK Extend the Mogo
-    motorSet(MOTOR_MOGO, 127);
-    delay(750);
-    motorSet(MOTOR_MOGO, 0);
-    odomDriveForward(1500, false, true); // Ram the Mogo
-    // CHECK Intake Mogo
-    motorSet(MOTOR_MOGO, -127);
-    delay(750);
-    motorSet(MOTOR_MOGO, 0);
-    odomDriveForward(-1450, false, true); // Back up
-    pLoopTurnPoint(-200);                 // Turn to Zones
-    // CHECK Release Mogo
-    motorSet(MOTOR_MOGO, -127);
-    delay(750);
-    motorSet(MOTOR_MOGO, 0);
     break;
-  case 8:
-    // Intake Cone
-    motorSet(MOTOR_CLAW, -127);
-    delay(200);
-    motorSet(MOTOR_CLAW, -25);
-    // Lift
-    setLiftSpeed(127);
-    delay(350);
-    setLiftSpeed(10);
-    // Mogo Out
-    motorSet(MOTOR_MOGO, 127);
-    delay(1000);
-    motorSet(MOTOR_MOGO, 0);
-    // Drive forward
-    // pLoopDriveStraight(imperialToTick(55.0), false, true);
-    driveStraightRaw(127, 2000);
-    // Take in mogo
-    motorSet(MOTOR_MOGO, -127);
-    delay(1000);
-    motorSet(MOTOR_MOGO, 0);
-    // Lower Lift
-    setLiftSpeed(-80);
-    delay(350);
-    setLiftSpeed(10);
-    delay(250);
-    // Extake cone and relift lift
-    motorSet(MOTOR_CLAW, 127);
-    delay(150);
-    setLiftSpeed(80);
-    delay(350);
-    setLiftSpeed(10);
-    delay(200);
-    motorSet(MOTOR_CLAW, 0);
-    // Backup a smidge
-    driveStraightRaw(-127, 100);
-    // Realign
-    pLoopTurnPoint(0);
-    // Back up
-    driveStraightRaw(-127, 750);
-    // Rest
-    delay(100);
-    // Turn
-    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1));
-    // Wait for 3815C
-    delay(50);
-    // Drive in a bit
-    driveStraightRaw(80, 850);
-    // Mogo Out
-    motorSet(MOTOR_MOGO, 127);
-    delay(1000);
-    motorSet(MOTOR_MOGO, 0);
-    // KIND OF FIVE PT ZONE SPECIFIC
-    // Back up a little bit
-    driveStraightRaw(-127, 100);
-    delay(150);
-    // Push forward a good amount
-    driveStraightRaw(127, 400);
-    delay(150);
-    // KIND OF FIVE PT ZONE SPECIFIC
-    // Back up
-    driveStraightRaw(-127, 1500);
-    break;
+
   default:
     print("Ran auton that wasn't given a case!");
   }
