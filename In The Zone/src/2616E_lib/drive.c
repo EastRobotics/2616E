@@ -118,7 +118,7 @@ void driveRaw(int speedFL, int speedBL, int speedFR, int speedBR) {
 
 // Enables slew rate, limiting speed change to _slewRate every update cycle
 // PARAMETERS:
-//	int: Amount of speed change allowed every 20ms
+//	int: Amount of RPM change allowed every 20ms
 void enableSlew(int _slewRate) { slewRate = _slewRate; }
 
 // Disables slew rate code
@@ -131,12 +131,16 @@ void disableSlew() { slewRate = 0; }
 // RETURNS:
 //  int: The slewed speed to set the motors to
 int slew(int currentSpeed, int targetSpeed) {
+  int currentRPM = motorToRPM(currentSpeed);
+  int targetRPM = motorToRPM(targetSpeed);
   // If slew rate is off or we are closer to the target than slewRate
-  if (slewRate == 0 || abs(currentSpeed - targetSpeed) < slewRate)
+  if (slewRate == 0 || abs(currentRPM - targetRPM) < slewRate)
     return targetSpeed; // Return the target
   else {                // We need to slew
     // Add positive or negative slewRate to the given speed and return it
-    currentSpeed += (currentSpeed > targetSpeed) ? -1 * slewRate : slewRate;
+
+    currentRPM += (currentRPM > targetRPM) ? -1 * slewRate : slewRate;
+    currentSpeed = RPMToMotor(currentRPM);
     return currentSpeed;
   }
 }
