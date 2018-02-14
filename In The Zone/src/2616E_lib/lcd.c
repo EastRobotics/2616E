@@ -1,6 +1,6 @@
 #include "main.h"
-#include "string.h"
 #include "math.h"
+#include "string.h"
 
 // TODO: Add back in hold time detection
 // TODO: Rewrite to be much cleaner and easier to use
@@ -135,13 +135,6 @@ void lcdManager(void *param) {
           }
         }
 
-        // Print out if we're disabled
-        if (!isEnabled()) {
-          lcdClear(uart2);
-          lcdPrint(uart2, 1, "%cEssential Evil%c", 0xCD, 0xCD);
-          lcdPrintCentered("- Disabled -", 2);
-        }
-
         // Only run stuff if not paused or disabled
         if (!paused && isEnabled()) {
           if (highestCombination == 1) { // Left button pressed
@@ -177,7 +170,15 @@ void lcdManager(void *param) {
         highestCombination = lcdReadButtons(uart2);
       }
     }
-    if (!paused)
+
+    // Print out if we're disabled
+    if (!isEnabled()) {
+      lcdClear(uart2);
+      lcdPrint(uart2, 1, "%cEssential Evil%c", 0xCD, 0xCD);
+      lcdPrintCentered("- Disabled -", 2);
+    }
+
+    if (!paused && isEnabled())
       delay(20); // Give other tasks time to run
     else
       delay(1000); // Slow down more when we aren't expecting presses
@@ -209,18 +210,18 @@ void lcdInitMenu(int _minPage, int _maxPage, int _homePage) {
   lcdSetText(uart2, 1, "LCD Init Done");
 }
 
-void lcdPrintError(const char * title, double current, double target) {
+void lcdPrintError(const char *title, double current, double target) {
   lcdClear(uart2);
   static char temp[16]; // Create buffer for following line
-  sprintf(temp, "%s%c %f", title, 0xF6, target-current); // Set up auton name
+  sprintf(temp, "%s%c %f", title, 0xF6, target - current); // Set up auton name
   lcdPrintCentered(temp, 1);
   // Okay yeah this is messy. I don't want to mess with appending in c.
-  int num = floor(((current/target)*15.0)+0.5);
+  int num = floor(((current / target) * 15.0) + 0.5);
   char output[16];
   for (int i = 0; i < num; i++)
     output[i] = ' ';
-  for (int i = 0; i < 15-num; i++)
-    output[i+num] = ' ';
+  for (int i = 0; i < 15 - num; i++)
+    output[i + num] = ' ';
   output[15] = ((num == 15) ? 'X' : 'O');
   lcdPrint(uart2, 2, output);
 }
