@@ -7,10 +7,10 @@
 */
 #define INTAKE_BIAS_THRESH 5      // How far sides need to be off to correct
 #define INTAKE_BIAS_CORRECT_P 1.5 // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 40   // How far from target to try go to it
-#define INTAKE_TARGET_CORRECT_P_UP 0.2 // P term to use when setting speed up
+#define INTAKE_TARGET_THRESH 80   // How far from target to try go to it
+#define INTAKE_TARGET_CORRECT_P_UP 127 // P term to use when setting speed up
 #define INTAKE_TARGET_CORRECT_P_DOWN                                           \
-  0.22                          // P term to use when setting speed down
+  127                           // P term to use when setting speed down
 #define INTAKE_MINIMUM_SPEED 20 // Minimum speed for the intake to move at
 #define CLAW_MOVEMENT_TIME 300  // The amount of time the claw needs to open
 #define CLAW_MOVEMENT_SPEED 127 // Movement speed of the claw
@@ -216,7 +216,7 @@ int pLoopDetermineIntakeSpeed() {
   // If intake is higher than target, move down, otherwise up
   // NOTE: This is opposite of what it should be
   bool correctionDirection =
-      (getIntakePos() - intakeTarget) > 0 ? DIR_DOWN : DIR_UP;
+      (getIntakePos() - intakeTarget) > 0 ? DIR_UP : DIR_DOWN;
   // Set intake speed to Kp * error * directionMultiplier
   int speed = (correctionDirection ? INTAKE_TARGET_CORRECT_P_DOWN
                                    : INTAKE_TARGET_CORRECT_P_UP) *
@@ -257,7 +257,8 @@ void intakeControl(void *ignored) {
       }
 
       // Move at proper speed in direction based on open or close direction
-      motorSet(MOTOR_CLAW, CLAW_MOVEMENT_SPEED * ((clawOpenTarget) ? 1 : -1));
+      if (isManipulatorReady())
+        motorSet(MOTOR_CLAW, CLAW_MOVEMENT_SPEED * ((clawOpenTarget) ? 1 : -1));
 
       // If the claw has reached the end of its movement
       if (clawMovementTime >= CLAW_MOVEMENT_TIME) {

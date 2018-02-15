@@ -5,6 +5,8 @@ bool clawClosed = false;     // Whether or not the claw is closed
 bool fourBarUp = false;      // Was the four bar last up or down
 bool runAuton = false;    // Should the robot run auton (used for remote start)
 bool liftLastDir = false; // true: up, false: down
+bool sevenDReleased = true;
+bool eightDReleased = true;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
@@ -16,6 +18,7 @@ void swapControlState() {
   } else {
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
+    setScoring(false);
   }
   isManualControl = !isManualControl;
 }
@@ -68,6 +71,14 @@ void automaticControl() {
   /*
   ** Handle the main driver's controls
   */
+  if (joystickGetDigital(1, 8, JOY_DOWN)) {
+    if (eightDReleased) {
+      score();
+    }
+    eightDReleased = false;
+  } else {
+    eightDReleased = true;
+  }
 }
 
 // NOTE This is probably broken...
@@ -112,14 +123,14 @@ void operatorControl() {
     driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
 
     // Swap control state
-    // if (joystickGetDigital(1, 7, JOY_DOWN)) {
-    //   if (sevenDReleased) {
-    //     swapControlState();
-    //   }
-    //   sevenDReleased = false;
-    // } else {
-    //   sevenDReleased = true;
-    // }
+    if (joystickGetDigital(1, 7, JOY_DOWN)) {
+      if (sevenDReleased) {
+        swapControlState();
+      }
+      sevenDReleased = false;
+    } else {
+      sevenDReleased = true;
+    }
 
     // Run the proper control state
     if (isManualControl) {
@@ -129,7 +140,7 @@ void operatorControl() {
     }
 
     // Run the claw
-    if (isClawReady()) {
+    if (isClawReady() && isManipulatorReady()) {
       if (!(joystickGetDigital(1, 6, JOY_UP) &&
             joystickGetDigital(1, 6, JOY_DOWN))) {
         if (joystickGetDigital(1, 6, JOY_UP)) {

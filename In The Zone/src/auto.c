@@ -47,16 +47,15 @@ void autonomous() {
 
   // "Light" (RAM)
   case 2: {
-      // TODO Tune and check sides
-      int speedLeftCurve = getAutonPosition() ? 60 : 127;
-      int speedRightcurve = getAutonPosition() ? 127 : 60;
-      driveRaw(speedLeftCurve, speedLeftCurve, speedRightcurve, speedRightcurve);
-      delay(1000); // TODO Maybe do some gyro check instead?
-      driveRaw(127, 127, 127, 127);
-      delay(4000);
-      driveRaw(0, 0, 0, 0);
-    }
-    break;
+    // TODO Tune and check sides
+    int speedLeftCurve = getAutonPosition() ? 60 : 127;
+    int speedRightcurve = getAutonPosition() ? 127 : 60;
+    driveRaw(speedLeftCurve, speedLeftCurve, speedRightcurve, speedRightcurve);
+    delay(1000); // TODO Maybe do some gyro check instead?
+    driveRaw(127, 127, 127, 127);
+    delay(4000);
+    driveRaw(0, 0, 0, 0);
+  } break;
 
   // 20 point & stationary goal
   case 3:
@@ -82,6 +81,8 @@ void autonomous() {
   case 8:
     setLiftTarget(500);
     waitForLift();
+    setIntakeTarget(2250);
+    waitForIntake();
     break;
 
   default:

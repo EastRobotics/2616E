@@ -5,9 +5,9 @@
 /*
 ** Constants to configure movement of lift
 */
-#define LIFT_BIAS_THRESH 0     // How far lift sides need to be off to correct
-#define LIFT_BIAS_CORRECT_P 0  // P te`rm to use when correcting offset of lift
-#define LIFT_TARGET_THRESH 100 // How far lift's from target to try go to it
+#define LIFT_BIAS_THRESH 0    // How far lift sides need to be off to correct
+#define LIFT_BIAS_CORRECT_P 0 // P te`rm to use when correcting offset of lift
+#define LIFT_TARGET_THRESH 20 // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
   0.15 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \

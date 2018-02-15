@@ -269,6 +269,10 @@ bool isManipulatorReady();
 // Wait until the intake is at it's desired target
 void waitForManipulator();
 
+bool score();
+
+bool setScoring(bool isScoring);
+
 // -----------------------------------------------------------------------------
 
 /*
