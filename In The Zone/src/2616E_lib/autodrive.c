@@ -23,7 +23,7 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
     speed = (error * p) + ((error - lastError) * d);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
     speed = (abs(speed) < 30) ? (speed < 0) ? -30 : 30 : speed;
-    speed = (speed); // Linearize speed
+    speed = linSpeed(speed); // Linearize speed
 
     driveRaw(-speed, -speed, speed, speed);
     fprintf(uart1, "speed: %d\r\n", speed);

@@ -5,11 +5,11 @@
 /*
 ** Constants to configure movement of lift
 */
-#define LIFT_BIAS_THRESH 0      // How far lift sides need to be off to correct
-#define LIFT_BIAS_CORRECT_P 0 // P te`rm to use when correcting offset of lift
-#define LIFT_TARGET_THRESH 100   // How far lift's from target to try go to it
+#define LIFT_BIAS_THRESH 0     // How far lift sides need to be off to correct
+#define LIFT_BIAS_CORRECT_P 0  // P te`rm to use when correcting offset of lift
+#define LIFT_TARGET_THRESH 100 // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
-  0.25 // P term to use when setting speed to target up
+  0.15 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
   0.25 // P term to use when setting speed to target down
 #define HEIGHT_INCREMENT_CONE 117 // Height to add to goal per cone
@@ -48,7 +48,7 @@ TaskHandle liftTask;
 //------------------------------------------------------------------------------
 
 int getLiftPosLeft() {
-  //return analogRead(ANALOG_POT_LIFT_L) - liftStartLeft;
+  // return analogRead(ANALOG_POT_LIFT_L) - liftStartLeft;
   return 5000 - analogRead(ANALOG_POT_LIFT_L) - liftStartLeft;
 }
 
@@ -249,8 +249,9 @@ void liftControl(void *ignored) {
 //------------------------------------------------------------------------------
 
 TaskHandle createLiftTask() {
-  return taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+  liftTask = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
                         (TASK_PRIORITY_DEFAULT));
+  return liftTask;
 }
 
 TaskHandle getLiftTask() {

@@ -81,7 +81,7 @@ void initialize() {
   lcdSetText(uart2, 1, "Init drive...");
   driveInit(MOTOR_DRIVE_L, 0, MOTOR_DRIVE_R, 0);
   driveSetReverse(MOTOR_DRIVE_L_REV, false, MOTOR_DRIVE_R_REV, 0);
-  enableSlew(15); // Set slew rate to 15
+  // enableSlew(15); // Set slew rate to 15
 
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");

@@ -221,8 +221,7 @@ int pLoopDetermineIntakeSpeed() {
   int speed = (correctionDirection ? INTAKE_TARGET_CORRECT_P_DOWN
                                    : INTAKE_TARGET_CORRECT_P_UP) *
               abs(getIntakeError());
-  speed =
-      (abs(speed) < INTAKE_MINIMUM_SPEED) ? INTAKE_MINIMUM_SPEED : speed;
+  speed = (abs(speed) < INTAKE_MINIMUM_SPEED) ? INTAKE_MINIMUM_SPEED : speed;
   speed *= (correctionDirection ? -1 : 1);
   return speed;
 }
@@ -283,8 +282,9 @@ void intakeControl(void *ignored) {
 //------------------------------------------------------------------------------
 
 TaskHandle createIntakeTask() {
-  return taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                        (TASK_PRIORITY_DEFAULT));
+  intakeTask = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                          (TASK_PRIORITY_DEFAULT));
+  return intakeTask;
 }
 
 TaskHandle getIntakeTask() {
@@ -305,7 +305,7 @@ bool isIntakeTaskRunning() {
   if (intakeTask == NULL)
     return false;
   else
-    return taskGetState(getIntakeTask()) == TASK_SUSPENDED;
+    return taskGetState(intakeTask) == TASK_RUNNING;
 }
 
 void ensureIntakeTaskRunning() {

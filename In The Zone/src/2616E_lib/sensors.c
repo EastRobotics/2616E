@@ -103,11 +103,13 @@ float lerp(float x1, float y1, float x2, float y2, float progress) {
 // RETURNS:
 // int: the motor speed with the linear interpolation performed on it
 int getLerpedSpeed(int power, int minSpeed, int minPower) {
+  int dirMult = (power < 0) ? -1 : 1;
+  power = abs(power);
   if (power < minPower)
     return 0;
   int speed = RPMToMotor(lerp((float)minPower, (float)minSpeed, 127.0, 105.0,
                               (float)power / 127.0));
-  return (speed > 127) ? 127 : ((speed < 0) ? 0 : speed);
+  return ((speed > 127) ? 127 : ((speed < 0) ? 0 : speed) * dirMult);
 }
 
 bool sameSign(int one, int two) {

@@ -3,8 +3,8 @@
 bool isManualControl = true; // Whether or not to use manual controls
 bool clawClosed = false;     // Whether or not the claw is closed
 bool fourBarUp = false;      // Was the four bar last up or down
-bool runAuton = false; // Should the robot run auton (used for remote start)
-bool liftLastDir = false;       // true: up, false: down
+bool runAuton = false;    // Should the robot run auton (used for remote start)
+bool liftLastDir = false; // true: up, false: down
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
@@ -89,7 +89,7 @@ void operatorControl() {
   blisten(1, blueListen); // Listen to messages
 
   getIntakeTask(); // Make sure we have an intake task created
-  getLiftTask(); // Make sure we have a lift task created
+  getLiftTask();   // Make sure we have a lift task created
 
   if (isManualControl) {
     ensureIntakeTaskSuspended();
