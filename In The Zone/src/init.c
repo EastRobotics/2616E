@@ -6,13 +6,9 @@ Gyro getGyro() { return gyro; }
 
 Encoder encDriveBR;
 Encoder encDriveBL;
-Encoder encChain;
-Encoder encLift;
 
 Encoder getEncoderBR() { return encDriveBR; }
 Encoder getEncoderBL() { return encDriveBL; }
-Encoder getEncoderChain() { return encChain; }
-Encoder getEncoderLift() { return encLift; }
 TaskHandle intakeCont;
 TaskHandle liftCont;
 
@@ -102,7 +98,6 @@ void initialize() {
   print("[Init] Setting up encoders\n");
   lcdSetText(uart2, 1, "Init Encs...");
   initDriveEncoders();
-  encLift = encoderInit(DIGITAL_ENC_LIFT_TOP, DIGITAL_ENC_LIFT_BOT, false);
   // initPidControl();
 
   // Lift and claw control
