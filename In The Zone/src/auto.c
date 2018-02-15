@@ -78,8 +78,10 @@ void autonomous() {
   case 7:
     break;
 
-  // Backup - I think that means ram
+  // Custom
   case 8:
+    setLiftTarget(500);
+    waitForLift();
     break;
 
   default:

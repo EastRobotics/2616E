@@ -30,7 +30,7 @@ void implUpdateLCD(bool userCaused, int page) {
       autonName = "Skills";
       break;
     case 8:
-      autonName = "Backup";
+      autonName = "Custom";
       break;
     default: { // Unknown mode
       char temp[17];

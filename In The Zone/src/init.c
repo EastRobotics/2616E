@@ -90,7 +90,7 @@ void initialize() {
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");
   lcdSetText(uart2, 1, "Init auton...");
-  autonInit(7); // 7 auton modes
+  autonInit(8); // 8 auton modes
 
   // Set up our gyroscope
   print("[Init] Setting gyroscope\n");
