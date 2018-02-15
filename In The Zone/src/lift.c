@@ -6,8 +6,8 @@
 ** Constants to configure movement of lift
 */
 #define LIFT_BIAS_THRESH 0      // How far lift sides need to be off to correct
-#define LIFT_BIAS_CORRECT_P 1.5 // P te`rm to use when correcting offset of lift
-#define LIFT_TARGET_THRESH 25   // How far lift's from target to try go to it
+#define LIFT_BIAS_CORRECT_P 0 // P te`rm to use when correcting offset of lift
+#define LIFT_TARGET_THRESH 100   // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
   0.25 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
@@ -40,9 +40,22 @@ bool shouldOvershoot =
 
 //------------------------------------------------------------------------------
 
-int getLiftPosLeft() { return analogRead(ANALOG_POT_LIFT_L) - liftStartLeft; }
+/*
+** Variables to hold task
+*/
+TaskHandle liftTask;
 
-int getLiftPosRight() { return analogRead(ANALOG_POT_LIFT_R) - liftStartRight; }
+//------------------------------------------------------------------------------
+
+int getLiftPosLeft() {
+  //return analogRead(ANALOG_POT_LIFT_L) - liftStartLeft;
+  return 5000 - analogRead(ANALOG_POT_LIFT_L) - liftStartLeft;
+}
+
+int getLiftPosRight() {
+  // return analogRead(ANALOG_POT_LIFT_R) - liftStartRight;
+  return getLiftPosLeft();
+}
 
 // Sets the starting position for the lift potentiometers
 void setLiftStart(int posLeft, int posRight) {
@@ -141,7 +154,7 @@ void setLiftSpeed(int speed) {
     setLiftSpeedRaw(0, 0);
     return;
   }*/
-  
+
   setLiftSpeedRaw(-speed, speed);
   return;
 
@@ -223,6 +236,7 @@ void liftControl(void *ignored) {
     if (!isLiftReady()) {
       setLiftSpeed(pLoopDetermineLiftSpeed());
     } else { // Otherwise let the lift be still
+      setLiftSpeed(0);
       // TODO Determine whether or not to use LIFT_SPEED_HOLDING or
       //    LIFT_SPEED_IDLE
       // setLiftSpeed(LIFT_SPEED_HOLDING);
@@ -230,4 +244,30 @@ void liftControl(void *ignored) {
     }
     delay(10);
   }
+}
+
+//------------------------------------------------------------------------------
+
+TaskHandle createLiftTask() {
+  return taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                        (TASK_PRIORITY_DEFAULT));
+}
+
+TaskHandle getLiftTask() {
+  if (liftTask == NULL)
+    return createLiftTask();
+  else
+    return liftTask;
+}
+
+void ensureLiftTaskSuspended() {
+  if (liftTask == NULL)
+    return;
+  if (!(taskGetState(getLiftTask()) == TASK_SUSPENDED))
+    taskSuspend(getLiftTask());
+}
+
+void ensureLiftTaskRunning() {
+  if (taskGetState(getLiftTask()) == TASK_SUSPENDED)
+    taskResume(getLiftTask());
 }

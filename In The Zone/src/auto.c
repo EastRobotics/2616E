@@ -32,16 +32,9 @@ void autonomous() {
   ** Set up
   */
   initPID(); // Start PID
-  /*TaskHandle intakeCont;      // intake control task
-  TaskHandle liftCont;        // lift control task
-  TaskHandle manipulatorCont; // manipulator control task
 
-  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                          (TASK_PRIORITY_DEFAULT));*/
-  /*liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                        (TASK_PRIORITY_DEFAULT));*/
-  /*manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-                               NULL, (TASK_PRIORITY_DEFAULT));*/
+  ensureLiftTaskRunning();
+  ensureIntakeTaskRunning();
 
   /*
   ** Run auton
@@ -52,28 +45,41 @@ void autonomous() {
     print("Ran auton one!\n");
     break;
 
-  // 20 point & stationary goal
-  case 2:
+  // "Light" (RAM)
+  case 2: {
+      // TODO Tune and check sides
+      int speedLeftCurve = getAutonPosition() ? 60 : 127;
+      int speedRightcurve = getAutonPosition() ? 127 : 60;
+      driveRaw(speedLeftCurve, speedLeftCurve, speedRightcurve, speedRightcurve);
+      delay(1000); // TODO Maybe do some gyro check instead?
+      driveRaw(127, 127, 127, 127);
+      delay(4000);
+      driveRaw(0, 0, 0, 0);
+    }
     break;
 
-  // 20 point
+  // 20 point & stationary goal
   case 3:
     break;
 
-  // 10 point & stationary goal
+  // 20 point
   case 4:
     break;
 
-  // 10 point
+  // 10 point & stationary goal
   case 5:
     break;
 
-  // Programming Skills
+  // 10 point
   case 6:
     break;
 
-  // Backup - I think that means ram
+  // Programming Skills
   case 7:
+    break;
+
+  // Backup - I think that means ram
+  case 8:
     break;
 
   default:

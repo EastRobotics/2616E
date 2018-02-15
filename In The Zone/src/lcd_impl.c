@@ -11,22 +11,25 @@ void implUpdateLCD(bool userCaused, int page) {
     case 1:                   // Mode 1 selected
       autonName = "Do Nothing";
       break;
-    case 2: // Mode 2 selected
+    case 2:  // Mode 1 selected
+      autonName = "Light"; // AKA Ra,
+      break;
+    case 3: // Mode 2 selected
       autonName = "20ptST";
       break;
-    case 3: // Mode 3 selected
+    case 4: // Mode 3 selected
       autonName = "20pt";
       break;
-    case 4: // Mode 3 selected
+    case 5: // Mode 3 selected
       autonName = "10ptST";
       break;
-    case 5: // Mode 3 selected
+    case 6: // Mode 3 selected
       autonName = "10pt";
       break;
-    case 6: // Mode 3 selected
+    case 7: // Mode 3 selected
       autonName = "Skills";
       break;
-    case 7:
+    case 8:
       autonName = "Backup";
       break;
     default: { // Unknown mode

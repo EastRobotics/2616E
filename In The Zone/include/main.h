@@ -152,7 +152,7 @@ int getLiftTarget();
 int pLoopDetermineLiftSpeed();
 
 // Task to handle the control of the lift
-void liftControl(void *ignored);
+//void liftControl(void *ignored);
 
 // Whether or not the lift is at it's target
 bool isLiftReady();
@@ -164,6 +164,13 @@ int getLiftTarget();
 
 void setShouldOvershootLift(bool shouldOvershootLift);
 
+TaskHandle createLiftTask();
+
+TaskHandle getLiftTask();
+
+void ensureLiftTaskSuspended();
+
+void ensureLiftTaskRunning();
 
 //------------------------------------------------------------------------------
 
@@ -196,7 +203,7 @@ void setIntakeTargetSmart(int goal);
 int getIntakeTarget();
 
 // Task to handle the control of the intake
-void intakeControl(void *ignored);
+//void intakeControl(void *ignored);
 
 // Whether or not the intake is at it's target
 bool isIntakeReady();
@@ -231,6 +238,14 @@ bool isClawReady();
 // Waits for the Claw to be Ready
 void waitForClaw();
 
+TaskHandle createIntakeTask();
+
+TaskHandle getIntakeTask();
+
+void ensureIntakeTaskSuspended();
+
+void ensureIntakeTaskRunning();
+
 //------------------------------------------------------------------------------
 
 /*
@@ -253,9 +268,6 @@ bool isManipulatorReady();
 
 // Wait until the intake is at it's desired target
 void waitForManipulator();
-
-// Task to handle the control of the manipulator system
-void manipulatorControl(void *ignored);
 
 // -----------------------------------------------------------------------------
 
@@ -320,6 +332,8 @@ void runIntakeAsync(int target);
 void waitForIntakeAsync();
 
 void runIntakeSync(int target);
+
+bool isIntakeTaskRunning();
 
 // End C++ export structure
 #ifdef __cplusplus

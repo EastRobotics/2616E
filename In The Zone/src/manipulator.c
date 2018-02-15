@@ -29,18 +29,6 @@ bool isManipulatorReady() {
   return !scoring;
 }
 
-bool score() {
-  if (!isManipulatorReady())
-    return false;
-
-  // TODO Do any checks that need to be done to score here
-  coneTarget = cones+1;
-  // NOTE This might need to be after the task def? Idk
-  task = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-                               NULL, (TASK_PRIORITY_DEFAULT));
-  return true;
-}
-
 // Wait until the intake is at it's desired target
 void waitForManipulator() {
   while (!isManipulatorReady())
@@ -110,4 +98,16 @@ void manipulatorControl(void *ignored) {
   NOTE 4.2 END */
 
   scoring = false;
+}
+
+bool score() {
+  if (!isManipulatorReady())
+    return false;
+
+  // TODO Do any checks that need to be done to score here
+  coneTarget = cones+1;
+  // NOTE This might need to be after the task def? Idk
+  task = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
+                               NULL, (TASK_PRIORITY_DEFAULT));
+  return true;
 }

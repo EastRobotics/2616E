@@ -4,25 +4,18 @@ bool isManualControl = true; // Whether or not to use manual controls
 bool clawClosed = false;     // Whether or not the claw is closed
 bool fourBarUp = false;      // Was the four bar last up or down
 bool runAuton = false; // Should the robot run auton (used for remote start)
-bool intakeTaskRunning = false; // Is the intake tast currently running
 bool liftLastDir = false;       // true: up, false: down
-TaskHandle intakeCont;          // intake control task
-TaskHandle liftCont;            // lift control task
-TaskHandle manipulatorCont;     // manipulator control task
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
 void swapControlState() {
   if (isManualControl) {
     setIntakeTarget(getIntakePos());
-    taskResume(liftCont);
-    taskResume(intakeCont);
-    manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-                                 NULL, (TASK_PRIORITY_DEFAULT));
+    ensureLiftTaskRunning();
+    ensureIntakeTaskRunning();
   } else {
-    taskSuspend(liftCont);
-    taskSuspend(intakeCont);
-    taskDelete(manipulatorCont);
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
   }
   isManualControl = !isManualControl;
 }
@@ -38,20 +31,14 @@ void manualControl() {
                   : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -10)));
     fourBarUp = true;
     setShouldHoldIntake(false);
-    if (intakeTaskRunning) {
-      taskSuspend(intakeCont);
-      intakeTaskRunning = false;
-    }
+    ensureIntakeTaskSuspended();
   } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
     motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127);
     fourBarUp = false;
     setShouldHoldIntake(false);
-    if (intakeTaskRunning) {
-      taskSuspend(intakeCont);
-      intakeTaskRunning = false;
-    }
+    ensureIntakeTaskSuspended();
   } else {
-    if (!intakeTaskRunning) {
+    if (!isIntakeTaskRunning()) {
       motorSet(MOTOR_FOUR_BAR, (!fourBarUp) ? 10 : 0);
     }
   }
@@ -85,7 +72,7 @@ void automaticControl() {
 
 // NOTE This is probably broken...
 void operatorControl() {
-  // setLiftStartAsNow();
+  setLiftStartAsNow();
 
   // Cleanup
   shutdownPID(); // Make sure no PID subtask is running
@@ -101,18 +88,12 @@ void operatorControl() {
   // Initialize the bluetooth listener
   blisten(1, blueListen); // Listen to messages
 
-  // Start manipulator tasks
-  intakeCont = taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                          (TASK_PRIORITY_DEFAULT));
-  liftCont = taskCreate(liftControl, TASK_DEFAULT_STACK_SIZE, NULL,
-                        (TASK_PRIORITY_DEFAULT));
-  manipulatorCont = taskCreate(manipulatorControl, TASK_DEFAULT_STACK_SIZE,
-                               NULL, (TASK_PRIORITY_DEFAULT));
+  getIntakeTask(); // Make sure we have an intake task created
+  getLiftTask(); // Make sure we have a lift task created
 
   if (isManualControl) {
-    taskSuspend(intakeCont);
-    taskSuspend(liftCont);
-    taskDelete(manipulatorCont);
+    ensureIntakeTaskSuspended();
+    ensureLiftTaskSuspended();
   }
 
   while (true) { // true cooler than 1

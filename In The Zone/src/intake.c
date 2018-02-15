@@ -44,6 +44,13 @@ int clawMovementTime = 0;      // The amount of time the claw has been in motion
 
 //------------------------------------------------------------------------------
 
+/*
+** Variables to hold task
+*/
+TaskHandle intakeTask;
+
+//------------------------------------------------------------------------------
+
 // =============== COMMENTED OUT BECAUSE INTAKE HAS ONE SIDE ATM ===============
 // int getIntakePosLeft() {
 //   return 0; // TODO Use actual sensor value
@@ -271,4 +278,37 @@ void intakeControl(void *ignored) {
     }
     delay(10);
   }
+}
+
+//------------------------------------------------------------------------------
+
+TaskHandle createIntakeTask() {
+  return taskCreate(intakeControl, TASK_DEFAULT_STACK_SIZE, NULL,
+                        (TASK_PRIORITY_DEFAULT));
+}
+
+TaskHandle getIntakeTask() {
+  if (intakeTask == NULL)
+    return createIntakeTask();
+  else
+    return intakeTask;
+}
+
+void ensureIntakeTaskSuspended() {
+  if (intakeTask == NULL)
+    return;
+  if (!(taskGetState(getIntakeTask()) == TASK_SUSPENDED))
+    taskSuspend(getIntakeTask());
+}
+
+bool isIntakeTaskRunning() {
+  if (intakeTask == NULL)
+    return false;
+  else
+    return taskGetState(getIntakeTask()) == TASK_SUSPENDED;
+}
+
+void ensureIntakeTaskRunning() {
+  if (taskGetState(getIntakeTask()) == TASK_SUSPENDED)
+    taskResume(getIntakeTask());
 }
