@@ -7,7 +7,7 @@
 */
 #define INTAKE_BIAS_THRESH 5      // How far sides need to be off to correct
 #define INTAKE_BIAS_CORRECT_P 1.5 // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 80   // How far from target to try go to it
+#define INTAKE_TARGET_THRESH 100  // How far from target to try go to it
 #define INTAKE_TARGET_CORRECT_P_UP 127 // P term to use when setting speed up
 #define INTAKE_TARGET_CORRECT_P_DOWN                                           \
   127                           // P term to use when setting speed down
@@ -19,7 +19,7 @@
 /*
 ** Constants to configure resting speeds of intake
 */
-#define INTAKE_SPEED_HOLDING 15
+#define INTAKE_SPEED_HOLDING 0
 #define INTAKE_SPEED_IDLE 0
 #define CLAW_SPEED_IDLE 0
 
