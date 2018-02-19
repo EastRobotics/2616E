@@ -9,7 +9,7 @@
 #define LIFT_BIAS_CORRECT_P 0 // P te`rm to use when correcting offset of lift
 #define LIFT_TARGET_THRESH 30 // How far lift's from target to try go to it
 #define LIFT_TARGET_CORRECT_P_UP                                               \
-  0.73 // P term to use when setting speed to target up
+  0.35 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
   0.4 // P term to use when setting speed to target down
 #define HEIGHT_INCREMENT_CONE 117 // Height to add to goal per cone
