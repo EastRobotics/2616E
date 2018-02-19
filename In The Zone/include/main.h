@@ -273,7 +273,7 @@ void waitForManipulator();
 
 bool score();
 
-bool setScoring(bool isScoring);
+void setScoring(bool isScoring);
 
 void setLiftReturnHeight(int returnHeight);
 

@@ -6,7 +6,7 @@
 // TODO reset cone count to 0
 int cones = 0; // How many cones we're holding inside us
 int coneTarget = 0;
-int scoring = false;
+bool scoring = false;
 int liftReturnHeight = 0; // The height for the lift to return to
 bool isOnLoader = false;
 
@@ -39,7 +39,7 @@ void setConeCount(int coneCount) { cones = coneCount; }
 // Whether or not the manipulator is still doing something
 bool isManipulatorReady() { return !scoring; }
 
-bool setScoring(bool isScoring) { scoring = isScoring; }
+void setScoring(bool isScoring) { scoring = isScoring; }
 
 // Wait until the intake is at it's desired target
 void waitForManipulator() {
@@ -61,12 +61,12 @@ void manipulatorControl(void *ignored) {
   ensureLiftTaskRunning();
   ensureIntakeTaskRunning();
   scoring = true; // We're scoring, let other things no
-  int m = 65;
+  int m = 70;
   int b = -45;
   int liftTarget = (m * coneTarget) + b + OVERSHOOT;
 
   // TODO: Special cases for first few
-  motorSet(MOTOR_CLAW, -25);
+
   if (coneTarget == 1) {
     ensureLiftTaskSuspended();
     setLiftSpeed(127);
@@ -79,14 +79,11 @@ void manipulatorControl(void *ignored) {
     cones = coneTarget;
     setIntakeTarget(FOURBAR_INTAKE);
     waitForIntake();
-    motorSet(MOTOR_CLAW, -127);
     setLiftSpeed(-80);
     delay(100);
     setLiftSpeed(0);
-    if (joystickGetDigital(1, 8, JOY_DOWN))
-      delay(200);
-    ensureLiftTaskRunning();
     scoring = false;
+    ensureLiftTaskRunning();
     return;
   } else if (coneTarget <= 2) {
     ensureLiftTaskSuspended();
@@ -102,11 +99,9 @@ void manipulatorControl(void *ignored) {
     setIntakeTarget(FOURBAR_INTAKE);
     waitForIntake();
     motorSet(MOTOR_CLAW, -127);
-    setLiftTarget(liftReturnHeight);
+    setLiftTarget(0);
     ensureLiftTaskRunning();
     waitForLift();
-    if (joystickGetDigital(1, 8, JOY_DOWN))
-      delay(200);
     scoring = false;
     return;
   }
@@ -147,8 +142,6 @@ void manipulatorControl(void *ignored) {
   // Wait until we can start returning down
   while (abs(getIntakePos() - FOURBAR_INTAKE) > LOWER_THRESH)
     delay(5);
-
-  motorSet(MOTOR_CLAW, -127);
   // NOTE 4.1 END
 
   /*
@@ -159,8 +152,6 @@ void manipulatorControl(void *ignored) {
 
   setLiftTarget(liftReturnHeight);
   waitForLift();
-  if (joystickGetDigital(1, 8, JOY_DOWN))
-    delay(200);
   // NOTE 4.2 END
   scoring = false;
 }
