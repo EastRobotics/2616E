@@ -8,6 +8,7 @@ bool liftLastDir = false; // true: up, false: down
 bool sevenDReleased = true;
 bool sevenRReleased = true;
 bool eightDReleased = true;
+bool justStacked = false;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
@@ -73,12 +74,10 @@ void automaticControl() {
   ** Handle the main driver's controls
   */
   if (joystickGetDigital(1, 8, JOY_DOWN)) {
-    if (eightDReleased) {
+    if (isManipulatorReady()) {
+      justStacked = true;
       score();
     }
-    eightDReleased = false;
-  } else {
-    eightDReleased = true;
   }
 
   if (joystickGetDigital(1, 8, JOY_LEFT)) {
@@ -159,11 +158,13 @@ void operatorControl() {
             joystickGetDigital(1, 6, JOY_DOWN))) {
         if (joystickGetDigital(1, 6, JOY_UP)) {
           clawClosed = true;
+          justStacked = false;
           motorSet(MOTOR_CLAW, -127);
         } else if (joystickGetDigital(1, 6, JOY_DOWN)) {
           clawClosed = false;
+          justStacked = false;
           motorSet(MOTOR_CLAW, 127);
-        } else {
+        } else if (!justStacked) {
           motorSet(MOTOR_CLAW, (clawClosed) ? -25 : 127);
         }
       }
