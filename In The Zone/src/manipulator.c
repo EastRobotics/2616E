@@ -69,32 +69,20 @@ void manipulatorControl(void *ignored) {
   motorSet(MOTOR_CLAW, -25);
   if (coneTarget == 1) {
     ensureLiftTaskSuspended();
-    if (!isOnLoader)
-      setLiftSpeed(127);
+    setLiftSpeed(127);
     setIntakeTarget(FOURBAR_EXTAKE);
     delay(100);
     setLiftSpeed(0);
     waitForIntake();
-    if (isOnLoader) {
-      setLiftSpeed(-90);
-      delay(300);
-      setLiftSpeed(0);
-    }
     motorSet(MOTOR_CLAW, 127);
     delay(400);
     cones = coneTarget;
     setIntakeTarget(FOURBAR_INTAKE);
     waitForIntake();
     motorSet(MOTOR_CLAW, -127);
-    if (!isOnLoader) {
-      setLiftSpeed(-80);
-      delay(100);
-      setLiftSpeed(0);
-    } else {
-      setLiftTarget(liftReturnHeight);
-      ensureLiftTaskRunning();
-      waitForLift();
-    }
+    setLiftSpeed(-80);
+    delay(100);
+    setLiftSpeed(0);
     if (joystickGetDigital(1, 8, JOY_DOWN))
       delay(200);
     ensureLiftTaskRunning();
@@ -102,29 +90,15 @@ void manipulatorControl(void *ignored) {
     return;
   } else if (coneTarget <= 2) {
     ensureLiftTaskSuspended();
-    if (!isOnLoader) {
-      setLiftSpeed(127);
-      setIntakeTarget(FOURBAR_EXTAKE);
-      while (getLiftPos() < liftTarget)
-        delay(5);
-      setLiftSpeed(0);
-    } else {
-      setIntakeTarget(FOURBAR_EXTAKE);
-    }
+    setLiftSpeed(127);
+    setIntakeTarget(FOURBAR_EXTAKE);
+    while (getLiftPos() < liftTarget)
+      delay(5);
+    setLiftSpeed(0);
     waitForIntake();
-    if (isOnLoader) {
-      setLiftSpeed(-80);
-      delay(200);
-      setLiftSpeed(0);
-    }
     motorSet(MOTOR_CLAW, 127);
     delay(400);
     cones = coneTarget;
-    if (isOnLoader) {
-      setLiftSpeed(127);
-      delay(200);
-      setLiftSpeed(0);
-    }
     setIntakeTarget(FOURBAR_INTAKE);
     waitForIntake();
     motorSet(MOTOR_CLAW, -127);
@@ -142,27 +116,17 @@ void manipulatorControl(void *ignored) {
   */
 
   // Go to lift target
-  if (!isOnLoader || coneTarget > 3) {
-    setLiftTarget(liftTarget);
+  setLiftTarget(liftTarget);
 
-    // Wait until we can party hat
-    while (abs(getLiftPos() - liftTarget) > (PARTY_HAT_THRESH + OVERSHOOT))
-      delay(5);
-  }
+  // Wait until we can party hat
+  while (abs(getLiftPos() - liftTarget) > (PARTY_HAT_THRESH + OVERSHOOT))
+    delay(5);
   // We can party hat...
   setIntakeTarget(FOURBAR_EXTAKE);
   // NOTE 2.2.1 start
   // Wait until we can start dropping
   while (abs(getIntakePos() - FOURBAR_EXTAKE) > DROP_THRESH)
     delay(5);
-
-  if (isOnLoader && coneTarget < 3) {
-    setLiftTarget(liftTarget);
-
-    // Wait until we can party hat
-    while (abs(getLiftPos() - liftTarget) > (PARTY_HAT_THRESH + OVERSHOOT))
-      delay(5);
-  }
   // NOTE 2.2.2 END
   /*
   ** Cone is party hatted enough, and lift still going up. Extake that cone.
@@ -178,11 +142,6 @@ void manipulatorControl(void *ignored) {
   motorSet(MOTOR_CLAW, 0);
   cones = coneTarget;
 
-  if (isOnLoader && coneTarget < 3) {
-    setLiftTarget(liftReturnHeight);
-    waitForLift();
-  }
-
   // Return the four bar to intaking
   setIntakeTarget(FOURBAR_INTAKE);
   // Wait until we can start returning down
@@ -197,11 +156,9 @@ void manipulatorControl(void *ignored) {
   */
   // TODO Make some way to go from loader
   // NOTE 4.2 start
-  if (!isOnLoader || coneTarget > 3) {
-    setLiftTarget(liftReturnHeight);
-    waitForLift();
-  }
 
+  setLiftTarget(liftReturnHeight);
+  waitForLift();
   if (joystickGetDigital(1, 8, JOY_DOWN))
     delay(200);
   // NOTE 4.2 END

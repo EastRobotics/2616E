@@ -7,7 +7,7 @@
 */
 #define INTAKE_BIAS_THRESH 5      // How far sides need to be off to correct
 #define INTAKE_BIAS_CORRECT_P 1.5 // P term to use when correcting offset
-#define INTAKE_TARGET_THRESH 115  // How far from target to try go to it
+#define INTAKE_TARGET_THRESH 135  // How far from target to try go to it
 #define INTAKE_TARGET_CORRECT_P_UP 127 // P term to use when setting speed up
 #define INTAKE_TARGET_CORRECT_P_DOWN                                           \
   127                           // P term to use when setting speed down
