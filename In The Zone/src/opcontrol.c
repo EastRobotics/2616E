@@ -91,12 +91,10 @@ void automaticControl() {
   ** Handle the main driver's controls
   */
   if (joystickGetDigital(1, 8, JOY_DOWN)) {
-    if (eightDReleased) {
+    if (isManipulatorReady()) {
       score();
+      justStacked = true;
     }
-    eightDReleased = false;
-  } else {
-    eightDReleased = true;
   }
 
   if (joystickGetDigital(1, 8, JOY_LEFT)) {

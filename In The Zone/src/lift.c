@@ -11,7 +11,7 @@
 #define LIFT_TARGET_CORRECT_P_UP                                               \
   0.35 // P term to use when setting speed to target up
 #define LIFT_TARGET_CORRECT_P_DOWN                                             \
-  0.4 // P term to use when setting speed to target down
+  0.1 // P term to use when setting speed to target down
 #define HEIGHT_INCREMENT_CONE 117 // Height to add to goal per cone
 
 // TODO Configure speeds

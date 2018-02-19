@@ -61,8 +61,8 @@ void manipulatorControl(void *ignored) {
   ensureLiftTaskRunning();
   ensureIntakeTaskRunning();
   scoring = true; // We're scoring, let other things no
-  int m = 60;
-  int b = -30;
+  int m = 68;
+  int b = -33;
   int liftTarget = (m * coneTarget) + b + OVERSHOOT;
 
   // TODO: Special cases for first few
