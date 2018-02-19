@@ -14,13 +14,11 @@ bool justStacked = false;
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
 void swapControlState() {
+  ensureLiftTaskSuspended();
+  ensureIntakeTaskSuspended();
   if (isManualControl) {
     setIntakeTarget(getIntakePos());
-    ensureLiftTaskRunning();
-    ensureIntakeTaskRunning();
   } else {
-    ensureLiftTaskSuspended();
-    ensureIntakeTaskSuspended();
     setScoring(false);
   }
   isManualControl = !isManualControl;
@@ -152,10 +150,8 @@ void operatorControl() {
   getIntakeTask(); // Make sure we have an intake task created
   getLiftTask();   // Make sure we have a lift task created
 
-  if (isManualControl) {
-    ensureIntakeTaskSuspended();
-    ensureLiftTaskSuspended();
-  }
+  ensureLiftTaskSuspended();
+  ensureIntakeTaskSuspended();
 
   while (true) { // true cooler than 1
 

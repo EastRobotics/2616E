@@ -61,8 +61,8 @@ void manipulatorControl(void *ignored) {
   ensureLiftTaskRunning();
   ensureIntakeTaskRunning();
   scoring = true; // We're scoring, let other things no
-  int m = 65;
-  int b = -37;
+  int m = 60;
+  int b = -30;
   int liftTarget = (m * coneTarget) + b + OVERSHOOT;
 
   // TODO: Special cases for first few
@@ -83,9 +83,12 @@ void manipulatorControl(void *ignored) {
     delay(100);
     setLiftSpeed(0);
     scoring = false;
-    ensureLiftTaskRunning();
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    setIntakeSpeed(0);
     return;
-  } else if (coneTarget <= 2) {
+  } else if (coneTarget <=
+             1) { // essentially means do not run - just testing this
     ensureLiftTaskSuspended();
     setLiftSpeed(80);
     setIntakeTarget(FOURBAR_EXTAKE);
@@ -103,6 +106,9 @@ void manipulatorControl(void *ignored) {
     ensureLiftTaskRunning();
     waitForLift();
     scoring = false;
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    setIntakeSpeed(0);
     return;
   }
 
@@ -153,6 +159,9 @@ void manipulatorControl(void *ignored) {
   setLiftTarget(liftReturnHeight);
   waitForLift();
   // NOTE 4.2 END
+  ensureLiftTaskSuspended();
+  ensureIntakeTaskSuspended();
+  setIntakeSpeed(0);
   scoring = false;
 }
 
