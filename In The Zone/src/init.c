@@ -70,7 +70,7 @@ void initialize() {
 
   // Set up the LCD and start it
   print("[Init] Setting up the LCD\n");
-  lcdInitMenu(1, 4, 1); // Min 1, max 3, home 1
+  lcdInitMenu(1, 6, 1); // Min 1, max 3, home 1
   lcdSetUpdater(implUpdateLCD);
   lcdSetMenuBack(implMenuBack);
   lcdSetMenuNext(implMenuNext);
@@ -81,7 +81,7 @@ void initialize() {
   lcdSetText(uart2, 1, "Init drive...");
   driveInit(MOTOR_DRIVE_L, 0, MOTOR_DRIVE_R, 0);
   driveSetReverse(MOTOR_DRIVE_L_REV, false, MOTOR_DRIVE_R_REV, 0);
-  // enableSlew(15); // Set slew rate to 15
+  enableSlew(10); // Set slew rate to 5
 
   // Set up our autonomous to these modes
   print("[Init] Setting up autonomous modes\n");

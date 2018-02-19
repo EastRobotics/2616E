@@ -1,11 +1,12 @@
 #include "main.h"
 
 bool isManualControl = true; // Whether or not to use manual controls
-bool clawClosed = false;     // Whether or not the claw is closed
+bool clawClosed = true;      // Whether or not the claw is closed
 bool fourBarUp = false;      // Was the four bar last up or down
 bool runAuton = false;    // Should the robot run auton (used for remote start)
 bool liftLastDir = false; // true: up, false: down
 bool sevenDReleased = true;
+bool sevenRReleased = true;
 bool eightDReleased = true;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
@@ -79,6 +80,19 @@ void automaticControl() {
   } else {
     eightDReleased = true;
   }
+
+  if (joystickGetDigital(1, 8, JOY_LEFT)) {
+    setConeCount(0);
+  }
+
+  if (joystickGetDigital(1, 7, JOY_RIGHT)) {
+    if (sevenRReleased) {
+      setConeCount(getConeCount() - 1);
+    }
+    sevenRReleased = false;
+  } else {
+    sevenRReleased = true;
+  }
 }
 
 // NOTE This is probably broken...
@@ -150,7 +164,7 @@ void operatorControl() {
           clawClosed = false;
           motorSet(MOTOR_CLAW, 127);
         } else {
-          motorSet(MOTOR_CLAW, (clawClosed) ? -25 : 0);
+          motorSet(MOTOR_CLAW, (clawClosed) ? -25 : 127);
         }
       }
     }

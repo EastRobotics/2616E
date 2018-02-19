@@ -11,7 +11,7 @@ void implUpdateLCD(bool userCaused, int page) {
     case 1:                   // Mode 1 selected
       autonName = "Do Nothing";
       break;
-    case 2:  // Mode 1 selected
+    case 2:                // Mode 1 selected
       autonName = "Light"; // AKA Ra,
       break;
     case 3: // Mode 2 selected
@@ -55,11 +55,23 @@ void implUpdateLCD(bool userCaused, int page) {
     lcdPrintTitle("Auton Pos");
     const char *autonSide;
     if (getAutonPosition()) {
-      autonSide = "<<Right>>";
+      autonSide = "Right";
     } else {
-      autonSide = "<<Left>>";
+      autonSide = "Left";
     }
-    lcdPrintCentered(autonSide, 2);
+    static char temp[16]; // Create buffer for following line
+    sprintf(temp, "%c %s %c", 0xBC, autonSide, 0xBB); // Set up auton side
+    lcdPrintCentered(temp, 2);                        // Print auton side
+  } break;
+  case 5: {
+    lcdPrintTitle("Main Bat");
+    static char temp[16]; // Create buffer for following line
+    sprintf(temp, "%fV", voltLevelMain());
+  } break;
+  case 6: {
+    lcdPrintTitle("Cone Count");
+    static char temp[16]; // Create buffer for following line
+    sprintf(temp, "%d Cones", getConeCount());
   } break;
   // [Page ?] Unknown page -----------------------------------------------------
   default:

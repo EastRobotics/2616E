@@ -35,6 +35,8 @@ unsigned char batteryStatus(float volts) {
 // RETURNS:
 // int: The motor speed that would get the RPM given
 int RPMToMotor(float RPM) {
+  if (RPM == 0)
+    return 0;
   RPM = 11.431 * ((float)pow(2.71828, (RPM * 0.0217)));
   RPM = (RPM > 127.0) ? 127.0 : ((RPM < -127.0) ? -127.0 : RPM);
   return ((int)round(RPM));
@@ -48,7 +50,9 @@ int RPMToMotor(float RPM) {
 // RETURNS:
 // float: The RPM that a motor at the given speed should spin at
 float motorToRPM(int motorSpeed) {
-  return (motorSpeed < 0) ? ((log(((abs(motorSpeed)))) * 44.486) - 105.47)
+  if (motorSpeed == 0)
+    return 0;
+  return (motorSpeed > 0) ? ((log(((abs(motorSpeed)))) * 44.486) - 105.47)
                           : -1 * ((log(((abs(motorSpeed)))) * 44.486) - 105.47);
 }
 

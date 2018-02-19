@@ -20,7 +20,7 @@
 unsigned char driveFL, driveBL, driveFR, driveBR;
 char lastDriveFL, lastDriveBL, lastDriveFR, lastDriveBR;
 bool driveFLReverse, driveBLReverse, driveFRReverse, driveBRReverse;
-bool slewRate = 0;
+int slewRate = 0;
 
 char valuesLeft[127];
 char valuesRight[127];
@@ -131,16 +131,12 @@ void disableSlew() { slewRate = 0; }
 // RETURNS:
 //  int: The slewed speed to set the motors to
 int slew(int currentSpeed, int targetSpeed) {
-  int currentRPM = motorToRPM(abs(currentSpeed)) * (currentSpeed < 0 ? -1 : 1);
-  int targetRPM = motorToRPM(abs(targetSpeed) * targetSpeed < 0 ? -1 : 1);
   // If slew rate is off or we are closer to the target than slewRate
-  if (slewRate == 0 || abs(currentRPM - targetRPM) < slewRate)
+  if (slewRate == 0 || abs(currentSpeed - targetSpeed) < slewRate)
     return targetSpeed; // Return the target
   else {                // We need to slew
     // Add positive or negative slewRate to the given speed and return it
-
-    currentRPM += (currentRPM > targetRPM) ? -1 * slewRate : slewRate;
-    currentSpeed = RPMToMotor(abs(currentRPM)) * (currentRPM < 0 ? -1 : 1);
+    currentSpeed += (currentSpeed > targetSpeed) ? -1 * slewRate : slewRate;
     return currentSpeed;
   }
 }
