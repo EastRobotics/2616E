@@ -273,6 +273,10 @@ bool score();
 
 bool setScoring(bool isScoring);
 
+void setLiftReturnHeight(int returnHeight);
+
+void setIsOnLoader(bool onLoader);
+
 // -----------------------------------------------------------------------------
 
 /*

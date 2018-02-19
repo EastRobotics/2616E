@@ -7,7 +7,7 @@ bool runAuton = false;    // Should the robot run auton (used for remote start)
 bool liftLastDir = false; // true: up, false: down
 bool sevenDReleased = true;
 bool sevenRReleased = true;
-bool eightDReleased = true;
+bool eightUReleased = true;
 bool justStacked = false;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
@@ -82,15 +82,31 @@ void automaticControl() {
 
   if (joystickGetDigital(1, 8, JOY_LEFT)) {
     setConeCount(0);
+    setIsOnLoader(false);
   }
 
   if (joystickGetDigital(1, 7, JOY_RIGHT)) {
     if (sevenRReleased) {
       setConeCount(getConeCount() - 1);
+      setIsOnLoader(true);
     }
     sevenRReleased = false;
   } else {
     sevenRReleased = true;
+  }
+
+  if (joystickGetDigital(1, 7, JOY_UP)) {
+    setLiftReturnHeight(0);
+  }
+
+  if (joystickGetDigital(1, 8, JOY_UP)) {
+    if (eightUReleased) {
+      setLiftReturnHeight(350);
+      setLiftTarget(350);
+    }
+    eightUReleased = false;
+  } else {
+    eightUReleased = true;
   }
 }
 

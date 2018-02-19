@@ -7,6 +7,8 @@
 int cones = 0; // How many cones we're holding inside us
 int coneTarget = 0;
 int scoring = false;
+int liftReturnHeight = 0; // The height for the lift to return to
+bool isOnLoader = false;
 
 // AUTOSTACKING VARS
 const int OVERSHOOT = 0; // How much to overshoot the stack. Pretty much however
@@ -24,6 +26,12 @@ TaskHandle task;
 
 // Get how many cones are on the current target goal
 int getConeCount() { return cones; }
+
+// Set the height for the lift to return to
+void setLiftReturnHeight(int returnHeight) { liftReturnHeight = returnHeight; }
+
+// Going on loader or not
+void setIsOnLoader(bool onLoader) { isOnLoader = onLoader; }
 
 // Set how many cones are on the current target goal
 void setConeCount(int coneCount) { cones = coneCount; }
@@ -94,7 +102,7 @@ void manipulatorControl(void *ignored) {
     setIntakeTarget(FOURBAR_INTAKE);
     waitForIntake();
     motorSet(MOTOR_CLAW, -127);
-    setLiftTarget(0);
+    setLiftTarget(liftReturnHeight);
     ensureLiftTaskRunning();
     waitForLift();
     if (joystickGetDigital(1, 8, JOY_DOWN))
@@ -149,7 +157,7 @@ void manipulatorControl(void *ignored) {
   // TODO Make some way to go from loader
   // NOTE 4.2 start
 
-  setLiftTarget(0);
+  setLiftTarget(liftReturnHeight);
   waitForLift();
   if (joystickGetDigital(1, 8, JOY_DOWN))
     delay(200);

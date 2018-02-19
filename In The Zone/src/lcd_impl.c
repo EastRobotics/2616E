@@ -67,11 +67,13 @@ void implUpdateLCD(bool userCaused, int page) {
     lcdPrintTitle("Main Bat");
     static char temp[16]; // Create buffer for following line
     sprintf(temp, "%fV", voltLevelMain());
+    lcdPrintCentered(temp, 2); // Print voltage level
   } break;
   case 6: {
     lcdPrintTitle("Cone Count");
     static char temp[16]; // Create buffer for following line
     sprintf(temp, "%d Cones", getConeCount());
+    lcdPrintCentered(temp, 2); // Print cone count
   } break;
   // [Page ?] Unknown page -----------------------------------------------------
   default:
