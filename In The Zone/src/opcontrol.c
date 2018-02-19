@@ -8,6 +8,7 @@ bool liftLastDir = false; // true: up, false: down
 bool sevenDReleased = true;
 bool sevenRReleased = true;
 bool eightUReleased = true;
+bool eightDReleased = true;
 bool justStacked = false;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
@@ -59,10 +60,29 @@ void manualControl() {
     int liftSpeed = (liftLastDir) ? 15 : 0;
     setLiftSpeedRaw(-liftSpeed, liftSpeed);
   }
+
+  if (joystickGetDigital(1, 8, JOY_DOWN)) {
+    if (eightDReleased) {
+      setIntakeTarget(getIntakePos());
+      ensureIntakeTaskRunning();
+      motorSet(MOTOR_CLAW, 127);
+      delay(200);
+      setLiftSpeed(127);
+      delay(200);
+      setLiftSpeed(0);
+      setIntakeTarget(FOURBAR_INTAKE);
+      motorSet(MOTOR_CLAW, -25);
+      waitForIntake();
+    }
+    eightDReleased = false;
+  } else {
+    eightDReleased = true;
+  }
+
   //  // Take intake to specific height
   //   if (joystickGetDigital(1, 8, JOY_LEFT)) {
   //     setIntakeTarget(INTAKE_POS_AVOID);
-  //     if (!intakeTaskRunning) {
+  //     if (!intakeTaskRunning) {4
   //       taskResume(intakeCont);
   //       intakeTaskRunning = true;
   //     }

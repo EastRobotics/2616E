@@ -70,6 +70,8 @@ extern "C" {
 #define INTAKE_TYPE_PASSTHROUGH false
 #define ROBOT_CONE_LIMIT 14
 
+#define FOURBAR_INTAKE 3900 // Where we pick up cones
+
 /*
 ** Prototypes for initialization, operator control and autonomous
 */
