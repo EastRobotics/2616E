@@ -59,6 +59,77 @@ void autonomous() {
 
   // 20 point & stationary goal
   case 3:
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    runLiftAsync(300, true);                    // Raise the lift
+    runMogoAsync(127, 500);                     // Put out the mogo intake
+    pLoopDriveStraightAsync(1200, false, true); // Drive to the mogo
+    // Test this part first
+    while (true)
+      delay(50);
+    pLoopTurnPointAsync(45 *
+                        (getAutonPosition() ? 1 : -1)); // Turn to grab cone
+    runLiftSync(0, true);                               // Lower the lift
+    motorSet(MOTOR_CLAW, 127);                          // Extake the cone
+    delay(100);
+    runLiftSync(300, true);  // Raise the lift
+    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    // Test this part next
+    while (true)
+      delay(50);
+    waitForTurnPoint();
+    motorSet(MOTOR_CLAW, -25);  // Stall speed the goliath
+    runIntakeSync(3600);        // Swing out the intake
+    runLiftAsync(0, true);      // Lower the lift
+    motorSet(MOTOR_CLAW, -127); // Intake the cone
+    waitForLiftAsync();
+    delay(100);
+    motorSet(MOTOR_CLAW, -25); // Hold the cone in
+    runLiftAsync(300, true);   // Lift the cone
+    delay(100);                // Lift the cone
+    pLoopTurnPointAsync(0);    // Turn the robot after grabbing cone
+    waitForLiftAsync();        // Wait for the lift to raise the cone
+    runIntakeAsync(1000);      // Pull in the intake
+    waitForTurnPoint();
+    // Test this part next
+    while (true)
+      delay(50);
+    pLoopDriveStraight(-1000, true, true);              // Approach the zones
+    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
+    pLoopDriveStraight(-850, true, true); // Line up with zone and goal
+    runLiftAsync(600, true);              // Raise lift to stationary height
+    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
+    runIntakeSync(3600); // Swing intake over stationary
+    // Test this part next
+    while (true)
+      delay(50);
+    waitForLiftAsync();
+    setLiftSpeed(-80); // Lower lift onto stationary
+    delay(200);
+    setLiftSpeed(0);           // Stop the lift
+    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    delay(200);
+    setLiftSpeed(80); // Raise the lift
+    delay(200);
+    setLiftSpeed(0);         // Stop raising the lift
+    motorSet(MOTOR_CLAW, 0); // Stop extaking the cone
+    // Test this part next
+    while (true)
+      delay(50);
+    driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
+    delay(500);
+    runMogoAsync(127, 500); // Extake the mogo
+    delay(500);
+    driveRaw(-10, -10, -10, -10); // Slam on the breaks to get rid of the mogo
+    delay(100);
+    driveRaw(0, 0, 0, 0); // Stop the robot
+    delay(200);
+    driveRaw(-127, -127, -127, -127); // Back out of the zone
+    delay(1000);
+    driveRaw(0, 0, 0, 0);
+    // Test this part next
+    while (true)
+      delay(50);
     break;
 
   // 20 point
@@ -95,9 +166,6 @@ void autonomous() {
   if (isOnline()) {          // Shut down sensors if at a comp
     gyroShutdown(getGyro()); // Disable our gyro
   }
-  // taskDelete(liftCont);
-  // taskDelete(intakeCont);
-  // taskDelete(manipulatorCont);
 
   shutdownPID(); // Kill PID
 }

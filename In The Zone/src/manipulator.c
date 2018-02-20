@@ -15,7 +15,7 @@ const int OVERSHOOT = 0; // How much to overshoot the stack. Pretty much however
                          // high we need to release cone
 const int PARTY_HAT_THRESH = 660; // How soon before target we start party hat
 const int FOURBAR_INTAKE = 3600;  // Where we pick up cones
-const int FOURBAR_EXTAKE = 1450;  // Where we drop cones (party hat)
+const int FOURBAR_EXTAKE = 1000;  // Where we drop cones (party hat)
 const int DROP_THRESH =
     750; // How far from FOURBAR_EXTAKE to start dropping cone
 const int LOWER_THRESH =
@@ -82,29 +82,6 @@ void manipulatorControl(void *ignored) {
     setLiftSpeed(-80);
     delay(100);
     setLiftSpeed(0);
-    scoring = false;
-    ensureLiftTaskSuspended();
-    ensureIntakeTaskSuspended();
-    setIntakeSpeed(0);
-    return;
-  } else if (coneTarget <=
-             1) { // essentially means do not run - just testing this
-    ensureLiftTaskSuspended();
-    setLiftSpeed(80);
-    setIntakeTarget(FOURBAR_EXTAKE);
-    while (getLiftPos() < liftTarget)
-      delay(5);
-    setLiftSpeed(0);
-    waitForIntake();
-    motorSet(MOTOR_CLAW, 127);
-    delay(400);
-    cones = coneTarget;
-    setIntakeTarget(FOURBAR_INTAKE);
-    waitForIntake();
-    motorSet(MOTOR_CLAW, -127);
-    setLiftTarget(0);
-    ensureLiftTaskRunning();
-    waitForLift();
     scoring = false;
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
