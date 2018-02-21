@@ -29,7 +29,10 @@ void implUpdateLCD(bool userCaused, int page) {
     case 7: // Mode 3 selected
       autonName = "Skills";
       break;
-    case 8:
+    case 8: // Mode 8 selected
+      autonName = "Stationary";
+      break;
+    case 9:
       autonName = "Custom";
       break;
     default: { // Unknown mode
@@ -115,13 +118,13 @@ void implMenuNext(int page) {
     setAutonPosition(!getAutonPosition());
   } break; // ------------------------------------------------------------------
   case 7: {
-    setLiftVars(getManM()+1, getManB(), getManParty());
+    setLiftVars(getManM() + 1, getManB(), getManParty());
   } break; // ------------------------------------------------------------------
   case 8: {
-    setLiftVars(getManM(), getManB()+1, getManParty());
+    setLiftVars(getManM(), getManB() + 1, getManParty());
   } break; // ------------------------------------------------------------------
   case 9: {
-    setLiftVars(getManM(), getManB(), getManParty()+1);
+    setLiftVars(getManM(), getManB(), getManParty() + 1);
   } break; // ------------------------------------------------------------------
   }
   implUpdateLCD(true, page);
@@ -143,13 +146,13 @@ void implMenuBack(int page) {
     setAutonPosition(!getAutonPosition());
   } break; // ------------------------------------------------------------------
   case 7: {
-    setLiftVars(getManM()-1, getManB(), getManParty());
+    setLiftVars(getManM() - 1, getManB(), getManParty());
   } break; // ------------------------------------------------------------------
   case 8: {
-    setLiftVars(getManM(), getManB()-1, getManParty());
+    setLiftVars(getManM(), getManB() - 1, getManParty());
   } break; // ------------------------------------------------------------------
   case 9: {
-    setLiftVars(getManM(), getManB(), getManParty()-1);
+    setLiftVars(getManM(), getManB(), getManParty() - 1);
   } break; // ------------------------------------------------------------------
   }
   implUpdateLCD(true, page);

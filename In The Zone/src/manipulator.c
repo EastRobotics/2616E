@@ -13,16 +13,16 @@ bool isOnLoader = false;
 // AUTOSTACKING VARS
 const int OVERSHOOT = 0; // How much to overshoot the stack. Pretty much however
                          // high we need to release cone
-int PARTY_HAT_THRESH = 660; // How soon before target we start party hat
-const int FOURBAR_INTAKE = 3600;  // Where we pick up cones
-const int FOURBAR_EXTAKE = 1000;  // Where we drop cones (party hat)
+int PARTY_HAT_THRESH = 660;      // How soon before target we start party hat
+const int FOURBAR_INTAKE = 3600; // Where we pick up cones
+const int FOURBAR_EXTAKE = 1000; // Where we drop cones (party hat)
 const int DROP_THRESH =
     750; // How far from FOURBAR_EXTAKE to start dropping cone
 const int LOWER_THRESH =
     1250; // How far from FOURBAR_INTAKE to start lowering lift
 // END AUTOSTACKING VARS
-int m = 68;
-int b = -33;
+int m = 70;
+int b = -43;
 
 // TODO Remove following -------------------------------------------------------
 void setLiftVars(int _m, int _b, int party) {
@@ -31,17 +31,11 @@ void setLiftVars(int _m, int _b, int party) {
   PARTY_HAT_THRESH = party;
 }
 
-int getManM() {
-  return m;
-}
+int getManM() { return m; }
 
-int getManB() {
-  return b;
-}
+int getManB() { return b; }
 
-int getManParty() {
-  return PARTY_HAT_THRESH;
-}
+int getManParty() { return PARTY_HAT_THRESH; }
 // TODO End --------------------------------------------------------------------
 
 TaskHandle task;
@@ -109,9 +103,9 @@ void manipulatorControl(void *ignored) {
     return;
   }
 
-  /*
-  ** PARTY HAT! (Basically, go up, and swing the cone onto the top of the stack)
-  */
+  // ---------------------------------------------------------------------------
+  // PARTY HAT! (Basically, go up, and swing the cone onto the top of the stack)
+  // ---------------------------------------------------------------------------
 
   // Go to lift target
   setLiftTarget(liftTarget);
@@ -125,11 +119,16 @@ void manipulatorControl(void *ignored) {
   // Wait until we can start dropping
   while (abs(getIntakePos() - FOURBAR_EXTAKE) > DROP_THRESH)
     delay(5);
-  // NOTE 2.2.2 END
+
   /*
-  ** Cone is party hatted enough, and lift still going up. Extake that cone.
-  */
+  // NOTE 2.2.2 END
+
+  //------------------------------------------------------------------------
+  // Cone is party hatted enough, and lift still going up. Extake that cone.
+  //------------------------------------------------------------------------
+
   // NOTE 2.2.2 start
+
   // Extake cone until we reach overshoot
   motorSet(MOTOR_CLAW, 127);
   // NOTE 2.2.2 END
@@ -147,15 +146,18 @@ void manipulatorControl(void *ignored) {
     delay(5);
   // NOTE 4.1 END
 
-  /*
-  ** Okay, we have cleared the cone. Lets go back down.
-  */
+  // ---------------------------------------------------
+  // Okay, we have cleared the cone. Lets go back down.
+  // ---------------------------------------------------
   // TODO Make some way to go from loader
   // NOTE 4.2 start
 
   setLiftTarget(liftReturnHeight);
   waitForLift();
+
   // NOTE 4.2 END
+
+  */
   ensureLiftTaskSuspended();
   ensureIntakeTaskSuspended();
   setIntakeSpeed(0);
