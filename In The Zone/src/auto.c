@@ -209,6 +209,9 @@ void autonomous() {
     driveRaw(60, 60, 80, 80); // Drive into zone. but only line up
     delay(1000);
     driveRaw(0, 0, 0, 0);
+    // Test this part next
+    while (true)
+      delay(50);
     runMogoSync(-127, 500);       // Drop off mogo and cone
     driveRaw(100, 100, 100, 100); // Push in mogo
     delay(200);
