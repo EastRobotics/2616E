@@ -7,9 +7,11 @@ bool runAuton = false;    // Should the robot run auton (used for remote start)
 bool liftLastDir = false; // true: up, false: down
 bool sevenDReleased = true;
 bool sevenRReleased = true;
+bool sevenLReleased = true;
 bool eightUReleased = true;
 bool eightDReleased = true;
 bool justStacked = false;
+bool holdDrive = false;
 
 void setRunAuton(bool shouldRun) { runAuton = shouldRun; }
 
@@ -83,6 +85,15 @@ void manualControl() {
     eightDReleased = false;
   } else {
     eightDReleased = true;
+  }
+
+  if (joystickGetDigital(1, 7, JOY_RIGHT)) {
+    if (sevenLReleased) {
+      holdDrive = !holdDrive;
+    }
+    sevenLReleased = false;
+  } else {
+    sevenLReleased = true;
   }
 }
 
@@ -164,7 +175,10 @@ void operatorControl() {
     */
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
     // and 0 for strafe
-    driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
+    if (!holdDrive)
+      driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
+    else
+      driveRaw(10, 10, 10, 10);
 
     // Swap control state
     if (joystickGetDigital(1, 7, JOY_DOWN)) {
