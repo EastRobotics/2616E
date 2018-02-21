@@ -182,6 +182,41 @@ void autonomous() {
 
   // 10 point
   case 6:
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    motorSet(MOTOR_CLAW, -127);                 // Intake Preload
+    runLiftAsync(300, true);                    // Raise the lift
+    runMogoAsync(127, 500);                     // Put out the mogo intake
+    pLoopDriveStraightAsync(1200, false, true); // Drive to the mogo
+    delay(150);
+    motorSet(MOTOR_CLAW, -25);
+    waitForDriveStraight();
+    runMogoSync(-127, 500); // Intake Mogo
+    // Test this part first
+    while (true)
+      delay(50);
+    runLiftSync(0, true);      // Lower the lift
+    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    delay(100);
+    runLiftSync(300, true);  // Raise the lift
+    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    // Test this part next
+    while (true)
+      delay(50);
+    pLoopDriveStraight(-1000, false, true);               // Approach the zones
+    pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Turn to 10pt zone
+    pLoopDriveStraight(200, false, true);                 // Approach zone
+    driveRaw(60, 60, 80, 80); // Drive into zone. but only line up
+    delay(1000);
+    driveRaw(0, 0, 0, 0);
+    runMogoSync(-127, 500);       // Drop off mogo and cone
+    driveRaw(100, 100, 100, 100); // Push in mogo
+    delay(200);
+    driveRaw(0, 0, 0, 0);
+    delay(100);
+    driveRaw(-127, -127, -127, -127); // Back off
+    delay(500);
+    driveRaw(0, 0, 0, 0);
     break;
 
   // Programming Skills
