@@ -75,6 +75,24 @@ void implUpdateLCD(bool userCaused, int page) {
     sprintf(temp, "%d Cones", getConeCount());
     lcdPrintCentered(temp, 2); // Print cone count
   } break;
+  case 7: {
+    lcdPrintTitle("m");
+    static char temp[16]; // Create buffer for following line
+    sprintf(temp, "%d", getManM());
+    lcdPrintCentered(temp, 2); // Print m
+  } break;
+  case 8: {
+    lcdPrintTitle("b");
+    static char temp[16]; // Create buffer for following line
+    sprintf(temp, "%d", getManB());
+    lcdPrintCentered(temp, 2); // Print b
+  } break;
+  case 9: {
+    lcdPrintTitle("Party");
+    static char temp[16]; // Create buffer for following line
+    sprintf(temp, "%d", getManParty());
+    lcdPrintCentered(temp, 2); // Print party
+  } break;
   // [Page ?] Unknown page -----------------------------------------------------
   default:
     lcdPrint(uart2, 1, "Page? %d", page);
@@ -96,6 +114,15 @@ void implMenuNext(int page) {
   case 4: {
     setAutonPosition(!getAutonPosition());
   } break; // ------------------------------------------------------------------
+  case 7: {
+    setLiftVars(getManM()+1, getManB(), getManParty());
+  } break; // ------------------------------------------------------------------
+  case 8: {
+    setLiftVars(getManM(), getManB()+1, getManParty());
+  } break; // ------------------------------------------------------------------
+  case 9: {
+    setLiftVars(getManM(), getManB(), getManParty()+1);
+  } break; // ------------------------------------------------------------------
   }
   implUpdateLCD(true, page);
   lcdResetAutoRefresh();
@@ -114,6 +141,15 @@ void implMenuBack(int page) {
   } break; // ------------------------------------------------------------------
   case 4: {
     setAutonPosition(!getAutonPosition());
+  } break; // ------------------------------------------------------------------
+  case 7: {
+    setLiftVars(getManM()-1, getManB(), getManParty());
+  } break; // ------------------------------------------------------------------
+  case 8: {
+    setLiftVars(getManM(), getManB()-1, getManParty());
+  } break; // ------------------------------------------------------------------
+  case 9: {
+    setLiftVars(getManM(), getManB(), getManParty()-1);
   } break; // ------------------------------------------------------------------
   }
   implUpdateLCD(true, page);

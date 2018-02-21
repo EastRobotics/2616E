@@ -277,6 +277,16 @@ void setLiftReturnHeight(int returnHeight);
 
 void setIsOnLoader(bool onLoader);
 
+// TODO Remove following -------------------------------------------------------
+void setLiftVars(int _m, int _b, int party);
+
+int getManM();
+
+int getManB();
+
+int getManParty();
+// TODO End --------------------------------------------------------------------
+
 // -----------------------------------------------------------------------------
 
 /*
