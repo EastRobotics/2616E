@@ -59,6 +59,9 @@ void autonomous() {
 
   // 20 point & stationary goal
   case 3:
+    //
+    // /*
+    //
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
     motorSet(MOTOR_CLAW, -127);                 // Intake Preload
@@ -72,6 +75,12 @@ void autonomous() {
     // Test this part first
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     pLoopTurnPointAsync(45 *
                         (getAutonPosition() ? 1 : -1)); // Turn to grab cone
     runLiftSync(0, true);                               // Lower the lift
@@ -82,6 +91,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     waitForTurnPoint();
     motorSet(MOTOR_CLAW, -25);  // Stall speed the goliath
     runIntakeSync(3600);        // Swing out the intake
@@ -99,6 +114,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     pLoopDriveStraight(-1000, true, true);              // Approach the zones
     pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
     pLoopDriveStraight(-850, true, true); // Line up with zone and goal
@@ -108,6 +129,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     waitForLiftAsync();
     setLiftSpeed(-80); // Lower lift onto stationary
     delay(200);
@@ -121,6 +148,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
     delay(500);
     runMogoAsync(127, 500); // Extake the mogo
@@ -132,10 +165,16 @@ void autonomous() {
     driveRaw(-127, -127, -127, -127); // Back out of the zone
     delay(1000);
     driveRaw(0, 0, 0, 0);
+    //
+    // */
+    //
     break;
 
   // 20 point
   case 4:
+    //
+    // /*
+    //
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
     motorSet(MOTOR_CLAW, -127);                 // Intake Preload
@@ -143,12 +182,18 @@ void autonomous() {
     runMogoAsync(127, 500);                     // Put out the mogo intake
     pLoopDriveStraightAsync(1200, false, true); // Drive to the mogo
     delay(150);
-    motorSet(MOTOR_CLAW, -25);
+    motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
     waitForDriveStraight();
     runMogoSync(-127, 500); // Intake Mogo
     // Test this part first
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     runLiftSync(0, true);      // Lower the lift
     motorSet(MOTOR_CLAW, 127); // Extake the cone
     delay(100);
@@ -157,6 +202,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     pLoopDriveStraight(-1000, true, true);              // Approach the zones
     pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
     pLoopDriveStraight(-850, true, true); // Line up with zone and goal
@@ -164,6 +215,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
     delay(500);
     runMogoAsync(127, 500); // Extake the mogo
@@ -175,6 +232,9 @@ void autonomous() {
     driveRaw(-127, -127, -127, -127); // Back out of the zone
     delay(1000);
     driveRaw(0, 0, 0, 0);
+    //
+    // */
+    //
     break;
   // 10 point & stationary goal
   case 5:
@@ -182,6 +242,9 @@ void autonomous() {
 
   // 10 point
   case 6:
+    //
+    // /*
+    //
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
     motorSet(MOTOR_CLAW, -127);                 // Intake Preload
@@ -195,6 +258,12 @@ void autonomous() {
     // Test this part first
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     runLiftSync(0, true);      // Lower the lift
     motorSet(MOTOR_CLAW, 127); // Extake the cone
     delay(100);
@@ -203,6 +272,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     pLoopDriveStraight(-1000, false, true);               // Approach the zones
     pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Turn to 10pt zone
     pLoopDriveStraight(200, false, true);                 // Approach zone
@@ -212,6 +287,12 @@ void autonomous() {
     // Test this part next
     while (true)
       delay(50);
+    //
+    // */
+    //
+    //
+    // /*
+    //
     runMogoSync(-127, 500);       // Drop off mogo and cone
     driveRaw(100, 100, 100, 100); // Push in mogo
     delay(200);
@@ -220,6 +301,9 @@ void autonomous() {
     driveRaw(-127, -127, -127, -127); // Back off
     delay(500);
     driveRaw(0, 0, 0, 0);
+    //
+    // */
+    //
     break;
 
   // Programming Skills
