@@ -5,6 +5,8 @@
 // DON'T BE DUMB AND FORGET THIS UNTIL A COMPETITION. THAT WOULD BE BAD.
 // From: Cameron, To: Cameron.
 
+bool endBP = false; // End break point
+
 double imperialToTick(double inches) {
   double conversion = (4 * acos(-1.0)) / (360);
   return inches / conversion;
@@ -24,6 +26,13 @@ void shutDownMotors() { driveRaw(0, 0, 0, 0); }
 // Gets the encoder value of a specific motor *without parameters*
 // To be used in PID
 double getEncoderValue() { return encoderGet(getEncoderBR()); }
+
+void setEndBP(bool value) { endBP = value; }
+
+void breakpoint() {
+  while (!endBP)
+    delay(15);
+}
 
 ///////////////////////// PID DUMMY FUNCTIONS //////////////////////////////////
 
@@ -453,10 +462,16 @@ void autonomous() {
 
   // Custom
   case 9:
-    setLiftTarget(500);
-    waitForLift();
-    setIntakeTarget(2250);
-    waitForIntake();
+    pLoopDriveStraightSync(1000, false, true);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
+    pLoopTurnPointSync(90);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
+    runMogoSync(127, 500);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
+    runIntakeSync(3600);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
+    runLiftSync(300, true);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     break;
 
   default:

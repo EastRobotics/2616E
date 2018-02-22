@@ -353,6 +353,9 @@ void runIntakeSync(int target);
 
 bool isIntakeTaskRunning();
 
+// Lonely auto.c method to set variable to bypass breakpoint
+void setEndBP(bool value);
+
 // End C++ export structure
 #ifdef __cplusplus
 }

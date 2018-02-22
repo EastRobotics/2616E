@@ -21,6 +21,10 @@ void blueListen(char *message) {
     bprintf(1, "Lift  pos: %d\r\n", getLiftPos());
     bprintf(1, "Lift  posL: %d\r\n", getLiftPosLeft());
     bprintf(1, "Lift  posR: %d\r\n", getLiftPosRight());
+  } else if (strcmp(message, "breakpoint\r\n") == 0) {
+    setEndBP(true);
+    delay(50);
+    setEndBP(false);
   } else if (strcmp(message, "startauton\r\n") == 0) {
     setRunAuton(true);
   } else if (strcmp(message, "ryan\r\n") == 0) { // Send give complaint
