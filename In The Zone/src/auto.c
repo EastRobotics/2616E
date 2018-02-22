@@ -82,8 +82,7 @@ void autonomous() {
     waitForDriveStraight();
     runMogoSync(-127, 500); // Intake Mogo
     // Test this part first
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -98,8 +97,7 @@ void autonomous() {
     runLiftSync(300, true);  // Raise the lift
     motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -121,8 +119,7 @@ void autonomous() {
     runIntakeAsync(1000);      // Pull in the intake
     waitForTurnPoint();
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -136,8 +133,7 @@ void autonomous() {
     pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
     runIntakeSync(3600); // Swing intake over stationary
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -155,8 +151,7 @@ void autonomous() {
     setLiftSpeed(0);         // Stop raising the lift
     motorSet(MOTOR_CLAW, 0); // Stop extaking the cone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -195,8 +190,7 @@ void autonomous() {
     waitForDriveStraight();
     runMogoSync(-127, 500); // Intake Mogo
     // Test this part first
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -209,8 +203,7 @@ void autonomous() {
     runLiftSync(300, true);  // Raise the lift
     motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -222,8 +215,7 @@ void autonomous() {
     pLoopDriveStraight(-850, true, true); // Line up with zone and goal
     pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -261,8 +253,7 @@ void autonomous() {
     waitForDriveStraight();
     runMogoSync(-127, 500); // Intake Mogo
     // Test this part first
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -277,8 +268,7 @@ void autonomous() {
     runLiftSync(300, true);  // Raise the lift
     motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -300,8 +290,7 @@ void autonomous() {
     runIntakeAsync(1000);      // Pull in the intake
     waitForTurnPoint();
     // Test this next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -316,8 +305,7 @@ void autonomous() {
     pLoopDriveStraight(-300, false, true);              // Drive to goal
     runIntakeSync(3600); // Swing intake over stationary
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -335,8 +323,7 @@ void autonomous() {
     setLiftSpeed(0);         // Stop raising the lift
     motorSet(MOTOR_CLAW, 0); // Stop extaking the cone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -349,8 +336,7 @@ void autonomous() {
     delay(1000);
     driveRaw(0, 0, 0, 0);
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -386,8 +372,7 @@ void autonomous() {
     waitForDriveStraight();
     runMogoSync(-127, 500); // Intake Mogo
     // Test this part first
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -400,8 +385,7 @@ void autonomous() {
     runLiftSync(300, true);  // Raise the lift
     motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
@@ -415,8 +399,7 @@ void autonomous() {
     delay(1000);
     driveRaw(0, 0, 0, 0);
     // Test this part next
-    while (true)
-      delay(50);
+    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
