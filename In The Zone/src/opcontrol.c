@@ -81,6 +81,11 @@ void manualControl() {
       setIntakeTarget(3600);
       motorSet(MOTOR_CLAW, -25);
       waitForIntake();
+      ensureIntakeTaskSuspended();
+      setLiftTarget(0);
+      ensureLiftTaskRunning();
+      waitForLift();
+      ensureLiftTaskSuspended();
     }
     eightDReleased = false;
   } else {
