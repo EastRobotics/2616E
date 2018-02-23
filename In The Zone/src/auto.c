@@ -219,11 +219,28 @@ void autonomous() {
     //
     pLoopDriveStraight((-1260 * 2) + tickDiff, false,
                        true); // Approach the zones
+    // Kick off the turn
     driveRaw(-127 * sideMult, -127 * sideMult, 127 * sideMult, 127 * sideMult);
     delay(250);
     pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
     driveRaw(0, 0, 0, 0);
-    pLoopDriveStraight(-850 * 2, false, true); // Line up with zone and goal
+    pLoopDriveStraight(-400 * 2, false, true);           // Line up with cones
+    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Line up with cones
+    runIntakeAsync(3550);
+    runLiftSync(0, true);       // Lift down
+    motorSet(MOTOR_CLAW, -127); // Intake cones
+    runLiftSync(0, true);
+    delay(200);
+    // tickDiff = encoderGet(getEncoderBR());
+    pLoopDriveStraight(-820, false, false); // Go for cone
+    delay(200);
+    motorSet(MOTOR_CLAW, -20); // Hold cones
+    runLiftAsync(100, true);
+    // tickDiff -= encoderGet(getEncoderBR());
+    // pLoopDriveStraight(tickDiff, false, false);
+    pLoopDriveStraight(820, false, false);              // Go back
+    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn back
+    pLoopDriveStraight(-450 * 2, false, true); // Line up with zone and goal
     pLoopTurnPoint(135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
     //
     // */
@@ -234,14 +251,14 @@ void autonomous() {
     driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
     delay(500);
     runMogoAsync(127, 500); // Extake the mogo
-    delay(500);
+    delay(300);
     driveRaw(-10, -10, -10, -10); // Slam on the breaks to get rid of the mogo
     delay(100);
     driveRaw(0, 0, 0, 0); // Stop the robot
-    delay(200);
-    driveRaw(-127, -127, -127, -127); // Back out of the zone
-    delay(800);
-    driveRaw(0, 0, 0, 0);
+    // delay(200);
+    /// driveRaw(-127, -127, -127, -127); // Back out of the zone
+    // delay(800);
+    // driveRaw(0, 0, 0, 0);
     //
     // */
   } break;
