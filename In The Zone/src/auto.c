@@ -70,112 +70,97 @@ void autonomous() {
   } break;
 
   // 20 point & stationary goal
-  case 3:
+  case 3: {
     //
     // /*
     //
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
-    motorSet(MOTOR_CLAW, -127);                 // Intake Preload
-    runLiftAsync(300, true);                    // Raise the lift
-    runMogoAsync(127, 500);                     // Put out the mogo intake
-    pLoopDriveStraightAsync(1200, false, true); // Drive to the mogo
+    motorSet(MOTOR_CLAW, -127); // Intake Preload
+    runLiftAsync(300, true);    // Raise the lift
+    runMogoAsync(127, 1075);    // Put out the mogo intake
+    delay(200);
+    pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
     delay(150);
-    motorSet(MOTOR_CLAW, -25);
+    motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
     waitForDriveStraight();
-    runMogoSync(-127, 500); // Intake Mogo
-    // Test this part first
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    int tickDiff = encoderGet(getEncoderBR());
+    driveRaw(60, 60, 60, 60);
+    delay(50);
+    runMogoAsync(-127, 1075); // Intake Mogo
+    delay(150);
+    driveRaw(0, 0, 0, 0);
+    tickDiff -= encoderGet(getEncoderBR());
+    waitForMogoAsync();
     //
     // */
     //
     //
     // /*
     //
-    pLoopTurnPointAsync(45 *
-                        (getAutonPosition() ? 1 : -1)); // Turn to grab cone
-    runLiftSync(0, true);                               // Lower the lift
-    motorSet(MOTOR_CLAW, 127);                          // Extake the cone
-    delay(100);
-    runLiftSync(300, true);  // Raise the lift
-    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
-    //
-    // */
-    //
-    //
-    // /*
-    //
-    waitForTurnPoint();
-    motorSet(MOTOR_CLAW, -25);  // Stall speed the goliath
-    runIntakeSync(3600);        // Swing out the intake
-    runLiftAsync(0, true);      // Lower the lift
-    motorSet(MOTOR_CLAW, -127); // Intake the cone
-    waitForLiftAsync();
-    delay(100);
-    motorSet(MOTOR_CLAW, -25); // Hold the cone in
-    runLiftAsync(300, true);   // Lift the cone
-    delay(100);                // Lift the cone
-    pLoopTurnPointAsync(0);    // Turn the robot after grabbing cone
-    waitForLiftAsync();        // Wait for the lift to raise the cone
-    runIntakeAsync(1000);      // Pull in the intake
-    waitForTurnPoint();
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
-    //
-    // */
-    //
-    //
-    // /*
-    //
-    pLoopDriveStraight(-1000, true, true);              // Approach the zones
-    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
-    pLoopDriveStraight(-850, true, true); // Line up with zone and goal
-    runLiftAsync(600, true);              // Raise lift to stationary height
-    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
-    runIntakeSync(3600); // Swing intake over stationary
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
-    //
-    // */
-    //
-    //
-    // /*
-    //
-    waitForLiftAsync();
-    setLiftSpeed(-80); // Lower lift onto stationary
-    delay(200);
-    setLiftSpeed(0);           // Stop the lift
+    runLiftSync(0, true);      // Lower the lift
     motorSet(MOTOR_CLAW, 127); // Extake the cone
-    delay(200);
-    setLiftSpeed(80); // Raise the lift
-    delay(200);
-    setLiftSpeed(0);         // Stop raising the lift
-    motorSet(MOTOR_CLAW, 0); // Stop extaking the cone
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    delay(100);
+    runLiftSync(150, true);  // Raise the lift
+    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
     //
     // */
     //
     //
     // /*
     //
+    pLoopDriveStraight((-1280 * 2) + tickDiff, false,
+                       true); // Approach the zones
+    // Kick off the turn
+    driveRaw(-127 * sideMult, -127 * sideMult, 127 * sideMult, 127 * sideMult);
+    delay(250);
+    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
+    driveRaw(0, 0, 0, 0);
+    pLoopDriveStraight(-380 * 2, false, true);           // Line up with cones
+    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Line up with cones
+    runIntakeAsync(3550);
+    runLiftSync(0, true);       // Lift down
+    motorSet(MOTOR_CLAW, -127); // Intake cones
+    delay(200);
+    // tickDiff = encoderGet(getEncoderBR());
+    pLoopDriveStraight(-820, false, false); // Go for cone
+    delay(200);
+    motorSet(MOTOR_CLAW, -20); // Hold cones
+    runLiftAsync(200, true);
+    runIntakeAsync(2000);
+    // tickDiff -= encoderGet(getEncoderBR());
+    // pLoopDriveStraight(tickDiff, false, false);
+    pLoopDriveStraight(960, false, false);              // Go back
+    pLoopTurnPoint(60 * (getAutonPosition() ? 1 : -1)); // Turn back
+    pLoopDriveStraight(-425 * 2, false, true); // Line up with zone and goal
+    pLoopTurnPoint(135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
+    runIntakeSync(3550);                                 // Stack cone
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    // Let go of cone
+    motorSet(MOTOR_CLAW, 127); // Release cones
+    runLiftAsync(350, true);
+    delay(200);
+    runIntakeAsync(1200);
+    runLiftAsync(100, true);
     driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
     delay(500);
     runMogoAsync(127, 500); // Extake the mogo
-    delay(500);
+    delay(300);
     driveRaw(-10, -10, -10, -10); // Slam on the breaks to get rid of the mogo
     delay(100);
     driveRaw(0, 0, 0, 0); // Stop the robot
-    delay(200);
-    driveRaw(-127, -127, -127, -127); // Back out of the zone
-    delay(1000);
-    driveRaw(0, 0, 0, 0);
+    // delay(200);
+    /// driveRaw(-127, -127, -127, -127); // Back out of the zone
+    // delay(800);
+    // driveRaw(0, 0, 0, 0);
     //
     // */
-    //
-    break;
+  } break;
 
   // 20 point
   case 4: {
