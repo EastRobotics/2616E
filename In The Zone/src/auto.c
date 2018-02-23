@@ -217,7 +217,7 @@ void autonomous() {
     //
     // /*
     //
-    pLoopDriveStraight((-1300 * 2) - tickDiff, false,
+    pLoopDriveStraight((-1260 * 2) + tickDiff, false,
                        true); // Approach the zones
     driveRaw(-127 * sideMult, -127 * sideMult, 127 * sideMult, 127 * sideMult);
     delay(250);
