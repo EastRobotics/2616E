@@ -7,6 +7,7 @@
 #define KP_GYRO_CORRECT 10
 #define P_LOOP_DRIVE_THRESHOLD 10
 #define P_LOOP_STOP_COUNT 25
+#define P_LOOP_DRIVE_BREAK_TIME 2000
 // Appear to be unused:
 // #define P_LOOP_GYRO_STAIGHTEN_SPEED_MODIF 10
 // #define P_LOOP_GYRO_CORRECTION_ANGLE 2
@@ -17,8 +18,8 @@ void pLoopDriveStraight(int tickDiff, bool correctBackwards, bool correctDir) {
                         P_LOOP_STOP_COUNT);
 }
 
-#define KP_DRIVE_TURN 0.80
-#define KD_DRIVE_TURN 0.1
+#define KP_DRIVE_TURN 1.8
+#define KD_DRIVE_TURN 2.5
 #define P_LOOP_DRIVE_TURN_THRESHOLD 3
 #define P_LOOP_TURN_STOP_COUNT 25
 

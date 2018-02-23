@@ -44,6 +44,7 @@ void autonomous() {
 
   ensureLiftTaskRunning();
   ensureIntakeTaskRunning();
+  int sideMult = (getAutonPosition() ? 1 : -1);
 
   /*
   ** Run auton
@@ -52,6 +53,8 @@ void autonomous() {
   // This is probably our most complex auton - it strategically does nothing
   case 1:
     print("Ran auton one!\n");
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
     break;
 
   // "Light" (RAM)
@@ -175,22 +178,28 @@ void autonomous() {
     break;
 
   // 20 point
-  case 4:
+  case 4: {
     //
     // /*
     //
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
-    motorSet(MOTOR_CLAW, -127);                 // Intake Preload
-    runLiftAsync(300, true);                    // Raise the lift
-    runMogoAsync(127, 500);                     // Put out the mogo intake
-    pLoopDriveStraightAsync(1200, false, true); // Drive to the mogo
+    motorSet(MOTOR_CLAW, -127); // Intake Preload
+    runLiftAsync(300, true);    // Raise the lift
+    runMogoAsync(127, 1075);    // Put out the mogo intake
+    delay(200);
+    pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
     delay(150);
     motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
     waitForDriveStraight();
-    runMogoSync(-127, 500); // Intake Mogo
-    // Test this part first
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    int tickDiff = encoderGet(getEncoderBR());
+    driveRaw(60, 60, 60, 60);
+    delay(50);
+    runMogoAsync(-127, 1075); // Intake Mogo
+    delay(150);
+    driveRaw(0, 0, 0, 0);
+    tickDiff -= encoderGet(getEncoderBR());
+    waitForMogoAsync();
     //
     // */
     //
@@ -200,22 +209,22 @@ void autonomous() {
     runLiftSync(0, true);      // Lower the lift
     motorSet(MOTOR_CLAW, 127); // Extake the cone
     delay(100);
-    runLiftSync(300, true);  // Raise the lift
+    runLiftSync(150, true);  // Raise the lift
     motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
     //
     // /*
     //
-    pLoopDriveStraight(-1000, true, true);              // Approach the zones
+    pLoopDriveStraight((-1300 * 2) - tickDiff, false,
+                       true); // Approach the zones
+    driveRaw(-127 * sideMult, -127 * sideMult, 127 * sideMult, 127 * sideMult);
+    delay(250);
     pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
-    pLoopDriveStraight(-850, true, true); // Line up with zone and goal
-    pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    driveRaw(0, 0, 0, 0);
+    pLoopDriveStraight(-850 * 2, false, true); // Line up with zone and goal
+    pLoopTurnPoint(135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
     //
     // */
     //
@@ -231,12 +240,11 @@ void autonomous() {
     driveRaw(0, 0, 0, 0); // Stop the robot
     delay(200);
     driveRaw(-127, -127, -127, -127); // Back out of the zone
-    delay(1000);
+    delay(800);
     driveRaw(0, 0, 0, 0);
     //
     // */
-    //
-    break;
+  } break;
   // 10 point & stationary goal
   case 5:
     //
@@ -445,8 +453,8 @@ void autonomous() {
 
   // Custom
   case 9:
-    pLoopDriveStraightSync(1000, false, true);
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
     pLoopTurnPointSync(90);
     breakpoint(); // --------------------- BREAK POINT -------------------------
     runMogoSync(127, 500);

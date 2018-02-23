@@ -2,6 +2,8 @@
 #include "math.h"
 // TODO Add parameters for sensor input -- currently our-code specific!
 
+#define P_LOOP_DRIVE_BREAK_TIME 2000
+
 int linSpeed(int speedUnlin) { return getLerpedSpeed(speedUnlin, 0, 0); }
 
 // Turn to a point based on gyroscopic target
@@ -18,7 +20,7 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
   int iterations = 0;
   bprintf(1, "---\r\nang:%d\r\np:%f\r\nd:%f\r\nthresh%d\r\ncount:%d\r\n",
           angleTarget, p, d, thresh, threshCount);
-  while (iterations++ < 75) { //  Was 263
+  while (iterations++ < 150) { //  Was 263
     error = angleTarget - gyroGet(getGyro());
     speed = (error * p) + ((error - lastError) * d);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
@@ -26,8 +28,6 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
     speed = linSpeed(speed); // Linearize speed
 
     driveRaw(-speed, -speed, speed, speed);
-    fprintf(uart1, "speed: %d\r\n", speed);
-    fprintf(uart1, "error: %d\r\n", error);
 
     if (abs(error) < thresh) {
       stopCount++;
@@ -36,7 +36,6 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
     }
 
     lastError = error;
-    bprintf(1, "speed:%d\r\n", speed);
     delay(20);
   }
 
@@ -62,11 +61,12 @@ void pLoopDriveStraightRaw(int tickDiff, bool correctBackwards, bool correctDir,
   int initGyro = gyroGet(getGyro()); // Initial value of the gyro
   int speedModif = 0;                // How much to modify the speed for angle
   int angleOffset; // How much the robot is curving in its motion
+  int iterations = 0;
 
-  while (true) {
+  while (iterations++ <= (P_LOOP_DRIVE_BREAK_TIME / 20)) {
     errorL = tickDiff - (encoderGet(getEncoderBL()) - leftInit);
     errorR = tickDiff - (encoderGet(getEncoderBR()) - rightInit);
-    error = round((errorL + errorR) / 2); // errorL;
+    error = errorR; // round((errorL + errorR) / 2); // errorL;
     speed = error * pSpeed + ((error - lastError) * dSpeed);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;
     speed = (abs(speed) < 25) ? (speed < 0) ? -25 : 25 : speed;

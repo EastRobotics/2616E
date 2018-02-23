@@ -353,6 +353,8 @@ void runIntakeSync(int target);
 
 bool isIntakeTaskRunning();
 
+bool isLiftTaskRunning();
+
 // Lonely auto.c method to set variable to bypass breakpoint
 void setEndBP(bool value);
 

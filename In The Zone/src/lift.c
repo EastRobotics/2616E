@@ -261,6 +261,13 @@ TaskHandle getLiftTask() {
     return liftTask;
 }
 
+bool isLiftTaskRunning() {
+  if (liftTask == NULL)
+    return false;
+  else
+    return taskGetState(liftTask) == TASK_RUNNING;
+}
+
 void ensureLiftTaskSuspended() {
   if (liftTask == NULL)
     return;

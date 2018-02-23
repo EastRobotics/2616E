@@ -20,7 +20,7 @@ void killDriveEncoders() {
 void initDriveEncoders() {
   // Init right encoder, reverse
   encDriveBR =
-      encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, true);
+      encoderInit(DIGITAL_ENC_DRIVE_BR_TOP, DIGITAL_ENC_DRIVE_BR_BOT, false);
   // Init left encoder, not reversed
   encDriveBL =
       encoderInit(DIGITAL_ENC_DRIVE_BL_TOP, DIGITAL_ENC_DRIVE_BL_BOT, true);

@@ -120,12 +120,13 @@ void manipulatorControl(void *ignored) {
   while (abs(getIntakePos() - FOURBAR_EXTAKE) > DROP_THRESH)
     delay(5);
 
-  /*
   // NOTE 2.2.2 END
 
   //------------------------------------------------------------------------
   // Cone is party hatted enough, and lift still going up. Extake that cone.
   //------------------------------------------------------------------------
+
+  /*
 
   // NOTE 2.2.2 start
 
@@ -156,7 +157,6 @@ void manipulatorControl(void *ignored) {
   waitForLift();
 
   // NOTE 4.2 END
-
   */
   ensureLiftTaskSuspended();
   ensureIntakeTaskSuspended();

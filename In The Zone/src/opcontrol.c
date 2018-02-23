@@ -29,37 +29,6 @@ void swapControlState() {
 // Manual control of the robot
 void manualControl() {
 
-  // Run the four bar
-  if (joystickGetDigital(1, 8, JOY_UP)) {
-    motorSet(MOTOR_FOUR_BAR,
-             ((digitalRead(DIGITAL_LIM_CLAW))
-                  ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127)
-                  : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -10)));
-    fourBarUp = true;
-    setShouldHoldIntake(false);
-    ensureIntakeTaskSuspended();
-  } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
-    motorSet(MOTOR_FOUR_BAR, (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127);
-    fourBarUp = false;
-    setShouldHoldIntake(false);
-    ensureIntakeTaskSuspended();
-  } else {
-    if (!isIntakeTaskRunning()) {
-      motorSet(MOTOR_FOUR_BAR, (!fourBarUp) ? 10 : 0);
-    }
-  }
-
-  // Run the lift
-  if (joystickGetDigital(1, 7, JOY_UP)) {
-    setLiftSpeedRaw(-127, 127);
-    liftLastDir = true;
-  } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
-    setLiftSpeedRaw(127, -127);
-    liftLastDir = false;
-  } else {
-    int liftSpeed = (liftLastDir) ? 15 : 0;
-    setLiftSpeedRaw(-liftSpeed, liftSpeed);
-  }
   //  // Take intake to specific height
   //   if (joystickGetDigital(1, 8, JOY_LEFT)) {
   //     setIntakeTarget(INTAKE_POS_AVOID);
@@ -180,10 +149,17 @@ void operatorControl() {
     */
     // Drive normally, using the joystick channels 3 (Forward), 1 (Turn),
     // and 0 for strafe
-    if (!holdDrive)
-      driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
-    else
+    if (!holdDrive) {
+      if ((abs(joystickGetAnalog(1, 3)) > 10) ||
+          (abs(joystickGetAnalog(1, 1)) > 10)) {
+        driveWithLogic(joystickGetAnalog(1, 3), joystickGetAnalog(1, 1), 0);
+      } else {
+        driveTank(-(joystickGetAnalog(2, 2) / 2),
+                  -(joystickGetAnalog(2, 3) / 2));
+      }
+    } else {
       driveRaw(10, 10, 10, 10);
+    }
 
     // Swap control state
     if (joystickGetDigital(1, 7, JOY_DOWN)) {
@@ -219,12 +195,49 @@ void operatorControl() {
     }
 
     // Run the mogo
-    if (joystickGetDigital(1, 5, JOY_UP)) {
+    if (joystickGetDigital(1, 5, JOY_UP) || joystickGetDigital(2, 5, JOY_UP)) {
       motorSet(MOTOR_MOGO, 127);
-    } else if (joystickGetDigital(1, 5, JOY_DOWN)) {
+    } else if (joystickGetDigital(1, 5, JOY_DOWN) ||
+               joystickGetDigital(2, 5, JOY_DOWN)) {
       motorSet(MOTOR_MOGO, -80);
     } else {
       motorSet(MOTOR_MOGO, 0);
+    }
+
+    if (isManipulatorReady()) {
+      // Run the four bar
+      if (joystickGetDigital(1, 8, JOY_UP)) {
+        motorSet(MOTOR_FOUR_BAR,
+                 ((digitalRead(DIGITAL_LIM_CLAW))
+                      ? ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -127)
+                      : ((joystickGetDigital(1, 7, JOY_RIGHT)) ? -50 : -10)));
+        fourBarUp = true;
+        setShouldHoldIntake(false);
+        ensureIntakeTaskSuspended();
+      } else if (joystickGetDigital(1, 8, JOY_RIGHT)) {
+        motorSet(MOTOR_FOUR_BAR,
+                 (joystickGetDigital(1, 7, JOY_RIGHT)) ? 50 : 127);
+        fourBarUp = false;
+        setShouldHoldIntake(false);
+        ensureIntakeTaskSuspended();
+      } else {
+        if (!isIntakeTaskRunning()) {
+          motorSet(MOTOR_FOUR_BAR, (!fourBarUp) ? 10 : 0);
+        }
+      }
+    }
+    if (isManipulatorReady() && !isLiftTaskRunning()) {
+      // Run the lift
+      if (joystickGetDigital(1, 7, JOY_UP)) {
+        setLiftSpeedRaw(-127, 127);
+        liftLastDir = true;
+      } else if (joystickGetDigital(1, 7, JOY_LEFT)) {
+        setLiftSpeedRaw(127, -127);
+        liftLastDir = false;
+      } else {
+        int liftSpeed = (liftLastDir) ? 15 : 0;
+        setLiftSpeedRaw(-liftSpeed, liftSpeed);
+      }
     }
 
     delay(20);
