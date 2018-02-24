@@ -476,6 +476,7 @@ void autonomous() {
     breakpoint(); // --------------------- BREAK POINT -------------------------
     break;
 
+  // 20 pt - 1 cone
   case 10: {
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
@@ -484,7 +485,7 @@ void autonomous() {
     runMogoAsync(127, 1075);    // Put out the mogo intake
     delay(200);
     pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
-    delay(150);
+    delay(100);
     motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
     waitForDriveStraight();
     int tickDiff = encoderGet(getEncoderBR());
