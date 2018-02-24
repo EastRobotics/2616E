@@ -376,67 +376,81 @@ void autonomous() {
     break;
 
   // 10 point
-  case 6:
-    //
-    // /*
-    //
+  case 6: {
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
-    motorSet(MOTOR_CLAW, -127);                 // Intake Preload
-    runLiftAsync(300, true);                    // Raise the lift
-    runMogoAsync(127, 500);                     // Put out the mogo intake
-    pLoopDriveStraightAsync(1200, false, true); // Drive to the mogo
-    delay(150);
-    motorSet(MOTOR_CLAW, -25);
+    motorSet(MOTOR_CLAW, -127); // Intake Preload
+    runLiftAsync(300, true);    // Raise the lift
+    runMogoAsync(127, 1075);    // Put out the mogo intake
+    delay(200);
+    pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
+    delay(100);
+    motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
     waitForDriveStraight();
-    runMogoSync(-127, 500); // Intake Mogo
-    // Test this part first
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    int tickDiff = encoderGet(getEncoderBR());
+    driveRaw(60, 60, 60, 60);
+    delay(50);
+    runMogoAsync(-127, 1075); // Intake Mogo
+    delay(150);
+    driveRaw(0, 0, 0, 0);
+    tickDiff -= encoderGet(getEncoderBR());
+    waitForMogoAsync();
+    if (abs(gyroGet(getGyro())) <= 5 && abs(gyroGet(getGyro())) >= 3) {
+      if ((gyroGet(getGyro()) > 0)) {
+        driveRaw(60 * sideMult, 60 * sideMult, -60 * sideMult, -60 * sideMult);
+      } else {
+        driveRaw(-60 * sideMult, -60 * sideMult, 60 * sideMult, 60 * sideMult);
+      }
+      delay(50);
+      driveRaw(0, 0, 0, 0);
+    }
+
     //
     // */
     //
     //
     // /*
     //
-    runLiftSync(0, true);      // Lower the lift
+    runLiftSync(50, true);     // Lower the lift
     motorSet(MOTOR_CLAW, 127); // Extake the cone
     delay(100);
-    runLiftSync(300, true);  // Raise the lift
+    runLiftSync(200, true);  // Raise the lift
     motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
     //
     // */
     //
     //
     // /*
     //
-    pLoopDriveStraight(-1000, false, true);               // Approach the zones
-    pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Turn to 10pt zone
-    pLoopDriveStraight(200, false, true);                 // Approach zone
-    driveRaw(60, 60, 80, 80); // Drive into zone. but only line up
-    delay(1000);
-    driveRaw(0, 0, 0, 0);
-    // Test this part next
-    breakpoint(); // --------------------- BREAK POINT -------------------------
+    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
+                       true); // Approach the zones
+    // Kick off the turn
+    driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
+    delay(250);
+    pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
     //
     // */
     //
     //
     // /*
     //
-    runMogoSync(-127, 500);       // Drop off mogo and cone
-    driveRaw(100, 100, 100, 100); // Push in mogo
-    delay(200);
+    driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
+    delay(700);
+    // driveRaw(60, 60, 100, 100); // Swerve into line with 10pt zone
+    // delay(400);
     driveRaw(0, 0, 0, 0);
+    runMogoSync(127, 1200); // Extake the mogo
     delay(100);
-    driveRaw(-127, -127, -127, -127); // Back off
-    delay(500);
-    driveRaw(0, 0, 0, 0);
+    driveRaw(-80, -80, -80, -80); // Cack out after scoring
+    delay(300);
+    driveRaw(0, 0, 0, 0); // Stop the robot
+    // delay(200);
+    /// driveRaw(-127, -127, -127, -127); // Back out of the zone
+    // delay(800);
+    // driveRaw(0, 0, 0, 0);
     //
     // */
-    //
-    break;
+  } break;
 
   // Programming Skills
   case 7:
@@ -551,7 +565,153 @@ void autonomous() {
     //
     // */
   } break;
+  // 10 point single cone
+  case 11: {
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    motorSet(MOTOR_CLAW, -127); // Intake Preload
+    runLiftAsync(300, true);    // Raise the lift
+    runMogoAsync(127, 1075);    // Put out the mogo intake
+    delay(200);
+    pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
+    delay(100);
+    motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
+    waitForDriveStraight();
+    int tickDiff = encoderGet(getEncoderBR());
+    driveRaw(60, 60, 60, 60);
+    delay(50);
+    runMogoAsync(-127, 1075); // Intake Mogo
+    delay(150);
+    driveRaw(0, 0, 0, 0);
+    tickDiff -= encoderGet(getEncoderBR());
+    waitForMogoAsync();
+    if (abs(gyroGet(getGyro())) <= 5 && abs(gyroGet(getGyro())) >= 3) {
+      if ((gyroGet(getGyro()) > 0)) {
+        driveRaw(60 * sideMult, 60 * sideMult, -60 * sideMult, -60 * sideMult);
+      } else {
+        driveRaw(-60 * sideMult, -60 * sideMult, 60 * sideMult, 60 * sideMult);
+      }
+      delay(50);
+      driveRaw(0, 0, 0, 0);
+    }
 
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    runLiftSync(50, true);     // Lower the lift
+    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    delay(100);
+    runLiftSync(200, true);  // Raise the lift
+    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
+                       true); // Approach the zones
+    // Kick off the turn
+    driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
+    delay(250);
+    pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
+    delay(700);
+    // driveRaw(60, 60, 100, 100); // Swerve into line with 10pt zone
+    // delay(400);
+    driveRaw(0, 0, 0, 0);
+    runMogoSync(127, 1200); // Extake the mogo
+    delay(100);
+    driveRaw(-80, -80, -80, -80); // Cack out after scoring
+    delay(300);
+    driveRaw(0, 0, 0, 0); // Stop the robot
+    // delay(200);
+    /// driveRaw(-127, -127, -127, -127); // Back out of the zone
+    // delay(800);
+    // driveRaw(0, 0, 0, 0);
+    //
+    // */
+  } break;
+  // 5 pt single cone
+  case 12: {
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    motorSet(MOTOR_CLAW, -127); // Intake Preload
+    runLiftAsync(300, true);    // Raise the lift
+    runMogoAsync(127, 1075);    // Put out the mogo intake
+    delay(200);
+    pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
+    delay(100);
+    motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
+    waitForDriveStraight();
+    int tickDiff = encoderGet(getEncoderBR());
+    driveRaw(60, 60, 60, 60);
+    delay(50);
+    runMogoAsync(-127, 1075); // Intake Mogo
+    delay(150);
+    driveRaw(0, 0, 0, 0);
+    tickDiff -= encoderGet(getEncoderBR());
+    waitForMogoAsync();
+    if (abs(gyroGet(getGyro())) <= 5 && abs(gyroGet(getGyro())) >= 3) {
+      if ((gyroGet(getGyro()) > 0)) {
+        driveRaw(60 * sideMult, 60 * sideMult, -60 * sideMult, -60 * sideMult);
+      } else {
+        driveRaw(-60 * sideMult, -60 * sideMult, 60 * sideMult, 60 * sideMult);
+      }
+      delay(50);
+      driveRaw(0, 0, 0, 0);
+    }
+
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    runLiftSync(50, true);     // Lower the lift
+    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    delay(100);
+    runLiftSync(200, true);  // Raise the lift
+    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
+                       true); // Approach the zones
+    // Kick off the turn
+    driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
+    delay(250);
+    pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    runMogoSync(127, 1200); // Extake the mogo
+    delay(100);
+    driveRaw(-80, -80, -80, -80); // Cack out after scoring
+    delay(300);
+    driveRaw(0, 0, 0, 0); // Stop the robot
+    // delay(200);
+    /// driveRaw(-127, -127, -127, -127); // Back out of the zone
+    // delay(800);
+    // driveRaw(0, 0, 0, 0);
+    //
+    // */
+  } break;
   default:
     print("Ran auton that wasn't given a case!");
   }

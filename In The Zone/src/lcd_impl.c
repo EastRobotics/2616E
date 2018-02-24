@@ -36,7 +36,13 @@ void implUpdateLCD(bool userCaused, int page) {
       autonName = "Custom";
       break;
     case 10:
-      autonName = "20pt - 1 cone";
+      autonName = "20pt 1 cone";
+      break;
+    case 11:
+      autonName = "10pt 1 cone";
+      break;
+    case 12:
+      autonName = "5pt 1 cone";
       break;
     default: { // Unknown mode
       char temp[17];
