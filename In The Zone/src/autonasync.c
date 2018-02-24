@@ -93,9 +93,11 @@ void pLoopTurnPointSync(int angle) { pLoopTurnPoint(angle); }
 // Lift Action
 
 bool liftDone = true;
+const int liftBreakout = 2000;
 
 void liftAction(void *param) {
-  while (!isLiftReady()) {
+  int iterations = 0;
+  while (!isLiftReady() || (iterations++ > (liftBreakout / 10))) {
     setLiftSpeed(pLoopDetermineLiftSpeed());
     delay(10);
   }

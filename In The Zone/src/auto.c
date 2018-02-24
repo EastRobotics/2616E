@@ -109,13 +109,14 @@ void autonomous() {
     //
     // /*
     //
-    pLoopDriveStraight((-1280 * 2) + tickDiff, false,
+    pLoopDriveStraight((-1300 * 2) + tickDiff, false,
                        true); // Approach the zones
     // Kick off the turn
     driveRaw(-127 * sideMult, -127 * sideMult, 127 * sideMult, 127 * sideMult);
     delay(250);
     pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
-    driveRaw(0, 0, 0, 0);
+    driveRaw(-127, -127, -127, -127);                   // kick the movment
+    delay(75);
     pLoopDriveStraight(-380 * 2, false, true);           // Line up with cones
     pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Line up with cones
     runIntakeAsync(3550);
@@ -123,6 +124,8 @@ void autonomous() {
     motorSet(MOTOR_CLAW, -127); // Intake cones
     delay(200);
     // tickDiff = encoderGet(getEncoderBR());
+    driveRaw(-127, -127, -127, -127);
+    delay(150);                             // Kick the motion
     pLoopDriveStraight(-820, false, false); // Go for cone
     delay(200);
     motorSet(MOTOR_CLAW, -20); // Hold cones
@@ -130,9 +133,13 @@ void autonomous() {
     runIntakeAsync(2000);
     // tickDiff -= encoderGet(getEncoderBR());
     // pLoopDriveStraight(tickDiff, false, false);
+    driveRaw(127, 127, 127, 127); // Kick the motion
+    delay(150);
     pLoopDriveStraight(960, false, false);              // Go back
-    pLoopTurnPoint(60 * (getAutonPosition() ? 1 : -1)); // Turn back
-    pLoopDriveStraight(-425 * 2, false, true); // Line up with zone and goal
+    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn back
+    driveRaw(-127, -127, -127, -127);
+    delay(75);
+    pLoopDriveStraight(-150 * 2, false, true); // Line up with zone and goal
     pLoopTurnPoint(135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
     runIntakeSync(3550);                                 // Stack cone
     //
@@ -164,9 +171,6 @@ void autonomous() {
 
   // 20 point
   case 4: {
-    //
-    // /*
-    //
     ensureLiftTaskSuspended();
     ensureIntakeTaskSuspended();
     motorSet(MOTOR_CLAW, -127); // Intake Preload
@@ -185,13 +189,14 @@ void autonomous() {
     driveRaw(0, 0, 0, 0);
     tickDiff -= encoderGet(getEncoderBR());
     waitForMogoAsync();
+    pLoopTurnPoint(0);
     //
     // */
     //
     //
     // /*
     //
-    runLiftSync(0, true);      // Lower the lift
+    runLiftSync(50, true);     // Lower the lift
     motorSet(MOTOR_CLAW, 127); // Extake the cone
     delay(100);
     runLiftSync(150, true);  // Raise the lift
@@ -202,31 +207,35 @@ void autonomous() {
     //
     // /*
     //
-    pLoopDriveStraight((-1260 * 2) + tickDiff, false,
+    pLoopDriveStraight((-1300 * 2) + tickDiff, false,
                        true); // Approach the zones
     // Kick off the turn
     driveRaw(-127 * sideMult, -127 * sideMult, 127 * sideMult, 127 * sideMult);
     delay(250);
-    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
-    driveRaw(0, 0, 0, 0);
-    pLoopDriveStraight(-400 * 2, false, true);           // Line up with cones
+    pLoopTurnPoint(-45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
+    driveRaw(-127, -127, -127, -127);                    // kick the movment
+    delay(75);
+    pLoopDriveStraight(-380 * 2, false, true);           // Line up with cones
     pLoopTurnPoint(180 * (getAutonPosition() ? 1 : -1)); // Line up with cones
     runIntakeAsync(3550);
     runLiftSync(0, true);       // Lift down
     motorSet(MOTOR_CLAW, -127); // Intake cones
-    runLiftSync(0, true);
     delay(200);
     // tickDiff = encoderGet(getEncoderBR());
+    driveRaw(-127, -127, -127, -127);
+    delay(150);                             // Kick the motion
     pLoopDriveStraight(-820, false, false); // Go for cone
     delay(200);
     motorSet(MOTOR_CLAW, -20); // Hold cones
     runLiftAsync(100, true);
     // tickDiff -= encoderGet(getEncoderBR());
     // pLoopDriveStraight(tickDiff, false, false);
-    pLoopDriveStraight(820, false, false);              // Go back
-    pLoopTurnPoint(45 * (getAutonPosition() ? 1 : -1)); // Turn back
+    driveRaw(127, 127, 127, 127);
+    delay(100);                            // Kick start the motion
+    pLoopDriveStraight(820, false, false); // Go back
+    pLoopTurnPoint(-45 * (getAutonPosition() ? 1 : -1)); // Turn back
     pLoopDriveStraight(-450 * 2, false, true); // Line up with zone and goal
-    pLoopTurnPoint(135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
+    pLoopTurnPoint(-135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
     //
     // */
     //
@@ -466,6 +475,81 @@ void autonomous() {
     runLiftSync(300, true);
     breakpoint(); // --------------------- BREAK POINT -------------------------
     break;
+
+  case 10: {
+    ensureLiftTaskSuspended();
+    ensureIntakeTaskSuspended();
+    motorSet(MOTOR_CLAW, -127); // Intake Preload
+    runLiftAsync(300, true);    // Raise the lift
+    runMogoAsync(127, 1075);    // Put out the mogo intake
+    delay(200);
+    pLoopDriveStraightAsync(1250 * 2, false, true); // Drive to the mogo
+    delay(150);
+    motorSet(MOTOR_CLAW, -25); // Set goliath to stall speed
+    waitForDriveStraight();
+    int tickDiff = encoderGet(getEncoderBR());
+    driveRaw(60, 60, 60, 60);
+    delay(50);
+    runMogoAsync(-127, 1075); // Intake Mogo
+    delay(150);
+    driveRaw(0, 0, 0, 0);
+    tickDiff -= encoderGet(getEncoderBR());
+    waitForMogoAsync();
+    if (abs(gyroGet(getGyro())) <= 5 && abs(gyroGet(getGyro())) >= 3) {
+      if ((gyroGet(getGyro()) > 0)) {
+        driveRaw(60 * sideMult, 60 * sideMult, -60 * sideMult, -60 * sideMult);
+      } else {
+        driveRaw(-60 * sideMult, -60 * sideMult, 60 * sideMult, 60 * sideMult);
+      }
+      delay(50);
+      driveRaw(0, 0, 0, 0);
+    }
+
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    runLiftSync(50, true);     // Lower the lift
+    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    delay(100);
+    runLiftSync(200, true);  // Raise the lift
+    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
+                       true); // Approach the zones
+    // Kick off the turn
+    driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
+    delay(250);
+    pLoopTurnPoint(-45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
+    pLoopDriveStraight(-700 * 2, false, true); // Line up with zone and goal
+    pLoopTurnPoint(-135 * (getAutonPosition() ? 1 : -1)); // Turn to 20pt zone
+    //
+    // */
+    //
+    //
+    // /*
+    //
+    driveRaw(127, 127, 127, 127); // Drive crazily towards the 20pt zone
+    delay(750);
+    runMogoAsync(127, 500); // Extake the mogo
+    delay(300);
+    driveRaw(-10, -10, -10, -10); // Slam on the breaks to get rid of the mogo
+    delay(100);
+    driveRaw(0, 0, 0, 0); // Stop the robot
+    // delay(200);
+    /// driveRaw(-127, -127, -127, -127); // Back out of the zone
+    // delay(800);
+    // driveRaw(0, 0, 0, 0);
+    //
+    // */
+  } break;
 
   default:
     print("Ran auton that wasn't given a case!");
