@@ -20,7 +20,7 @@ void pLoopTurnPointRaw(int angleTarget, double p, double d, int thresh,
   int iterations = 0;
   bprintf(1, "---\r\nang:%d\r\np:%f\r\nd:%f\r\nthresh%d\r\ncount:%d\r\n",
           angleTarget, p, d, thresh, threshCount);
-  while (iterations++ < 150) { //  Was 263
+  while (iterations++ < 40) { //  Was 263
     error = angleTarget - gyroGet(getGyro());
     speed = (error * p) + ((error - lastError) * d);
     speed = (abs(speed) > 127) ? (speed < 0) ? -127 : 127 : speed;

@@ -97,7 +97,7 @@ const int liftBreakout = 2000;
 
 void liftAction(void *param) {
   int iterations = 0;
-  while (!isLiftReady() || (iterations++ > (liftBreakout / 10))) {
+  while (!isLiftReady() && (iterations++ < (liftBreakout / 10))) {
     setLiftSpeed(pLoopDetermineLiftSpeed());
     delay(10);
   }
@@ -124,9 +124,11 @@ void runLiftSync(int target, bool shouldOvershoot) {
 // Intake Action
 
 bool intakeDone = true;
+const int intakeBreakout = 1000;
 
 void intakeAction(void *param) {
-  while (!isIntakeReady()) {
+  int iterations = 0;
+  while (!isIntakeReady() && (iterations++ < (intakeBreakout / 10))) {
     setIntakeSpeed(pLoopDetermineIntakeSpeed());
     delay(10);
   }
