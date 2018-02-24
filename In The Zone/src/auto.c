@@ -412,19 +412,19 @@ void autonomous() {
     //
     // /*
     //
-    runLiftSync(50, true);     // Lower the lift
-    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    pLoopDriveStraightAsync((-1225 * 2) + tickDiff, false,
+                            true); // Approach the zones
+    runLiftSync(50, true);         // Lower the lift
+    motorSet(MOTOR_CLAW, 127);     // Extake the cone
     delay(100);
-    runLiftSync(200, true);  // Raise the lift
-    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    runLiftAsync(200, true); // Raise the lift
     //
     // */
     //
     //
     // /*
     //
-    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
-                       true); // Approach the zones
+    waitForDriveStraight();
     // Kick off the turn
     driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
     delay(250);
@@ -603,19 +603,19 @@ void autonomous() {
     //
     // /*
     //
-    runLiftSync(50, true);     // Lower the lift
-    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    pLoopDriveStraightAsync((-1225 * 2) + tickDiff, false,
+                            true); // Approach the zones
+    runLiftSync(50, true);         // Lower the lift
+    motorSet(MOTOR_CLAW, 127);     // Extake the cone
     delay(100);
-    runLiftSync(200, true);  // Raise the lift
-    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    runLiftAsync(200, true); // Raise the lift
     //
     // */
     //
     //
     // /*
     //
-    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
-                       true); // Approach the zones
+    waitForDriveStraight();
     // Kick off the turn
     driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
     delay(250);
@@ -679,19 +679,19 @@ void autonomous() {
     //
     // /*
     //
-    runLiftSync(50, true);     // Lower the lift
-    motorSet(MOTOR_CLAW, 127); // Extake the cone
+    pLoopDriveStraightAsync((-1225 * 2) + tickDiff, false,
+                            true); // Approach the zones
+    runLiftSync(50, true);         // Lower the lift
+    motorSet(MOTOR_CLAW, 127);     // Extake the cone
     delay(100);
-    runLiftSync(200, true);  // Raise the lift
-    motorSet(MOTOR_CLAW, 0); // Stop dropping the cone
+    runLiftAsync(200, true); // Raise the lift
     //
     // */
     //
     //
     // /*
     //
-    pLoopDriveStraight((-1225 * 2) + tickDiff, false,
-                       true); // Approach the zones
+    waitForDriveStraight();
     // Kick off the turn
     driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
     delay(250);
