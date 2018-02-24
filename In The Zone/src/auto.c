@@ -225,8 +225,10 @@ void autonomous() {
     pLoopTurnPoint(-45 * (getAutonPosition() ? 1 : -1)); // Turn to stat. goal
     driveRaw(0, 0, 0, 0);
     driveRaw(-127, -127, -127, -127);
-    delay(100);
-    pLoopDriveStraight(-350 * 2, false, true);            // Line up with cones
+    delay(200);
+    pLoopDriveStraight(-300 * 2, false, true); // Line up with cones
+    driveRaw(127 * sideMult, 127 * sideMult, -127 * sideMult, -127 * sideMult);
+    delay(300);
     pLoopTurnPoint(-180 * (getAutonPosition() ? 1 : -1)); // Line up with cones
     setIntakeSpeed(127);
     runLiftSync(0, true); // Lift down
@@ -236,7 +238,6 @@ void autonomous() {
     setLiftSpeed(-80);
     delay(50);
     setLiftSpeed(-10);
-    delay(200);
     // tickDiff = encoderGet(getEncoderBR());
     driveRaw(-60, -60, -60, -60);
     delay(350);
@@ -262,8 +263,11 @@ void autonomous() {
     // SPECIFIC FOR SCORING ON MOGO
     driveRaw(-127, -127, -127, -127);
     delay(50);
-    pLoopDriveStraightAsync(-300 * 2, false,
-                            true); // Line up with zone and goal
+    driveRaw(-127, -127, -127, -127);
+    delay(200);
+    driveRaw(0, 0, 0, 0);
+    // pLoopDriveStraightAsync(-300 * 2, false,
+    //                        true); // Line up with zone and goal
     motorSet(MOTOR_CLAW, 127);
     delay(100);
     runLiftAsync(200, true); // Raise lift
